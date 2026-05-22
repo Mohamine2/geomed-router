@@ -69,7 +69,7 @@ public class UserPoint {
         return "UserPoint{" +
                 "x=" + getX() +
                 ", y=" + getY() +
-                // ", closestSite=" + (closestSite != null ? closestSite.getId() : "aucun") +
+                ", closestSite=" + (closestSite != null ? closestSite.getId() : none) +
                 '}';
     }
 }
