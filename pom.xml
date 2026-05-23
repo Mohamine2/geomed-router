@@ -21,7 +21,6 @@
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
@@ -31,6 +30,7 @@
 
     <build>
         <plugins>
+            <!-- Plugin JavaFX -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -39,7 +39,16 @@
                     <mainClass>pgl.app.MainApp</mainClass>
                 </configuration>
             </plugin>
+            <!-- Plugin Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>

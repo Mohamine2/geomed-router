@@ -4,14 +4,7 @@ package pgl.app.model;
  * Represent a user point on the map.
  * A user point is attached to the closest Voronoi site.
  */
-public class UserPoint {
-
-    /** X-axis coordinate on the map. */
-    private double x;
-
-    /** Y-axis coordinate on the map. */
-    private double y;
-
+public class UserPoint extends Point{
     private Site closestSite;
 
     /**
@@ -20,25 +13,8 @@ public class UserPoint {
      * @param y Y-axis initial position
      */
     public UserPoint(double x, double y){
-        this.setX(x);
-        this.setY(y);
+        super(x, y);
         this.closestSite = null;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     public Site getClosestSite() {
@@ -53,23 +29,11 @@ public class UserPoint {
         this.closestSite = closestSite;
     }
 
-    /**
-     * Calculate the squared brut euclidian distance with another point.
-     * We use this formula to avoid Math.sqrt() because it is too slow
-     * for mass calculation (closest site research on thousand points).
-     */
-    public double distanceSquaredTo(double targetX, double targetY) {
-        double dx = this.getX() - targetX;
-        double dy = this.getY() - targetY;
-        return dx * dx + dy * dy;
-    }
-
     @Override
     public String toString() {
         return "UserPoint{" +
-                "x=" + getX() +
-                ", y=" + getY() +
-                ", closestSite=" + (closestSite != null ? closestSite.getId() : none) +
+                super.toString() +
+                ", closestSite=" + (closestSite != null ? closestSite.getId() : null) +
                 '}';
     }
 }

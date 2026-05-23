@@ -1,59 +1,33 @@
 package pgl.app.model;
 
-public class Site {
+public class Site extends Point{
 	
-	private String id;
-	private double x;
-	private double y;
-	
-	
+	private int id;
+
 	/** Creates a new site with an identifier and coordinates.
-	 * 
-	 * @param id unique identifier of the site
+	 *
 	 * @param x initial x-axis coordinate
 	 * @param y initial y_axis coordinate
+	 * @param id unique identifier of the site
 	 */
-	public Site(String id, double x, double y) {
+	public Site(double x, double y, int id) {
+		super(x, y);
 		this.setId(id);
-		this.setX(x);
-		this.setY(y);
 	}
 	
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	
-	public void setId(String id) {
-		if(id == null || id.isBlank()) {
-			throw new IllegalArgumentException("L'id du site ne peut pas être null ou vide");
+	public void setId(int id) {
+		if(id < 0) {
+			throw new IllegalArgumentException("L'id du site ne peut pas être négatif");
 		}
 		this.id = id;
 	}
 	
-	public double getX() {
-		return x;
-	}
-	
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	public double getY() {
-		return y;
-	}
-	
-	public void setY(double y) {
-		this.y = y;
-	}
-	
-	public double distanceSquaredTo(double targetX, double targetY) {
-		double dx = this.getX() - targetX;
-		double dy = this.getY() - targetY;
-		return dx * dx + dy * dy;
-	}
-	
 	@Override
 	public String toString() {
-		return "Site {" + "id =" + getId() + ", x = " + getX() + ", y = " + getY() + "}";
+		return "Site {" + "id =" + getId() + super.toString() + "}";
 	}
 }
