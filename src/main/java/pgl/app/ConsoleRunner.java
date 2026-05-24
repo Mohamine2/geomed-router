@@ -37,7 +37,7 @@ public class ConsoleRunner {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("--- Starting MVP Test: Console Mode ---");
-        testEdge();
+        testEdge(); //test temporaire testeEdge();
         
         boolean running = true;
         while (running) {
