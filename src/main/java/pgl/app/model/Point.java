@@ -3,6 +3,14 @@ package pgl.app.model;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
+/**
+ * Represents a point in a 2D Cartesian plane.
+ * <p>
+ * This class uses JavaFX {@link DoubleProperty} to store coordinates, facilitating
+ * automatic UI data binding and reactive updates in JavaFX-based applications.
+ * </p>
+ * @version 1.0
+ */
 public class Point {
     /** X-axis coordinate on the map. We use DoubleProperty to enable automatic UI binding and reactive updates. */
     private final DoubleProperty x = new SimpleDoubleProperty();

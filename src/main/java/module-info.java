@@ -7,4 +7,5 @@ module pgl.app {
     opens pgl.app.controller to javafx.fxml;
 
     exports pgl.app;
+    exports pgl.app.model;
 }

@@ -1,5 +1,10 @@
 package pgl.app.model;
 
+/**
+ * Represents a physical site on the map, extending the base {@link Point} class.
+ * Each site is identified by a unique ID, which is used for service assignment and grouping.
+ * @version 1.0
+ */
 public class Site extends Point{
 	
 	private int id;
