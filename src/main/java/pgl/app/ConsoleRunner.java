@@ -1,6 +1,7 @@
 package pgl.app;
 
 import pgl.app.model.Site;
+import pgl.app.model.Edge;
 import pgl.app.model.UserPoint;
 
 import java.util.*;
@@ -12,6 +13,21 @@ import java.util.*;
  * @version 1.0
  */
 public class ConsoleRunner {
+	
+	private static void testEdge() {
+	    System.out.println("\n--- Testing Edge ---");
+
+	    Site site1 = new Site(1.0, 2.0, 1);
+	    Site site2 = new Site(3.0, 4.0, 2);
+
+	    Edge edge1 = new Edge(site1, site2);
+	    Edge edge2 = new Edge(site2, site1);
+
+	    System.out.println("edge1 = " + edge1);
+	    System.out.println("edge2 = " + edge2);
+	    System.out.println("edge1 equals edge2: " + edge1.equals(edge2));
+	    System.out.println("same hashCode: " + (edge1.hashCode() == edge2.hashCode()));
+	}
 
     /**
      * Main entry point for the console application.
@@ -21,7 +37,8 @@ public class ConsoleRunner {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("--- Starting MVP Test: Console Mode ---");
-
+        testEdge();
+        
         boolean running = true;
         while (running) {
             System.out.println("\nSelect an option:");
