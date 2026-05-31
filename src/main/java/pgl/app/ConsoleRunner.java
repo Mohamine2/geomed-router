@@ -35,7 +35,7 @@ public class ConsoleRunner {
                 int mode = sc.nextInt();
                 switch (mode) {
                     case 1:
-                        displayStats(randomTest(sc, askNaturalNumber(sc, "How many sites (You need at least 3 sites to create a triangle) ? 1")));
+                        displayStats(randomTest(sc, askNaturalNumber(sc, "How many sites (You need at least 3 sites to create a triangle) ? ")));
                         displayTriangles(mapManager.getTriangles());
                         break;
                     case 2:
