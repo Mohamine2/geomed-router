@@ -5,14 +5,17 @@ import java.util.*;
 
 /**
  * The ConsoleRunner class serves as the command-line interface entry point for the application.
- * It provides a robust interface to test the logic (Voronoi/Delaunay related models)
+ * It provides a robust interface to test the medical dispatch logic (Voronoi/Delaunay related models)
  * without requiring the JavaFX graphical interface.
- * * @version 1.0
+ * * @version 2.0
  */
 public class ConsoleRunner {
 
-    /** MapManager instance to manage lists of UserPoints, Sites and Triangles  */
+    /** MapManager instance to manage lists of VictimIncidents, Hospitals and Triangles */
     private static final MapManager mapManager = new MapManager();
+
+    /** Sample pool of specialties for the automated test generator */
+    private static final String[] MEDICAL_SPECIALTIES = {"CARDIOLOGY", "TRAUMATOLOGY", "NEUROLOGY", "GENERAL"};
 
     /**
      * Main entry point for the console application. Handles the main menu loop.
@@ -21,13 +24,13 @@ public class ConsoleRunner {
      */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        System.out.println("--- Starting MVP Test: Console Mode ---");
+        System.out.println("--- Starting Emergency MVP Test: Console Mode ---");
 
         boolean running = true;
         while (running) {
             System.out.println("\nSelect an option:");
-            System.out.println("1. Automated Test (Random Sites & Users)");
-            System.out.println("2. Manual Test (Input Sites & Users)");
+            System.out.println("1. Automated Test (Random Hospitals & Incidents)");
+            System.out.println("2. Manual Test (Input Hospitals & Incidents)");
             System.out.println("3. Exit");
             System.out.print("Choice: ");
 
@@ -35,11 +38,13 @@ public class ConsoleRunner {
                 int mode = sc.nextInt();
                 switch (mode) {
                     case 1:
-                        displayStats(randomTest(sc, askNaturalNumber(sc, "How many sites (You need at least 3 sites to create a triangle) ? ")));
+                        int randSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
+                        displayStats(randomTest(sc, randSites));
                         displayTriangles(mapManager.getTriangles());
                         break;
                     case 2:
-                        displayStats(manualTest(sc, askNaturalNumber(sc, "How many sites (You need at least 3 sites to create a triangle) ? ")));
+                        int manualSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
+                        displayStats(manualTest(sc, manualSites));
                         displayTriangles(mapManager.getTriangles());
                         break;
                     case 3:
@@ -51,7 +56,7 @@ public class ConsoleRunner {
                 }
             } else {
                 System.out.println("Error: Please enter a valid number.");
-                sc.next();
+                sc.next(); // Clear invalid input from the buffer
             }
         }
         sc.close();
@@ -59,79 +64,108 @@ public class ConsoleRunner {
     }
 
     /**
-     * Performs an automated test by generating random sites and random user points.
+     * Performs an automated test by generating random hospitals and victim incidents.
      *
-     * @param sc       The Scanner object for input.
-     * @param nbSites  The number of sites to generate.
-     * @return A Map mapping each Site ID to its total number of assigned users.
+     * @param sc         The Scanner object for input.
+     * @param nbHospitals The number of hospitals to generate.
+     * @return A Map mapping each Hospital ID to its total number of assigned incidents.
      */
-    public static Map<Integer, Integer> randomTest(Scanner sc, int nbSites) {
+    public static Map<Integer, Integer> randomTest(Scanner sc, int nbHospitals) {
         Random rand = new Random();
-
         mapManager.clear();
 
-        System.out.println("\n--- Generating " + nbSites + " random sites ---");
-        for (int i = 0; i < nbSites; i++) {
-            mapManager.addSite(new Site(rand.nextInt(201) - 100, rand.nextInt(201) - 100, i + 1));
+        System.out.println("\n--- Generating " + nbHospitals + " random hospitals ---");
+        for (int i = 0; i < nbHospitals; i++) {
+            // Capacity between 10 and 100 to avoid zero/negative capacity exceptions
+            int capacity = rand.nextInt(91) + 10;
+            Hospital h = new Hospital(rand.nextInt(201) - 100, rand.nextInt(201) - 100, i + 1, capacity);
+
+            // Give each hospital 1 to 2 random specialties
+            h.addSpecialty(MEDICAL_SPECIALTIES[rand.nextInt(MEDICAL_SPECIALTIES.length)]);
+            h.addSpecialty("GENERAL");
+
+            mapManager.addHospital(h);
         }
 
-        int nbUsers = askNaturalNumber(sc, "How many users ? ");
-        System.out.println("\n--- Generating " + nbUsers + " random users ---");
+        int nbIncidents = askNaturalNumber(sc, "How many victim incidents? ");
+        System.out.println("\n--- Generating " + nbIncidents + " random incidents ---");
 
-        for (int i = 0; i < nbUsers; i++) {
-            mapManager.addUserPoint(new UserPoint(rand.nextInt(201) - 100, rand.nextInt(201) - 100));
+        for (int i = 0; i < nbIncidents; i++) {
+            String incidentId = "INC-R-" + String.format("%03d", i + 1);
+            String emergencyType = MEDICAL_SPECIALTIES[rand.nextInt(MEDICAL_SPECIALTIES.length)];
+
+            mapManager.addIncident(new VictimIncident(
+                    rand.nextInt(201) - 100,
+                    rand.nextInt(201) - 100,
+                    incidentId,
+                    emergencyType
+            ));
         }
 
-        return statistics(mapManager.getUserPoints(), mapManager.getSites());
+        return statistics(mapManager.getIncidents(), mapManager.getSites());
     }
 
     /**
-     * Performs a manual test by prompting the user for site and user coordinates.
+     * Performs a manual test by prompting the user for hospital and incident parameters.
      *
-     * @param sc       The Scanner object for input.
-     * @param sitesNb  The number of sites to define.
-     * @return A Map mapping each Site ID to its total number of assigned users.
+     * @param sc        The Scanner object for input.
+     * @param hospitalNb The number of hospitals to define.
+     * @return A Map mapping each Hospital ID to its total number of assigned incidents.
      */
-    public static Map<Integer, Integer> manualTest(Scanner sc, int sitesNb) {
+    public static Map<Integer, Integer> manualTest(Scanner sc, int hospitalNb) {
         mapManager.clear();
 
-        System.out.println("\n--- Manual entry for " + sitesNb + " sites ---");
-        for (int i = 0; i < sitesNb; i++) {
-            System.out.println("Site #" + (i + 1) + ":");
-            mapManager.addSite(new Site(askInt(sc, "Enter X: "), askInt(sc, "Enter Y: "), i + 1));
+        System.out.println("\n--- Manual entry for " + hospitalNb + " hospitals ---");
+        for (int i = 0; i < hospitalNb; i++) {
+            System.out.println("Hospital #" + (i + 1) + ":");
+            int x = askInt(sc, "  Enter X: ");
+            int y = askInt(sc, "  Enter Y: ");
+            int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
+
+            Hospital h = new Hospital(x, y, i + 1, cap);
+            System.out.print("  Enter primary specialty (CARDIOLOGY, TRAUMATOLOGY, GENERAL): ");
+            String spec = sc.next();
+            h.addSpecialty(spec);
+
+            mapManager.addHospital(h);
         }
 
-        int nbUsers = askNaturalNumber(sc, "How many users ? ");
-        System.out.println("\n--- Manual entry for " + nbUsers + " users ---");
+        int nbIncidents = askNaturalNumber(sc, "How many victim incidents? ");
+        System.out.println("\n--- Manual entry for " + nbIncidents + " incidents ---");
 
-        for (int i = 0; i < nbUsers; i++) {
-            System.out.println("USER " + (i + 1) + ":");
-            mapManager.addUserPoint(new UserPoint(askInt(sc, "Enter User X: "), askInt(sc, "Enter User Y: ")));
+        for (int i = 0; i < nbIncidents; i++) {
+            System.out.println("Incident " + (i + 1) + ":");
+            int ux = askInt(sc, "  Enter Incident X: ");
+            int uy = askInt(sc, "  Enter Incident Y: ");
+            System.out.print("  Enter Emergency Type (e.g. CARDIOLOGY): ");
+            String emType = sc.next();
+
+            String incidentId = "INC-M-" + String.format("%03d", i + 1);
+            mapManager.addIncident(new VictimIncident(ux, uy, incidentId, emType));
         }
 
-        return statistics(mapManager.getUserPoints(), mapManager.getSites());
+        return statistics(mapManager.getIncidents(), mapManager.getSites());
     }
 
     /**
-     * Calculates and returns a summary of user assignments per site.
+     * Calculates and returns a summary of incident assignments per hospital.
      *
-     * @param users The list of users to analyze.
-     * @param sites The list of all available sites.
-     * @return A Map where the key is the Site ID and the value is the count of users assigned to it.
+     * @param incidents The list of victim incidents to analyze.
+     * @param sites     The list of all available sites (hospitals).
+     * @return A Map where the key is the Hospital ID and the value is the count of incidents.
      */
-    public static Map<Integer, Integer> statistics(List<UserPoint> users, List<Site> sites) {
-        // Map to store: Site ID -> Count of users
+    public static Map<Integer, Integer> statistics(List<VictimIncident> incidents, List<Site> sites) {
         Map<Integer, Integer> stats = new HashMap<>();
 
-        // Initialize map with 0 for all sites
+        // Initialize map with 0 for all hospitals
         for (Site s : sites) {
             stats.put(s.getId(), 0);
         }
 
         // Count assignments
-        for (UserPoint u : users) {
-            if (u.getClosestSite() != null) {
-                int siteId = u.getClosestSite().getId();
+        for (VictimIncident idx : incidents) {
+            if (idx.getClosestSite() != null) {
+                int siteId = idx.getClosestSite().getId();
                 stats.put(siteId, stats.getOrDefault(siteId, 0) + 1);
             }
         }
@@ -142,39 +176,12 @@ public class ConsoleRunner {
     /**
      * Displays the statistics report in the console.
      *
-     * @param stats The map containing assignments count per site ID.
+     * @param stats The map containing assignments count per hospital ID.
      */
     public static void displayStats(Map<Integer, Integer> stats) {
-        System.out.println("\n--- Assignment Statistics ---");
-        stats.forEach((siteId, count) ->
-                System.out.println("Site ID " + siteId + " : " + count + " user(s)"));
-    }
-
-    /**
-     * Simple internal test to instantiate and print edges between the first two sites.
-     *
-     * @param sites The list of available sites.
-     */
-    private static void testEdge(List<Site> sites) {
-        Site s1 = sites.get(0);
-        Site s2 = sites.get(1);
-
-        Edge edge1 = new Edge(s1, s2);
-        Edge edge2 = new Edge(s2, s1);
-
-        displayEdges(edge1, edge2);
-    }
-
-    /**
-     * Displays the given edges in the console.
-     *
-     * @param e1 The first edge to display.
-     * @param e2 The second edge to display.
-     */
-    public static void displayEdges(Edge e1, Edge e2) {
-        System.out.println("\n--- Testing Edge ---");
-        System.out.println("edge1 = " + e1);
-        System.out.println("edge2 = " + e2);
+        System.out.println("\n--- Incident Dispatch Statistics ---");
+        stats.forEach((hospitalId, count) ->
+                System.out.println("Hospital ID " + hospitalId + " : " + count + " active emergency case(s)"));
     }
 
     /**
@@ -198,10 +205,6 @@ public class ConsoleRunner {
 
     /**
      * Helper method to robustly ask for a natural number.
-     *
-     * @param sc  The Scanner object.
-     * @param msg The message prompt to display.
-     * @return A valid integer strictly greater than 0.
      */
     public static int askNaturalNumber(Scanner sc, String msg) {
         while (true) {
@@ -213,11 +216,6 @@ public class ConsoleRunner {
 
     /**
      * Helper method to robustly request an integer from the user.
-     * Prevents crashes on non-integer inputs.
-     *
-     * @param sc      The Scanner object.
-     * @param message The prompt message to display.
-     * @return A valid integer.
      */
     private static int askInt(Scanner sc, String message) {
         while (true) {

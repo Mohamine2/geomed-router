@@ -5,10 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pgl.app.model.Edge;
-import pgl.app.model.Point;
-import pgl.app.model.Site;
-import pgl.app.model.Triangle;
+import pgl.app.model.*;
 
 /**
  * Engine responsible for generating a 2D Delaunay Triangulation from a set of points.
@@ -21,34 +18,34 @@ import pgl.app.model.Triangle;
 public class DelaunayEngine {
 
 	/**
-	 * Computes the Delaunay Triangulation for a given list of sites (points).
+	 * Computes the Delaunay Triangulation for a given list of hospitals (points).
 	 * * <p><b>Algorithm steps:</b></p>
 	 * <ol>
-	 * <li>Create a large "super-triangle" that encompasses all input sites.</li>
+	 * <li>Create a large "super-triangle" that encompasses all input hospitals.</li>
 	 * <li>Sequentially insert each site, invalidating triangles whose circumcircle contains the site.</li>
 	 * <li>Extract the outer boundary (hole) formed by the edges of these invalid triangles.</li>
 	 * <li>Create new triangles connecting the new site to the edges of the boundary.</li>
 	 * <li>Remove any triangles that share vertices with the initial super-triangle.</li>
 	 * </ol>
-	 * * @param sites the list of points to triangulate.
+	 * * @param hospitals the list of points to triangulate.
 	 * @return a {@link List} of {@link Triangle} objects representing the triangulation. 
-	 * Returns an empty list if there are fewer than 3 sites.
-	 * @throws IllegalArgumentException if the {@code sites} list is {@code null}.
+	 * Returns an empty list if there are fewer than 3 hospitals.
+	 * @throws IllegalArgumentException if the {@code hospitals} list is {@code null}.
 	 */
-	public List<Triangle> triangulate(List<Site> sites){
-		if(sites == null) {
-			throw new IllegalArgumentException("La liste des sites ne peut pas être nulle.");
+	public List<Triangle> triangulate(List<Hospital> hospitals){
+		if(hospitals == null) {
+			throw new IllegalArgumentException("La liste des hospitals ne peut pas être nulle.");
 		}
 		
 		List<Triangle> triangles = new ArrayList<>();
-		if(sites.size() < 3) {
+		if(hospitals.size() < 3) {
 			return triangles;
 		}
 		
-		Triangle superTriangle = createSuperTriangle(sites);
+		Triangle superTriangle = createSuperTriangle(hospitals);
 		triangles.add(superTriangle);
 		
-		for(Site site : sites) {
+		for(Site site : hospitals) {
 			List<Triangle> badTriangles = findBadTriangles(site, triangles);
 			List<Edge> polygon = extractPolygon(badTriangles);
 			
@@ -69,7 +66,7 @@ public class DelaunayEngine {
 	 * * @param sites the list of input sites used to calculate the bounding box.
 	 * @return a {@link Triangle} surrounding all input sites.
 	 */
-	private Triangle createSuperTriangle(List<Site> sites) {
+	private Triangle createSuperTriangle(List<Hospital> sites) {
 		double minX = sites.get(0).getX();
 		double minY = sites.get(0).getY();
 		double maxX = sites.get(0).getX();

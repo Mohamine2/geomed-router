@@ -13,8 +13,8 @@ import pgl.app.algo.DelaunayEngine;
  */
 public class MapManager {
 
-    private final List<Site> sites;
-    private final List<UserPoint> userPoints;
+    private final List<Hospital> hospitals;
+    private final List<VictimIncident> incidents;
     private final List<Triangle> triangles;
     private final DelaunayEngine engine = new DelaunayEngine();
 
@@ -22,28 +22,28 @@ public class MapManager {
      * Constructs a new MapManager with initialized empty lists for sites, user points, and triangles.
      */
     public MapManager() {
-        this.sites = new ArrayList<>();
-        this.userPoints = new ArrayList<>();
+        this.hospitals = new ArrayList<>();
+        this.incidents = new ArrayList<>();
         this.triangles = new ArrayList<>();
     }
 
     /**
      * Adds a reference site to the map and updates the entire map structure.
      *
-     * @param site the site to be added
+     * @param hospital the hospital to be added
      */
-    public void addSite(Site site) {
-        this.sites.add(site);
+    public void addHospital(Hospital hospital) {
+        this.hospitals.add(hospital);
         this.updateAll(); 
     }
 
     /**
      * Removes a reference site from the map and updates the entire map structure.
      *
-     * @param site the site to be removed
+     * @param hospital the hospital to be removed
      */
-    public void removeSite(Site site) {
-        this.sites.remove(site);
+    public void removeHospital(Hospital hospital) {
+        this.hospitals.remove(hospital);
         this.updateAll();
     }
 
@@ -51,20 +51,20 @@ public class MapManager {
      * Adds a user point to the map and immediately assigns it to its closest site.
      * This operation does not trigger a full triangulation recalculation.
      *
-     * @param user the user point to be added
+     * @param incident the user point to be added
      */
-    public void addUserPoint(UserPoint user) {
-        this.userPoints.add(user);
-        this.updateSingleUserAssignment(user); 
+    public void addIncident(VictimIncident incident) {
+        this.incidents.add(incident);
+        this.updateSingleUserAssignment(incident);
     }
 
     /**
      * Removes a user point from the map.
      *
-     * @param user the user point to be removed
+     * @param incident the user point to be removed
      */
-    public void removeUserPoint(UserPoint user) {
-        this.userPoints.remove(user);
+    public void removeIncident(VictimIncident incident) {
+        this.incidents.remove(incident);
     }
 
     /**
@@ -83,11 +83,11 @@ public class MapManager {
     private void updateTriangulation() {
         this.triangles.clear();
         
-        if (this.sites.size() < 3) {
+        if (this.hospitals.size() < 3) {
             return; 
         }
 
-        this.triangles.addAll(this.engine.triangulate(this.sites));
+        this.triangles.addAll(this.engine.triangulate(this.hospitals));
         System.out.println("[MapManager] Triangulation updated.");
     }
 
@@ -95,34 +95,34 @@ public class MapManager {
      * Recalculates and updates the closest site for all registered user points.
      */
     private void updateAllUserAssignments() {
-        if (this.sites.isEmpty()) return;
-        for (UserPoint user : this.userPoints) {
-            this.updateSingleUserAssignment(user);
+        if (this.hospitals.isEmpty()) return;
+        for (VictimIncident incident : this.incidents) {
+            this.updateSingleUserAssignment(incident);
         }
     }
 
     /**
      * Calculates and assigns the closest site for a specific user point based on squared distance.
      *
-     * @param user the user point to update
+     * @param incident the user point to update
      */
-    private void updateSingleUserAssignment(UserPoint user) {
-        if (this.sites.isEmpty()) {
-            user.setClosestSite(null);
+    private void updateSingleUserAssignment(VictimIncident incident) {
+        if (this.hospitals.isEmpty()) {
+            incident.setClosestSite(null);
             return;
         }
 
         Site closest = null;
         double minDistance = Double.MAX_VALUE;
 
-        for (Site site : this.sites) {
-            double dist = user.distanceSquaredTo(site.getX(), site.getY());
+        for (Site site : this.hospitals) {
+            double dist = incident.distanceSquaredTo(site.getX(), site.getY());
             if (dist < minDistance) {
                 minDistance = dist;
                 closest = site;
             }
         }
-        user.setClosestSite(closest);
+        incident.setClosestSite(closest);
     }
 
     /**
@@ -131,7 +131,7 @@ public class MapManager {
      * @return an unmodifiable list of sites
      */
     public List<Site> getSites() { 
-        return Collections.unmodifiableList(this.sites); 
+        return Collections.unmodifiableList(this.hospitals);
     }
 
     /**
@@ -139,8 +139,8 @@ public class MapManager {
      *
      * @return an unmodifiable list of user points
      */
-    public List<UserPoint> getUserPoints() { 
-        return Collections.unmodifiableList(this.userPoints); 
+    public List<VictimIncident> getIncidents() {
+        return Collections.unmodifiableList(this.incidents);
     }
 
     /**
@@ -156,8 +156,41 @@ public class MapManager {
      * Clears all sites, user points, and triangles from the manager.
      */
     public void clear() {
-        this.sites.clear();
-        this.userPoints.clear();
+        this.hospitals.clear();
+        this.incidents.clear();
         this.triangles.clear();
+    }
+
+    public List<Point> getVoronoiVertices() {
+        List<Point> voronoiVertices = new ArrayList<>();
+        for (Triangle t : this.triangles) {
+            voronoiVertices.add(t.getCircumcenter());
+        }
+        return voronoiVertices;
+    }
+
+    public List<Hospital> getVoronoiNeighbors(Hospital hospital) {
+        List<Hospital> neighbors = new ArrayList<>();
+
+        // Deux hôpitaux sont voisins dans Voronoi s'ils partagent une arête dans Delaunay
+        for (Triangle t : this.triangles) {
+            if (t.getA().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) t.getB());
+                addWithoutDuplicate(neighbors, (Hospital) t.getC());
+            } else if (t.getB().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) t.getA());
+                addWithoutDuplicate(neighbors, (Hospital) t.getC());
+            } else if (t.getC().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) t.getA());
+                addWithoutDuplicate(neighbors, (Hospital) t.getB());
+            }
+        }
+        return neighbors;
+    }
+
+    private void addWithoutDuplicate(List<Hospital> list, Hospital h) {
+        if (!list.contains(h)) {
+            list.add(h);
+        }
     }
 }

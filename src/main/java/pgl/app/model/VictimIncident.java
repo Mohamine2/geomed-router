@@ -9,6 +9,8 @@ package pgl.app.model;
  */
 public class VictimIncident extends Point {
 
+    private Site closestSite;
+
     /** The unique identifier of the incident/call (e.g., "INC-2026-001"). */
     private final String incidentId;
     
@@ -42,8 +44,9 @@ public class VictimIncident extends Point {
         } else {
             this.emergencyType = "GENERAL";
         }
-        
-        this.preferredHospitalId = preferredHospitalId;
+
+        this.closestSite = null;
+        this.preferredHospitalId = null;
     }
 
     /**
@@ -94,5 +97,25 @@ public class VictimIncident extends Point {
      */
     public Integer getPreferredHospitalId() {
         return preferredHospitalId;
+    }
+
+    public Site getClosestSite() {
+        return closestSite;
+    }
+
+    /**
+     * Associate the user point to the closest site.
+     * @param closestSite The closest Voronoi site
+     */
+    public void setClosestSite(Site closestSite) {
+        this.closestSite = closestSite;
+    }
+
+    @Override
+    public String toString() {
+        return "UserPoint{" +
+                super.toString() +
+                ", closestSite=" + (closestSite != null ? closestSite.getId() : null) +
+                '}';
     }
 }
