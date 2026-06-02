@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import pgl.app.algo.DelaunayEngine;
+import pgl.app.algo.GeometryUtils;
 
 /**
  * Manages and orchestrates map data.
@@ -161,36 +162,60 @@ public class MapManager {
         this.triangles.clear();
     }
 
-    public List<Point> getVoronoiVertices() {
-        List<Point> voronoiVertices = new ArrayList<>();
-        for (Triangle t : this.triangles) {
-            voronoiVertices.add(t.getCircumcenter());
-        }
-        return voronoiVertices;
-    }
+    /**
+     * Computes the vertices of a hospital's Voronoi cell and sorts them in circular order.
+     * <p>
+     * This method identifies the cell vertices by collecting the circumcenters of all
+     * triangles that share the specified hospital as a Delaunay site. The collected
+     * vertices are then sorted counter-clockwise using a polar angle comparison
+     * relative to the hospital's coordinates.
+     * </p>
+     *
+     * @param hospital the hospital site for which the Voronoi cell is computed
+     * @return a {@link List} of {@link Point} vertices forming the bounding polygon
+     * of the cell, ordered counter-clockwise
+     */
+    private List<Point> computeVoronoiCellVertices(Hospital hospital) {
+        List<Point> cellVertices = new ArrayList<>();
 
-    public List<Hospital> getVoronoiNeighbors(Hospital hospital) {
-        List<Hospital> neighbors = new ArrayList<>();
-
-        // Deux hôpitaux sont voisins dans Voronoi s'ils partagent une arête dans Delaunay
+        // 1. Collect the circumcenters of triangles that have the hospital as one of their vertices
         for (Triangle t : this.triangles) {
-            if (t.getA().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getB());
-                addWithoutDuplicate(neighbors, (Hospital) t.getC());
-            } else if (t.getB().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getA());
-                addWithoutDuplicate(neighbors, (Hospital) t.getC());
-            } else if (t.getC().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getA());
-                addWithoutDuplicate(neighbors, (Hospital) t.getB());
+            if (t.getA().equals(hospital) || t.getB().equals(hospital) || t.getC().equals(hospital)) {
+                cellVertices.add(t.getCircumcenter());
             }
         }
-        return neighbors;
+
+        // 2. Polar (circular) sort around the hospital's coordinates
+        cellVertices.sort((p1, p2) -> {
+            double angle1 = Math.atan2(p1.getY() - hospital.getY(), p1.getX() - hospital.getX());
+            double angle2 = Math.atan2(p2.getY() - hospital.getY(), p2.getX() - hospital.getX());
+            return Double.compare(angle1, angle2);
+        });
+
+        return cellVertices;
     }
 
-    private void addWithoutDuplicate(List<Hospital> list, Hospital h) {
-        if (!list.contains(h)) {
-            list.add(h);
+    /**
+     * Generates all closed Voronoi cells on the map.
+     * <p>
+     * This method iterates through all registered hospital sites, computes their
+     * respective boundary vertices, and filters out incomplete cells (those with
+     * fewer than 3 vertices, which cannot form a valid polygon).
+     * </p>
+     *
+     * @return a {@link List} of valid, closed {@link VoronoiCell} objects representing
+     * the map regions
+     */
+    public List<VoronoiCell> getVoronoiCells() {
+        List<VoronoiCell> cells = new ArrayList<>();
+        for (Hospital hospital : this.hospitals) {
+            List<Point> vertices = computeVoronoiCellVertices(hospital);
+
+            // A valid cell must have at least 3 vertices to form a polygon
+            if (vertices.size() >= 3) {
+                cells.add(new VoronoiCell(hospital, vertices));
+            }
         }
+        return cells;
     }
 }
