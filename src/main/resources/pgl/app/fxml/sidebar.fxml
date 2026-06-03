@@ -46,6 +46,35 @@
                         onAction="#handleClear" />
 
                 <Separator />
+                <Separator />
+
+				<Label text="Map statistics"
+       			style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+				<Label fx:id="hospitalCountLabel"
+       			text="Hospitals: 0" />
+
+				<Label fx:id="incidentCountLabel"
+       			text="Incidents: 0" />
+
+				<Label fx:id="triangleCountLabel"
+       			text="Triangles: 0" />
+
+				<Separator />
+
+				<Label fx:id="infoLabel"
+       			text="No action yet."
+       			wrapText="true"
+       			style="-fx-font-size: 13px;" />
+       			
+       			<Label text="Last assignment"
+       			style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+				<Label fx:id="lastIncidentLabel"
+       			text="Last incident: none" />
+
+				<Label fx:id="assignedHospitalLabel"
+       			text="Assigned hospital: none" />
 
                 <Label fx:id="infoLabel"
                        text="No action yet."

@@ -13,14 +13,60 @@ public class SidebarController {
 
     @FXML
     private Label infoLabel;
+    
+    @FXML
+    private Label hospitalCountLabel;
+
+    @FXML
+    private Label incidentCountLabel;
+
+    @FXML
+    private Label triangleCountLabel;
+    
+    @FXML
+    private Label lastIncidentLabel;
+
+    @FXML
+    private Label assignedHospitalLabel;
 
     private final Random random = new Random();
 
     private MapManager mapManager;
     private MapController mapController;
+    
+    private void updateStats() {
+        if (mapManager == null) {
+            return;
+        }
+
+        hospitalCountLabel.setText("Hospitals: " + mapManager.getSites().size());
+        incidentCountLabel.setText("Incidents: " + mapManager.getIncidents().size());
+        triangleCountLabel.setText("Triangles: " + mapManager.getTriangles().size());
+    }
+    
+    private void updateLastAssignment() {
+        if (mapManager == null || mapManager.getIncidents().isEmpty()) {
+            lastIncidentLabel.setText("Last incident: none");
+            assignedHospitalLabel.setText("Assigned hospital: none");
+            return;
+        }
+
+        VictimIncident lastIncident = mapManager.getIncidents()
+                .get(mapManager.getIncidents().size() - 1);
+
+        lastIncidentLabel.setText("Last incident: " + lastIncident.getIncidentId());
+
+        if (lastIncident.getClosestSite() != null) {
+            assignedHospitalLabel.setText("Assigned hospital: H" + lastIncident.getClosestSite().getId());
+        } else {
+            assignedHospitalLabel.setText("Assigned hospital: none");
+        }
+    }
 
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
+        updateStats();
+        updateLastAssignment();
     }
 
     public void setMapController(MapController mapController) {
@@ -30,6 +76,7 @@ public class SidebarController {
     @FXML
     public void initialize() {
         System.out.println("SidebarController initialized.");
+        updateStats();
     }
 
     @FXML
@@ -46,6 +93,9 @@ public class SidebarController {
         mapManager.addHospital(new Hospital(x, y, id, 100));
         mapController.refreshMap();
         infoLabel.setText("Hospital added: " + id);
+        
+        updateStats();
+        updateLastAssignment();
     }
 
     @FXML
@@ -63,6 +113,9 @@ public class SidebarController {
         mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL));
         mapController.refreshMap();
         infoLabel.setText("Incident added.");
+        
+        updateStats();
+        updateLastAssignment();
     }
 
     @FXML
@@ -74,6 +127,9 @@ public class SidebarController {
         mapManager.updateAll();
         mapController.refreshMap();
         infoLabel.setText("Triangulation recomputed.");
+        
+        updateStats();
+        updateLastAssignment();
     }
 
     @FXML
@@ -85,5 +141,8 @@ public class SidebarController {
         mapManager.clear();
         mapController.clearMap();
         infoLabel.setText("Map cleared.");
+        
+        updateStats();
+        updateLastAssignment();
     }
 }
