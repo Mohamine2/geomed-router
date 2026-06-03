@@ -2,10 +2,11 @@ package pgl.app.model;
 
 /**
  * Represents a medical emergency incident on the map.
- * This class extends {@link Point} to inherit geometric coordinates (x, y) 
- * and encapsulates the medical context required by the routing and scoring engines 
+ * This class extends {@link Point} to inherit geometric coordinates (x, y)
+ * and encapsulates the medical context required by the routing and scoring engines
  * to determine the optimal hospital.
- * * @version 1.0
+ *
+ * @version 2.0
  */
 public class VictimIncident extends Point {
 
@@ -13,11 +14,11 @@ public class VictimIncident extends Point {
 
     /** The unique identifier of the incident/call (e.g., "INC-2026-001"). */
     private final String incidentId;
-    
-    /** The specific medical specialty required to treat the victim (e.g., "CARDIOLOGY"). */
-    private final String emergencyType;
-    
-    /** * The ID of the hospital where the patient already has a clinical history. 
+
+    /** The specific medical specialty required to treat the victim. */
+    private final MedicalSpecialty emergencyType;
+
+    /** * The ID of the hospital where the patient already has a clinical history.
      * Uses the Integer wrapper class to allow null values if no history exists.
      */
     private final Integer preferredHospitalId;
@@ -32,21 +33,16 @@ public class VictimIncident extends Point {
      * @param emergencyType       The required medical specialty.
      * @param preferredHospitalId The ID of the patient's historical hospital (can be null).
      */
-    public VictimIncident(double x, double y, String incidentId, String emergencyType, Integer preferredHospitalId) {
+    public VictimIncident(double x, double y, String incidentId, MedicalSpecialty emergencyType, Integer preferredHospitalId) {
         super(x, y); // Inherit geometric coordinates from Point
-        
+
         this.incidentId = incidentId;
-        
-        // Sanitize the emergency type: trim spaces and convert to uppercase. 
-        // Default to "GENERAL" if the input is null or empty.
-        if (emergencyType != null && !emergencyType.isBlank()) {
-            this.emergencyType = emergencyType.trim().toUpperCase();
-        } else {
-            this.emergencyType = "GENERAL";
-        }
+
+        // Safe assignment: defaults to GENERAL if null
+        this.emergencyType = (emergencyType != null) ? emergencyType : MedicalSpecialty.GENERAL;
 
         this.closestSite = null;
-        this.preferredHospitalId = null;
+        this.preferredHospitalId = preferredHospitalId;
     }
 
     /**
@@ -58,7 +54,7 @@ public class VictimIncident extends Point {
      * @param incidentId    The unique call identifier.
      * @param emergencyType The required medical specialty.
      */
-    public VictimIncident(double x, double y, String incidentId, String emergencyType) {
+    public VictimIncident(double x, double y, String incidentId, MedicalSpecialty emergencyType) {
         // Calls the full constructor, explicitly passing 'null' for the preferred hospital
         this(x, y, incidentId, emergencyType, null);
     }
@@ -75,9 +71,9 @@ public class VictimIncident extends Point {
     /**
      * Gets the specific medical emergency type required for treatment.
      *
-     * @return The sanitized emergency type (e.g., "TRAUMATOLOGY").
+     * @return The medical emergency type.
      */
-    public String getEmergencyType() {
+    public MedicalSpecialty getEmergencyType() {
         return emergencyType;
     }
 

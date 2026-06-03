@@ -14,9 +14,6 @@ public class ConsoleRunner {
     /** MapManager instance to manage lists of VictimIncidents, Hospitals and Triangles */
     private static final MapManager mapManager = new MapManager();
 
-    /** Sample pool of specialties for the automated test generator */
-    private static final String[] MEDICAL_SPECIALTIES = {"CARDIOLOGY", "TRAUMATOLOGY", "NEUROLOGY", "GENERAL"};
-
     /**
      * Main entry point for the console application. Handles the main menu loop.
      *
@@ -79,15 +76,18 @@ public class ConsoleRunner {
         Random rand = new Random();
         mapManager.clear();
 
+        MedicalSpecialty[] specialties = MedicalSpecialty.values();
+
         System.out.println("\n--- Generating " + nbHospitals + " random hospitals ---");
         for (int i = 0; i < nbHospitals; i++) {
             // Capacity between 10 and 100 to avoid zero/negative capacity exceptions
             int capacity = rand.nextInt(91) + 10;
             Hospital h = new Hospital(rand.nextInt(201) - 100, rand.nextInt(201) - 100, i + 1, capacity);
 
-            // Give each hospital 1 to 2 random specialties
-            h.addSpecialty(MEDICAL_SPECIALTIES[rand.nextInt(MEDICAL_SPECIALTIES.length)]);
-            h.addSpecialty("GENERAL");
+            // Give each hospital 2 random specialties
+            MedicalSpecialty randSpec = specialties[rand.nextInt(specialties.length)];
+            h.addSpecialty(randSpec);
+            h.addSpecialty(MedicalSpecialty.GENERAL);
 
             mapManager.addHospital(h);
         }
@@ -97,7 +97,7 @@ public class ConsoleRunner {
 
         for (int i = 0; i < nbIncidents; i++) {
             String incidentId = "INC-R-" + String.format("%03d", i + 1);
-            String emergencyType = MEDICAL_SPECIALTIES[rand.nextInt(MEDICAL_SPECIALTIES.length)];
+            MedicalSpecialty emergencyType = specialties[rand.nextInt(specialties.length)];
 
             mapManager.addIncident(new VictimIncident(
                     rand.nextInt(201) - 100,
@@ -125,8 +125,7 @@ public class ConsoleRunner {
             int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
 
             Hospital h = new Hospital(x, y, i + 1, cap);
-            System.out.print("  Enter primary specialty (CARDIOLOGY, TRAUMATOLOGY, GENERAL): ");
-            String spec = sc.next();
+            MedicalSpecialty spec = askMedicalSpecialty(sc, "  Select primary specialty:");
             h.addSpecialty(spec);
 
             mapManager.addHospital(h);
@@ -139,8 +138,8 @@ public class ConsoleRunner {
             System.out.println("Incident " + (i + 1) + ":");
             int ux = askInt(sc, "  Enter Incident X: ");
             int uy = askInt(sc, "  Enter Incident Y: ");
-            System.out.print("  Enter Emergency Type (e.g. CARDIOLOGY): ");
-            String emType = sc.next();
+
+            MedicalSpecialty emType = askMedicalSpecialty(sc, "  Select Emergency Type:");
 
             String incidentId = "INC-M-" + String.format("%03d", i + 1);
             mapManager.addIncident(new VictimIncident(ux, uy, incidentId, emType));
@@ -236,6 +235,37 @@ public class ConsoleRunner {
             }
         }
         System.out.println("----------------------------------------");
+    }
+
+    /**
+     * Displays the available medical specialties as a numbered menu and robustly
+     * forces the user to select a valid option.
+     * <p>
+     * This method dynamically reads all values from {@link MedicalSpecialty},
+     * lists them to the console, and loops until the user provides a valid index
+     * within the boundaries of the enum.
+     * </p>
+     *
+     * @param sc      the {@link Scanner} object used to capture user input.
+     * @param message the contextual prompt message to display before the menu.
+     * @return the selected {@link MedicalSpecialty} enum constant.
+     */
+    private static MedicalSpecialty askMedicalSpecialty(Scanner sc, String message) {
+        System.out.println(message);
+
+        MedicalSpecialty[] specialties = MedicalSpecialty.values();
+
+        for (int i = 0; i < specialties.length; i++) {
+            System.out.printf("  %d. %s\n", (i + 1), specialties[i].name());
+        }
+
+        while (true) {
+            int choice = askNaturalNumber(sc, "Your choice(number) : ");
+            if (choice >= 1 && choice <= specialties.length) {
+                return specialties[choice - 1];
+            }
+            System.out.println("Error : Number out of limits. Please retry.");
+        }
     }
 
     /**
