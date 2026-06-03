@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.VictimIncident;
+import pgl.app.model.MedicalSpecialty;
 
 public class SidebarController {
 
@@ -59,7 +60,7 @@ public class SidebarController {
         double y = 80 + random.nextDouble() * 400;
 
         String incidentId = "INC-" + count;
-        mapManager.addIncident(new VictimIncident(x, y, incidentId, "GENERAL"));
+        mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL));
         mapController.refreshMap();
         infoLabel.setText("Incident added.");
     }
