@@ -10,7 +10,7 @@ public class MapController {
 
     @FXML
 
-    private Canvas canvas;
+    private Canvas  canvas;
 
     private GraphicsContext gc;
 
