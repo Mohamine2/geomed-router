@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import pgl.app.algo.DelaunayEngine;
+import pgl.app.algo.GeometryUtils;
 
 /**
  * Manages and orchestrates map data.
@@ -130,7 +131,7 @@ public class MapManager {
      *
      * @return an unmodifiable list of sites
      */
-    public List<Site> getSites() { 
+    public List<Hospital> getSites() {
         return Collections.unmodifiableList(this.hospitals);
     }
 
@@ -161,36 +162,127 @@ public class MapManager {
         this.triangles.clear();
     }
 
-    public List<Point> getVoronoiVertices() {
-        List<Point> voronoiVertices = new ArrayList<>();
-        for (Triangle t : this.triangles) {
-            voronoiVertices.add(t.getCircumcenter());
-        }
-        return voronoiVertices;
-    }
+    /**
+     * Computes the vertices of a hospital's Voronoi cell and sorts them in circular order.
+     * <p>
+     * This method identifies the cell vertices by collecting the circumcenters of all
+     * triangles that share the specified hospital as a Delaunay site. The collected
+     * vertices are then sorted counter-clockwise using a polar angle comparison
+     * relative to the hospital's coordinates.
+     * </p>
+     *
+     * @param hospital the hospital site for which the Voronoi cell is computed
+     * @return a {@link List} of {@link Point} vertices forming the bounding polygon
+     * of the cell, ordered counter-clockwise
+     */
+    private List<Point> computeVoronoiCellVertices(Hospital hospital) {
+        List<Point> cellVertices = new ArrayList<>();
 
-    public List<Hospital> getVoronoiNeighbors(Hospital hospital) {
-        List<Hospital> neighbors = new ArrayList<>();
-
-        // Deux hôpitaux sont voisins dans Voronoi s'ils partagent une arête dans Delaunay
+        // 1. Collect the circumcenters of triangles that have the hospital as one of their vertices
         for (Triangle t : this.triangles) {
-            if (t.getA().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getB());
-                addWithoutDuplicate(neighbors, (Hospital) t.getC());
-            } else if (t.getB().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getA());
-                addWithoutDuplicate(neighbors, (Hospital) t.getC());
-            } else if (t.getC().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) t.getA());
-                addWithoutDuplicate(neighbors, (Hospital) t.getB());
+            if (t.getA().equals(hospital) || t.getB().equals(hospital) || t.getC().equals(hospital)) {
+                cellVertices.add(t.getCircumcenter());
             }
         }
-        return neighbors;
+
+        // 2. Polar (circular) sort around the hospital's coordinates
+        GeometryUtils.sortByPolarAngle(hospital, cellVertices);
+
+        return cellVertices;
     }
 
-    private void addWithoutDuplicate(List<Hospital> list, Hospital h) {
-        if (!list.contains(h)) {
-            list.add(h);
+    /**
+     * Generates all closed Voronoi cells on the map.
+     * <p>
+     * This method iterates through all registered hospital sites, computes their
+     * respective boundary vertices, and filters out incomplete cells (those with
+     * fewer than 3 vertices, which cannot form a valid polygon).
+     * </p>
+     *
+     * @return a {@link List} of valid, closed {@link VoronoiCell} objects representing
+     * the map regions
+     */
+    public List<VoronoiCell> getVoronoiCells() {
+        List<VoronoiCell> cells = new ArrayList<>();
+        for (Hospital hospital : this.hospitals) {
+            List<Point> vertices = computeVoronoiCellVertices(hospital);
+
+            // A valid cell must have at least 3 vertices to form a polygon
+            if (vertices.size() >= 3) {
+                cells.add(new VoronoiCell(hospital, vertices));
+            }
         }
+        return cells;
+    }
+
+    /**
+     * Counts how many active incidents are currently assigned to a specific hospital.
+     * @param hospital The hospital to inspect.
+     * @return Count of assigned incidents.
+     */
+    public int getIncidentCountForHospital(Hospital hospital){
+        if (hospital == null) return 0;
+        int count = 0;
+
+        for (VictimIncident incident: this.incidents){
+            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Computes advanced distance metrics between a hospital and its assigned emergencies.
+     * @param hospital The hospital to analyze.
+     * @return A snapshot of the calculated metrics.
+     */
+    public HospitalStats getStatsForHospital(Hospital hospital){
+        int count = 0;
+        double min = Double.MAX_VALUE;
+        double max = 0.0;
+        double sum = 0.0;
+
+        for (VictimIncident incident: this.incidents){
+            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
+                count ++;
+
+                // Compute physical real distance
+                double dist = Math.sqrt(incident.distanceSquaredTo(hospital.getX(), hospital.getY()));
+
+                if (dist < min) min = dist;
+                if (dist > max) max = dist;
+
+                sum += dist;
+            }
+        }
+
+        // If no incidents are assigned, fallback defaults to 0
+        if (count == 0) return new HospitalStats(0, 0.0, 0.0, 0.0);
+
+        return new HospitalStats(count, min, max, sum/count);
+    }
+
+    /**
+     * Inspects a Delaunay triangle to detect spatial load imbalances.
+     * It compares the active workload of its 3 vertices (hospitals).
+     * @param t The triangle to evaluate.
+     * @return The maximum difference in incident assignments among the vertices.
+     */
+    public int getTriangleLoadImbalance(Triangle t){
+        // Retrieve the 3 underlying hospitals from the triangle's vertices
+        Hospital hA = (Hospital) t.getA();
+        Hospital hB = (Hospital) t.getB();
+        Hospital hC = (Hospital) t.getC();
+
+        int countA = getIncidentCountForHospital(hA);
+        int countB = getIncidentCountForHospital(hB);
+        int countC = getIncidentCountForHospital(hC);
+
+        int maxLoad = Math.max(countA, Math.max(countB, countC));
+        int minLoad = Math.min(countA, Math.min(countB, countC));
+
+        // Returns the difference (imbalance)
+        return maxLoad - minLoad;
     }
 }

@@ -5,7 +5,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.Point;
 import pgl.app.model.Triangle;

@@ -1,16 +1,18 @@
 package pgl.app.controller;
 
+import java.util.Random;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.VictimIncident;
-import java.util.Random;
 
 public class SidebarController {
 
     @FXML
     private Label infoLabel;
+
     private final Random random = new Random();
 
     private MapManager mapManager;

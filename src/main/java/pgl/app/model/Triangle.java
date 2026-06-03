@@ -50,6 +50,47 @@ public class Triangle {
     public boolean containsInCircumcircle(Point p) {
         return GeometryUtils.isPointInCircumcircle(p, this);
     }
+
+    /**
+     * Calculates the real Euclidean distance between two points.
+     */
+    private double distance(Point p1, Point p2) {
+        return Math.sqrt(p1.distanceSquaredTo(p2.getX(), p2.getY()));
+    }
+
+    /**
+     * @return The length of edge AB.
+     */
+    public double getEdgeABLength() {
+        return distance(a, b);
+    }
+
+    /**
+     * @return The length of edge BC.
+     */
+    public double getEdgeBCLength() {
+        return distance(b, c);
+    }
+
+    /**
+     * @return The length of edge CA.
+     */
+    public double getEdgeCALength() {
+        return distance(c, a);
+    }
+
+    /**
+     * Calculates the surface area of the triangle using the Cartesian determinant formula.
+     * @return The area of the triangle.
+     */
+    public double getArea() {
+        double area = 0.5 * Math.abs(
+                a.getX() * (b.getY() - c.getY()) +
+                        b.getX() * (c.getY() - a.getY()) +
+                        c.getX() * (a.getY() - b.getY())
+        );
+        return area;
+    }
     
     @Override
     public String toString() {
