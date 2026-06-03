@@ -3,6 +3,8 @@ package pgl.app.algo;
 import pgl.app.model.Point;
 import pgl.app.model.Triangle;
 
+import java.util.List;
+
 /**
  * Utility class providing geometric algorithms for triangles and points.
  * @version 1.0
@@ -61,4 +63,25 @@ public class GeometryUtils {
         // Attention : ce code suppose que le triangle est orienté dans le sens trigonométrique (CCW).
         return det > 1e-9; // Utilisation d'un epsilon pour éviter les erreurs de précision flottante
     }
+
+    /**
+     * Sorts a list of points counter-clockwise (polaire) around a center point.
+     * * @param center The reference pole.
+     * @param points The list of points to sort in-place.
+     */
+    public static void sortByPolarAngle(Point center, List<Point> points) {
+        if (center == null || points == null || points.size() <= 1) {
+            return;
+        }
+
+        points.sort((p1, p2) -> {
+            // Calculate the angle of each point according to the center
+            double angle1 = Math.atan2(p1.getY() - center.getY(), p1.getX() - center.getX());
+            double angle2 = Math.atan2(p2.getY() - center.getY(), p2.getX() - center.getX());
+
+            // Ascending sort (ordered counter-clockwise)
+            return Double.compare(angle1, angle2);
+        });
+    }
+
 }
