@@ -131,7 +131,7 @@ public class MapManager {
      *
      * @return an unmodifiable list of sites
      */
-    public List<Site> getSites() { 
+    public List<Hospital> getSites() {
         return Collections.unmodifiableList(this.hospitals);
     }
 
@@ -186,11 +186,7 @@ public class MapManager {
         }
 
         // 2. Polar (circular) sort around the hospital's coordinates
-        cellVertices.sort((p1, p2) -> {
-            double angle1 = Math.atan2(p1.getY() - hospital.getY(), p1.getX() - hospital.getX());
-            double angle2 = Math.atan2(p2.getY() - hospital.getY(), p2.getX() - hospital.getX());
-            return Double.compare(angle1, angle2);
-        });
+        GeometryUtils.sortByPolarAngle(hospital, cellVertices);
 
         return cellVertices;
     }
@@ -217,5 +213,76 @@ public class MapManager {
             }
         }
         return cells;
+    }
+
+    /**
+     * Counts how many active incidents are currently assigned to a specific hospital.
+     * @param hospital The hospital to inspect.
+     * @return Count of assigned incidents.
+     */
+    public int getIncidentCountForHospital(Hospital hospital){
+        if (hospital == null) return 0;
+        int count = 0;
+
+        for (VictimIncident incident: this.incidents){
+            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Computes advanced distance metrics between a hospital and its assigned emergencies.
+     * @param hospital The hospital to analyze.
+     * @return A snapshot of the calculated metrics.
+     */
+    public HospitalStats getStatsForHospital(Hospital hospital){
+        int count = 0;
+        double min = Double.MAX_VALUE;
+        double max = 0.0;
+        double sum = 0.0;
+
+        for (VictimIncident incident: this.incidents){
+            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
+                count ++;
+
+                // Compute physical real distance
+                double dist = Math.sqrt(incident.distanceSquaredTo(hospital.getX(), hospital.getY()));
+
+                if (dist < min) min = dist;
+                if (dist > max) max = dist;
+
+                sum += dist;
+            }
+        }
+
+        // If no incidents are assigned, fallback defaults to 0
+        if (count == 0) return new HospitalStats(0, 0.0, 0.0, 0.0);
+
+        return new HospitalStats(count, min, max, sum/count);
+    }
+
+    /**
+     * Inspects a Delaunay triangle to detect spatial load imbalances.
+     * It compares the active workload of its 3 vertices (hospitals).
+     * @param t The triangle to evaluate.
+     * @return The maximum difference in incident assignments among the vertices.
+     */
+    public int getTriangleLoadImbalance(Triangle t){
+        // Retrieve the 3 underlying hospitals from the triangle's vertices
+        Hospital hA = (Hospital) t.getA();
+        Hospital hB = (Hospital) t.getB();
+        Hospital hC = (Hospital) t.getC();
+
+        int countA = getIncidentCountForHospital(hA);
+        int countB = getIncidentCountForHospital(hB);
+        int countC = getIncidentCountForHospital(hC);
+
+        int maxLoad = Math.max(countA, Math.max(countB, countC));
+        int minLoad = Math.min(countA, Math.min(countB, countC));
+
+        // Returns the difference (imbalance)
+        return maxLoad - minLoad;
     }
 }

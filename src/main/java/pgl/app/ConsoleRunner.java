@@ -39,13 +39,19 @@ public class ConsoleRunner {
                 switch (mode) {
                     case 1:
                         int randSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
-                        displayStats(randomTest(sc, randSites));
+                        randomTest(sc, randSites);
+
+                        displayAdvancedHospitalStats(mapManager.getSites());
                         displayTriangles(mapManager.getTriangles());
+                        displayVoronoiCells(mapManager.getVoronoiCells());
                         break;
                     case 2:
                         int manualSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
-                        displayStats(manualTest(sc, manualSites));
+                        manualTest(sc, manualSites);
+
+                        displayAdvancedHospitalStats(mapManager.getSites());
                         displayTriangles(mapManager.getTriangles());
+                        displayVoronoiCells(mapManager.getVoronoiCells());
                         break;
                     case 3:
                         running = false;
@@ -68,9 +74,8 @@ public class ConsoleRunner {
      *
      * @param sc         The Scanner object for input.
      * @param nbHospitals The number of hospitals to generate.
-     * @return A Map mapping each Hospital ID to its total number of assigned incidents.
      */
-    public static Map<Integer, Integer> randomTest(Scanner sc, int nbHospitals) {
+    public static void randomTest(Scanner sc, int nbHospitals) {
         Random rand = new Random();
         mapManager.clear();
 
@@ -101,8 +106,6 @@ public class ConsoleRunner {
                     emergencyType
             ));
         }
-
-        return statistics(mapManager.getIncidents(), mapManager.getSites());
     }
 
     /**
@@ -110,9 +113,8 @@ public class ConsoleRunner {
      *
      * @param sc        The Scanner object for input.
      * @param hospitalNb The number of hospitals to define.
-     * @return A Map mapping each Hospital ID to its total number of assigned incidents.
      */
-    public static Map<Integer, Integer> manualTest(Scanner sc, int hospitalNb) {
+    public static void manualTest(Scanner sc, int hospitalNb) {
         mapManager.clear();
 
         System.out.println("\n--- Manual entry for " + hospitalNb + " hospitals ---");
@@ -143,54 +145,47 @@ public class ConsoleRunner {
             String incidentId = "INC-M-" + String.format("%03d", i + 1);
             mapManager.addIncident(new VictimIncident(ux, uy, incidentId, emType));
         }
-
-        return statistics(mapManager.getIncidents(), mapManager.getSites());
     }
 
     /**
-     * Calculates and returns a summary of incident assignments per hospital.
-     *
-     * @param incidents The list of victim incidents to analyze.
-     * @param sites     The list of all available sites (hospitals).
-     * @return A Map where the key is the Hospital ID and the value is the count of incidents.
+     * Displays advanced operational and distance statistics for all active hospitals.
+     * * @param hospitals The list of hospitals to inspect.
      */
-    public static Map<Integer, Integer> statistics(List<VictimIncident> incidents, List<Site> sites) {
-        Map<Integer, Integer> stats = new HashMap<>();
+    public static void displayAdvancedHospitalStats(List<Hospital> hospitals) {
+        System.out.println("\n--- Emergency Dispatch Advanced Statistics ---");
 
-        // Initialize map with 0 for all hospitals
-        for (Site s : sites) {
-            stats.put(s.getId(), 0);
-        }
+        for (Hospital hospital: hospitals){
+            HospitalStats stats = mapManager.getStatsForHospital(hospital);
 
-        // Count assignments
-        for (VictimIncident idx : incidents) {
-            if (idx.getClosestSite() != null) {
-                int siteId = idx.getClosestSite().getId();
-                stats.put(siteId, stats.getOrDefault(siteId, 0) + 1);
+            System.out.printf("  Hospital ID %d [Capacity: %d/%d | Saturation: %.1f%%]:\n",
+                    hospital.getId(),
+                    hospital.getCurrentPatients(),
+                    hospital.getCapacityMax(),
+                    hospital.getOccupancyRate() * 100
+            );
+
+            System.out.printf("    Assigned Emergencies: %d case(s)\n", stats.getAssignedIncidentsCount());
+
+            if (stats.getAssignedIncidentsCount() > 0){
+                System.out.printf("    Intervention Vector Distances: Min = %.2f | Max = %.2f | Avg = %.2f\n",
+                        stats.getMinDistance(),
+                        stats.getMaxDistance(),
+                        stats.getAverageDistance());
+            }
+            else{
+                System.out.println("    Intervention Vector Distances: N/A (No active cases)");
             }
         }
 
-        return stats;
+        System.out.println("----------------------------------------------");
     }
 
     /**
-     * Displays the statistics report in the console.
-     *
-     * @param stats The map containing assignments count per hospital ID.
-     */
-    public static void displayStats(Map<Integer, Integer> stats) {
-        System.out.println("\n--- Incident Dispatch Statistics ---");
-        stats.forEach((hospitalId, count) ->
-                System.out.println("Hospital ID " + hospitalId + " : " + count + " active emergency case(s)"));
-    }
-
-    /**
-     * Displays the triangles in the console.
-     *
-     * @param triangles The list of triangles given by the DelaunayEngine
+     * Displays the triangles with advanced geometric and operational metrics.
+     * @param triangles The list of triangles given by the DelaunayEngine.
      */
     public static void displayTriangles(List<Triangle> triangles) {
-        System.out.println("\n--- Delaunay Triangulation Results ---");
+        System.out.println("\n--- Delaunay Triangulation & Inspection Results ---");
         System.out.println("Total triangles generated: " + triangles.size());
         int i = 1;
         for (Triangle t : triangles) {
@@ -198,7 +193,47 @@ public class ConsoleRunner {
                     i++,
                     t.getA().getX(), t.getA().getY(),
                     t.getB().getX(), t.getB().getY(),
-                    t.getC().getX(), t.getC().getY());
+                    t.getC().getX(), t.getC().getY()
+            );
+
+            System.out.printf("    Edge Lengths: AB = %.2f | BC = %.2f | CA = %.2f\n",
+                    t.getEdgeABLength(), t.getEdgeBCLength(), t.getEdgeCALength());
+            System.out.printf("    Surface Area: %.2f square units\n", t.getArea());
+            System.out.printf("    Workload Imbalance: %d active emergency case(s) difference\n",
+                    mapManager.getTriangleLoadImbalance(t));
+        }
+        System.out.println("----------------------------------------");
+    }
+
+    /**
+     * Displays the calculated Voronoi cells and their sorted vertices in the console.
+     * * @param cells The list of Voronoi cells provided by MapManager.
+     */
+    public static void displayVoronoiCells(List<VoronoiCell> cells) {
+        System.out.println("\n--- Voronoi Diagram Results (Cells) ---");
+        System.out.println("Total cells generated: " + cells.size());
+
+        if (cells.isEmpty()) {
+            System.out.println("  No cells constructed (Requires at least 3 non-colinear hospitals).");
+        }
+
+        for (VoronoiCell cell : cells) {
+            Hospital h = cell.getHospital();
+            System.out.printf("  Hospital ID %d | Location: (%.1f, %.1f) | Saturation: %.1f%% (Saturated: %b)\n",
+                    h.getId(),
+                    h.getX(),
+                    h.getY(),
+                    h.getOccupancyRate() * 100,
+                    h.isSaturated());
+
+            System.out.println("    Vertices defining the coverage zone (Sorted Polarly):");
+            int vertexIndex = 1;
+            for (Point vertex : cell.getVertices()) {
+                System.out.printf("      Vertex #%d: X = %.2f, Y = %.2f\n",
+                        vertexIndex++,
+                        vertex.getX(),
+                        vertex.getY());
+            }
         }
         System.out.println("----------------------------------------");
     }
