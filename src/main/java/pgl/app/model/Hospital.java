@@ -8,7 +8,8 @@ import java.util.Set;
  * This class extends {@link Site} to inherit geometric properties (x, y, id) 
  * and adds business logic specific to hospital management such as capacity, 
  * saturation levels, and medical specialties.
- * * @version 1.0
+ *
+ * @version 2.0
  */
 public class Hospital extends Site {
 
@@ -17,9 +18,9 @@ public class Hospital extends Site {
     
     /** The current number of patients admitted to the hospital. */
     private int currentPatients;
-    
+
     /** A set of medical specialties available at the hospital. */
-    private final Set<String> specialties; 
+    private final Set<MedicalSpecialty> specialties;
 
     /** The threshold (e.g., 0.90 for 90%) at which the hospital is considered saturated. */
     private static final double SATURATION_THRESHOLD = 0.90;
@@ -88,13 +89,12 @@ public class Hospital extends Site {
 
     /**
      * Adds a medical specialty to the hospital's capabilities.
-     * The input is automatically trimmed and converted to uppercase to ensure consistency.
      *
-     * @param specialty The name of the medical specialty (e.g., "Cardiology").
+     * @param specialty The {@link MedicalSpecialty} to add.
      */
-    public void addSpecialty(String specialty) {
-        if (specialty != null && !specialty.isBlank()) {
-            this.specialties.add(specialty.trim().toUpperCase());
+    public void addSpecialty(MedicalSpecialty specialty) {
+        if (specialty != null) {
+            this.specialties.add(specialty);
         }
     }
 
@@ -104,12 +104,11 @@ public class Hospital extends Site {
      * @param emergencyType The required medical specialty.
      * @return {@code true} if the hospital has the specialty, {@code false} otherwise.
      */
-    public boolean canTreat(String emergencyType) {
+    public boolean canTreat(MedicalSpecialty emergencyType) {
         if (emergencyType == null) {
             return false;
         }
-        // Utilizing HashSet's O(1) lookup time for instant verification
-        return this.specialties.contains(emergencyType.trim().toUpperCase());
+        return this.specialties.contains(emergencyType);
     }
 
     /**
@@ -129,14 +128,14 @@ public class Hospital extends Site {
     public int getCurrentPatients() { 
         return currentPatients; 
     }
-    
+
     /**
      * Retrieves an unmodifiable view of the hospital's medical specialties.
      * This defensive copy prevents external modification of the internal set.
      *
      * @return An unmodifiable Set containing the specialties.
      */
-    public Set<String> getSpecialties() { 
-        return Set.copyOf(specialties); 
+    public Set<MedicalSpecialty> getSpecialties() {
+        return Set.copyOf(specialties);
     }
 }
