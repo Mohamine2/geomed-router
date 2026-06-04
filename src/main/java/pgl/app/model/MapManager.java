@@ -202,20 +202,12 @@ public class MapManager {
     }
 
     /**
-     * Counts how many active incidents are currently assigned to a specific hospital.
+     * Delegates the counting of active incidents that are currently assigned to a specific hospital to AnalyticsEngine.
      * @param hospital The hospital to inspect.
      * @return Count of assigned incidents.
      */
     public int getIncidentCountForHospital(Hospital hospital){
-        if (hospital == null) return 0;
-        int count = 0;
-
-        for (VictimIncident incident: this.incidents){
-            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
-                count ++;
-            }
-        }
-        return count;
+        return AnalyticsEngine.getIncidentCountForHospital(hospital, incidents);
     }
 
     /**
