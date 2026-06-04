@@ -75,11 +75,6 @@
 
 				<Label fx:id="assignedHospitalLabel"
        			text="Assigned hospital: none" />
-
-                <Label fx:id="infoLabel"
-                       text="No action yet."
-                       wrapText="true"
-                       style="-fx-font-size: 13px;" />
             </children>
         </VBox>
     </children>

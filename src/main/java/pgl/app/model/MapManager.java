@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import pgl.app.algo.AnalyticsEngine;
 import pgl.app.algo.DelaunayEngine;
 import pgl.app.algo.GeometryUtils;
+import pgl.app.algo.VoronoiEngine;
 
 /**
  * Manages and orchestrates map data.
@@ -17,7 +19,12 @@ public class MapManager {
     private final List<Hospital> hospitals;
     private final List<VictimIncident> incidents;
     private final List<Triangle> triangles;
+
     private final DelaunayEngine engine = new DelaunayEngine();
+    private final DelaunayEngine delaunayEngine = new DelaunayEngine();
+    private final VoronoiEngine voronoiEngine = new VoronoiEngine();
+
+    private final List<RoadEdge> roadNetwork;
 
     /**
      * Constructs a new MapManager with initialized empty lists for sites, user points, and triangles.
@@ -26,6 +33,7 @@ public class MapManager {
         this.hospitals = new ArrayList<>();
         this.incidents = new ArrayList<>();
         this.triangles = new ArrayList<>();
+        this.roadNetwork = new ArrayList<>();
     }
 
     /**
@@ -66,6 +74,14 @@ public class MapManager {
      */
     public void removeIncident(VictimIncident incident) {
         this.incidents.remove(incident);
+    }
+
+    public void addRoad(RoadEdge road){
+        this.roadNetwork.add(road);
+    }
+
+    public List<RoadEdge> getRoadNetwork(){
+        return Collections.unmodifiableList(this.roadNetwork);
     }
 
     /**
@@ -113,14 +129,17 @@ public class MapManager {
             return;
         }
 
-        Site closest = null;
+        Hospital closest = null;
         double minDistance = Double.MAX_VALUE;
 
-        for (Site site : this.hospitals) {
-            double dist = incident.distanceSquaredTo(site.getX(), site.getY());
+        for (Hospital hospital : this.hospitals) {
+            if (!hospital.canTreat(incident.getEmergencyType())) {
+                continue;
+            }
+            double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
             if (dist < minDistance) {
                 minDistance = dist;
-                closest = site;
+                closest = hospital;
             }
         }
         incident.setClosestSite(closest);
@@ -160,59 +179,7 @@ public class MapManager {
         this.hospitals.clear();
         this.incidents.clear();
         this.triangles.clear();
-    }
-
-    /**
-     * Computes the vertices of a hospital's Voronoi cell and sorts them in circular order.
-     * <p>
-     * This method identifies the cell vertices by collecting the circumcenters of all
-     * triangles that share the specified hospital as a Delaunay site. The collected
-     * vertices are then sorted counter-clockwise using a polar angle comparison
-     * relative to the hospital's coordinates.
-     * </p>
-     *
-     * @param hospital the hospital site for which the Voronoi cell is computed
-     * @return a {@link List} of {@link Point} vertices forming the bounding polygon
-     * of the cell, ordered counter-clockwise
-     */
-    private List<Point> computeVoronoiCellVertices(Hospital hospital) {
-        List<Point> cellVertices = new ArrayList<>();
-
-        // 1. Collect the circumcenters of triangles that have the hospital as one of their vertices
-        for (Triangle t : this.triangles) {
-            if (t.getA().equals(hospital) || t.getB().equals(hospital) || t.getC().equals(hospital)) {
-                cellVertices.add(t.getCircumcenter());
-            }
-        }
-
-        // 2. Polar (circular) sort around the hospital's coordinates
-        GeometryUtils.sortByPolarAngle(hospital, cellVertices);
-
-        return cellVertices;
-    }
-
-    /**
-     * Generates all closed Voronoi cells on the map.
-     * <p>
-     * This method iterates through all registered hospital sites, computes their
-     * respective boundary vertices, and filters out incomplete cells (those with
-     * fewer than 3 vertices, which cannot form a valid polygon).
-     * </p>
-     *
-     * @return a {@link List} of valid, closed {@link VoronoiCell} objects representing
-     * the map regions
-     */
-    public List<VoronoiCell> getVoronoiCells() {
-        List<VoronoiCell> cells = new ArrayList<>();
-        for (Hospital hospital : this.hospitals) {
-            List<Point> vertices = computeVoronoiCellVertices(hospital);
-
-            // A valid cell must have at least 3 vertices to form a polygon
-            if (vertices.size() >= 3) {
-                cells.add(new VoronoiCell(hospital, vertices));
-            }
-        }
-        return cells;
+        this.roadNetwork.clear();
     }
 
     /**
@@ -233,56 +200,33 @@ public class MapManager {
     }
 
     /**
-     * Computes advanced distance metrics between a hospital and its assigned emergencies.
-     * @param hospital The hospital to analyze.
-     * @return A snapshot of the calculated metrics.
+     * Delegates the generation of Voronoi cells to the dedicated geometry engine.
      */
-    public HospitalStats getStatsForHospital(Hospital hospital){
-        int count = 0;
-        double min = Double.MAX_VALUE;
-        double max = 0.0;
-        double sum = 0.0;
-
-        for (VictimIncident incident: this.incidents){
-            if(incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()){
-                count ++;
-
-                // Compute physical real distance
-                double dist = Math.sqrt(incident.distanceSquaredTo(hospital.getX(), hospital.getY()));
-
-                if (dist < min) min = dist;
-                if (dist > max) max = dist;
-
-                sum += dist;
-            }
-        }
-
-        // If no incidents are assigned, fallback defaults to 0
-        if (count == 0) return new HospitalStats(0, 0.0, 0.0, 0.0);
-
-        return new HospitalStats(count, min, max, sum/count);
+    public List<VoronoiCell> getVoronoiCells() {
+        return this.voronoiEngine.generateVoronoiCells(this.hospitals, this.triangles);
     }
 
     /**
-     * Inspects a Delaunay triangle to detect spatial load imbalances.
-     * It compares the active workload of its 3 vertices (hospitals).
-     * @param t The triangle to evaluate.
-     * @return The maximum difference in incident assignments among the vertices.
+     * Delegates statistical calculation to the stateless AnalyticsEngine.
      */
-    public int getTriangleLoadImbalance(Triangle t){
-        // Retrieve the 3 underlying hospitals from the triangle's vertices
-        Hospital hA = (Hospital) t.getA();
-        Hospital hB = (Hospital) t.getB();
-        Hospital hC = (Hospital) t.getC();
+    public HospitalStats getStatsForHospital(Hospital hospital) {
+        return AnalyticsEngine.computeHospitalStats(hospital, this.incidents);
+    }
 
-        int countA = getIncidentCountForHospital(hA);
-        int countB = getIncidentCountForHospital(hB);
-        int countC = getIncidentCountForHospital(hC);
+    /**
+     * Delegates imbalance analysis to the stateless AnalyticsEngine.
+     */
+    public int getTriangleLoadImbalance(Triangle t) {
+        return AnalyticsEngine.getTriangleLoadImbalance(t, this.incidents);
+    }
 
-        int maxLoad = Math.max(countA, Math.max(countB, countC));
-        int minLoad = Math.min(countA, Math.min(countB, countC));
+    public List<Point> computeRoadForIncident(VictimIncident incident){
+        if (incident.getClosestSite() == null || this.roadNetwork.isEmpty()){
+            return new ArrayList<>();
+        }
 
-        // Returns the difference (imbalance)
-        return maxLoad - minLoad;
+        pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
+
+        return routingEngine.computeOptimalPath(incident, (Point) incident.getClosestSite(), roadNetwork);
     }
 }
