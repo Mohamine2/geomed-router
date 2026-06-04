@@ -119,7 +119,8 @@ public class MapManager {
     }
 
     /**
-     * Calculates and assigns the closest site for a specific user point based on squared distance.
+     * Calculates and assigns the closest site for a specific user point based on squared distance
+     * or real road network constraints (Dijkstra) if available.
      *
      * @param incident the user point to update
      */
@@ -129,19 +130,37 @@ public class MapManager {
             return;
         }
 
-        Hospital closest = null;
-        double minDistance = Double.MAX_VALUE;
+        Site closest = null;
 
-        for (Hospital hospital : this.hospitals) {
-            if (!hospital.canTreat(incident.getEmergencyType())) {
-                continue;
-            }
-            double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
-            if (dist < minDistance) {
-                minDistance = dist;
-                closest = hospital;
+        // CAS 1 : Pas de routes -> Repli sur la distance géométrique (vol d'oiseau)
+        if (this.roadNetwork.isEmpty()) {
+            double minDistance = Double.MAX_VALUE;
+            for (Site site : this.hospitals) {
+                double dist = incident.distanceSquaredTo(site.getX(), site.getY());
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closest = site;
+                }
             }
         }
+        // CAS 2 : Réseau routier présent -> Affectation par le chemin le plus rapide (Dijkstra)
+        else {
+            double minCost = Double.MAX_VALUE;
+            pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
+
+            for (Hospital hospital : this.hospitals) {
+                // Dijkstra nous donne le chemin ET le coût en un seul et unique passage !
+                pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(incident, hospital, this.roadNetwork);
+
+                // Accès direct à la propriété du record sans calcul additionnel
+                if (result.totalCost() < minCost) {
+                    minCost = result.totalCost();
+                    closest = hospital;
+                }
+            }
+        }
+
+        // On applique l'hôpital optimal trouvé (qu'il vienne du calcul géométrique ou routier)
         incident.setClosestSite(closest);
     }
 
@@ -201,6 +220,14 @@ public class MapManager {
 
     /**
      * Delegates the generation of Voronoi cells to the dedicated geometry engine.
+     * <p>
+     * This method utilizes the internal {@link VoronoiEngine} to compute the geometric
+     * boundaries of each hospital's coverage zone based on the current list of hospitals
+     * and Delaunay triangles.
+     * </p>
+     *
+     * @return a {@link List} of {@link VoronoiCell} objects representing the partition
+     * of the map area
      */
     public List<VoronoiCell> getVoronoiCells() {
         return this.voronoiEngine.generateVoronoiCells(this.hospitals, this.triangles);
@@ -208,6 +235,13 @@ public class MapManager {
 
     /**
      * Delegates statistical calculation to the stateless AnalyticsEngine.
+     * <p>
+     * Computes performance and operational metrics (such as total incidents,
+     * minimum, maximum, and average response distances) for a specific medical facility.
+     * </p>
+     *
+     * @param hospital the {@link Hospital} for which statistics are being collected
+     * @return a {@link HospitalStats} object containing the aggregated statistical metrics
      */
     public HospitalStats getStatsForHospital(Hospital hospital) {
         return AnalyticsEngine.computeHospitalStats(hospital, this.incidents);
@@ -215,18 +249,39 @@ public class MapManager {
 
     /**
      * Delegates imbalance analysis to the stateless AnalyticsEngine.
+     * <p>
+     * Evaluates the workload distribution discrepancy among the three hospitals
+     * forming the vertices of the specified Delaunay triangle.
+     * </p>
+     *
+     * @param t the {@link Triangle} whose vertex hospitals are being analyzed
+     * @return the absolute difference between the maximum and minimum incident counts
+     * among the triangle's vertices
      */
     public int getTriangleLoadImbalance(Triangle t) {
         return AnalyticsEngine.getTriangleLoadImbalance(t, this.incidents);
     }
 
-    public List<Point> computeRoadForIncident(VictimIncident incident){
-        if (incident.getClosestSite() == null || this.roadNetwork.isEmpty()){
+    /**
+     * Computes the optimal road path from a specific incident location to its closest hospital site.
+     * <p>
+     * This method instantiates a temporary {@link pgl.app.algo.RoutingEngine} to calculate
+     * the shortest or most efficient route using the underlying road network infrastructure.
+     * If the incident has no assigned hospital or if the road network data is unavailable,
+     * an empty list is safely returned.
+     * </p>
+     *
+     * @param incident the {@link VictimIncident} representing the starting point of the route
+     * @return a {@link List} of {@link Point} objects defining the sequential path coordinates
+     * from the incident to the hospital; returns an empty list if routing cannot be performed
+     */
+    public List<Point> computeRoadForIncident(VictimIncident incident) {
+        if (incident.getClosestSite() == null || this.roadNetwork.isEmpty()) {
             return new ArrayList<>();
         }
 
         pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
 
-        return routingEngine.computeOptimalPath(incident, (Point) incident.getClosestSite(), roadNetwork);
+        return routingEngine.computeOptimalPath(incident, (Point) incident.getClosestSite(), roadNetwork).path();
     }
 }

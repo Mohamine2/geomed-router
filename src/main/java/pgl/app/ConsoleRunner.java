@@ -7,7 +7,7 @@ import java.util.*;
  * The ConsoleRunner class serves as the command-line interface entry point for the application.
  * It provides a robust interface to test the medical dispatch logic (Voronoi/Delaunay related models)
  * without requiring the JavaFX graphical interface.
- * * @version 2.0
+ * * @version 3.0
  */
 public class ConsoleRunner {
 
@@ -41,6 +41,7 @@ public class ConsoleRunner {
                         displayAdvancedHospitalStats(mapManager.getSites());
                         displayTriangles(mapManager.getTriangles());
                         displayVoronoiCells(mapManager.getVoronoiCells());
+                        displayRoutes(mapManager.getIncidents());
                         break;
                     case 2:
                         int manualSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
@@ -49,6 +50,7 @@ public class ConsoleRunner {
                         displayAdvancedHospitalStats(mapManager.getSites());
                         displayTriangles(mapManager.getTriangles());
                         displayVoronoiCells(mapManager.getVoronoiCells());
+                        displayRoutes(mapManager.getIncidents());
                         break;
                     case 3:
                         running = false;
@@ -235,6 +237,29 @@ public class ConsoleRunner {
             }
         }
         System.out.println("----------------------------------------");
+    }
+
+    /**
+     * Displays the calculated optimal routes for each incident.
+     * * @param incidents The list of VictimIncidents provided by MapManager.
+     */
+    public static void displayRoutes(List<VictimIncident> incidents) {
+        System.out.println("\n--- GPS Routing Paths (Dijkstra) ---");
+        for (VictimIncident incident : incidents) {
+            System.out.printf("Incident %s: Target Hospital ID %d\n",
+                    incident.getIncidentId(),
+                    incident.getClosestSite() != null ? incident.getClosestSite().getId() : "NONE");
+
+            List<Point> path = mapManager.computeRoadForIncident(incident);
+            if (!path.isEmpty()){
+                System.out.print("  Path: ");
+                path.forEach(p -> System.out.printf("(%.1f,%.1f) ", p.getX(), p.getY()));
+                System.out.println();
+            }
+            else{
+                System.out.println("No map data (bird flight)");
+            }
+        }
     }
 
     /**

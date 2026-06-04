@@ -38,7 +38,7 @@ public class RoutingEngine {
      * @param roadNetwork The list of all roads in the city.
      * @return The list of intersections to traverse in order (the route).
      */
-    public List<Point> computeOptimalPath(Point start, Point end, List<RoadEdge> roadNetwork) {
+    public RoutingResult computeOptimalPath(Point start, Point end, List<RoadEdge> roadNetwork) {
         
         // 1. PREPARATION: Transform the flat list of roads into an adjacency list
         // (For a given intersection, we want to know which roads depart from it)
@@ -99,14 +99,16 @@ public class RoutingEngine {
             }
         }
 
+        double totalCost = distances.getOrDefault(end, Double.MAX_VALUE);
+
         // 4. PATH RECONSTRUCTION
         List<Point> path = new ArrayList<>();
         Point step = end;
         
         // Safety check: If the hospital is unreachable (e.g., disconnected road)
         if (previous.get(step) == null && !step.equals(start)) {
-            System.out.println("⚠️ No possible path to this hospital!");
-            return path; // Returns an empty list
+            System.out.println(" No possible path to this hospital!");
+            return new RoutingResult(path, Double.MAX_VALUE);
         }
 
         // We trace back the breadcrumbs from the destination to the start
@@ -118,6 +120,7 @@ public class RoutingEngine {
 
         // We reverse the list to have the correct order (Start -> End)
         Collections.reverse(path);
-        return path;
+
+        return new RoutingResult(path, totalCost);
     }
 }
