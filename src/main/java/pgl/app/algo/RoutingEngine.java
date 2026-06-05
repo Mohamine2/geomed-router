@@ -29,6 +29,22 @@ public class RoutingEngine {
             return Double.compare(this.distance, other.distance); // Sorts from closest to furthest
         }
     }
+    /**
+     * Converts a flat list of roads into an efficient adjacency list graph representation.
+     * @param roadNetwork the map cartography represented by a graph
+     * @return adjList The adjacence list of the graph
+     */
+    private Map<Point, List<RoadEdge>> buildAdjacencyList(List<RoadEdge> roadNetwork) {
+        Map<Point, List<RoadEdge>> adjList = new HashMap<>();
+
+        for (RoadEdge edge : roadNetwork) {
+            adjList.computeIfAbsent(edge.getStart(), k -> new ArrayList<>()).add(edge);
+            adjList.computeIfAbsent(edge.getEnd(), k -> new ArrayList<>()).add(edge);
+        }
+
+        return adjList;
+    }
+
 
     /**
      * Computes the optimal path (the "lightest" in terms of weight/time) between a start and an end point.
@@ -42,15 +58,7 @@ public class RoutingEngine {
         
         // 1. PREPARATION: Transform the flat list of roads into an adjacency list
         // (For a given intersection, we want to know which roads depart from it)
-        Map<Point, List<RoadEdge>> adjList = new HashMap<>();
-        for (RoadEdge edge : roadNetwork) {
-            adjList.putIfAbsent(edge.getStart(), new ArrayList<>());
-            adjList.putIfAbsent(edge.getEnd(), new ArrayList<>());
-            
-            // We consider the roads to be two-way
-            adjList.get(edge.getStart()).add(edge);
-            adjList.get(edge.getEnd()).add(edge);
-        }
+        Map<Point, List<RoadEdge>> adjList = buildAdjacencyList(roadNetwork);
 
         // 2. DIJKSTRA INITIALIZATION
         Map<Point, Double> distances = new HashMap<>(); // Stores the best known time for each point
