@@ -6,7 +6,6 @@ import java.util.List;
 
 import pgl.app.algo.AnalyticsEngine;
 import pgl.app.algo.DelaunayEngine;
-import pgl.app.algo.GeometryUtils;
 import pgl.app.algo.VoronoiEngine;
 
 /**
@@ -20,11 +19,10 @@ public class MapManager {
     private final List<VictimIncident> incidents;
     private final List<Triangle> triangles;
 
-    private final DelaunayEngine engine = new DelaunayEngine();
     private final DelaunayEngine delaunayEngine = new DelaunayEngine();
     private final VoronoiEngine voronoiEngine = new VoronoiEngine();
 
-    private final List<RoadEdge> roadNetwork;
+    private final RoadNetwork roadNetwork = new RoadNetwork();
 
     /**
      * Constructs a new MapManager with initialized empty lists for sites, user points, and triangles.
@@ -33,7 +31,6 @@ public class MapManager {
         this.hospitals = new ArrayList<>();
         this.incidents = new ArrayList<>();
         this.triangles = new ArrayList<>();
-        this.roadNetwork = new ArrayList<>();
     }
 
     /**
@@ -43,7 +40,7 @@ public class MapManager {
      */
     public void addHospital(Hospital hospital) {
         this.hospitals.add(hospital);
-        this.updateAll(); 
+        this.updateAll();
     }
 
     /**
@@ -76,16 +73,20 @@ public class MapManager {
         this.incidents.remove(incident);
     }
 
-    public void addRoad(RoadEdge road){
-        this.roadNetwork.add(road);
+    public void addRoad(Point start, Point end){
+        this.roadNetwork.addRoad(start, end);
     }
 
-    public List<RoadEdge> getRoadNetwork(){
-        return Collections.unmodifiableList(this.roadNetwork);
+    public RoadEdge addRoad(int startIdx, int endIdx) {
+        return this.roadNetwork.addRoad(startIdx, endIdx);
+    }
+
+    public RoadNetwork getRoadNetwork(){
+        return this.roadNetwork;
     }
 
     /**
-     * Updates the entire map state by recalculating the Delaunay triangulation 
+     * Updates the entire map state by recalculating the Delaunay triangulation
      * and updating all user assignments.
      */
     public void updateAll() {
@@ -99,12 +100,12 @@ public class MapManager {
      */
     private void updateTriangulation() {
         this.triangles.clear();
-        
+
         if (this.hospitals.size() < 3) {
-            return; 
+            return;
         }
 
-        this.triangles.addAll(this.engine.triangulate(this.hospitals));
+        this.triangles.addAll(this.delaunayEngine.triangulate(this.hospitals));
         System.out.println("[MapManager] Triangulation updated.");
     }
 
@@ -133,7 +134,7 @@ public class MapManager {
         Site closest = null;
 
         // CAS 1 : Pas de routes -> Repli sur la distance géométrique (vol d'oiseau)
-        if (this.roadNetwork.isEmpty()) {
+        if (this.roadNetwork.getRoads().isEmpty()) {
             double minDistance = Double.MAX_VALUE;
             for (Site site : this.hospitals) {
                 double dist = incident.distanceSquaredTo(site.getX(), site.getY());
@@ -150,7 +151,7 @@ public class MapManager {
 
             for (Hospital hospital : this.hospitals) {
                 // Dijkstra nous donne le chemin ET le coût en un seul et unique passage !
-                pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(incident, hospital, this.roadNetwork);
+                pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(incident, hospital, this.roadNetwork.getRoads());
 
                 // Accès direct à la propriété du record sans calcul additionnel
                 if (result.totalCost() < minCost) {
@@ -187,8 +188,8 @@ public class MapManager {
      *
      * @return an unmodifiable list of triangles
      */
-    public List<Triangle> getTriangles() { 
-        return Collections.unmodifiableList(this.triangles); 
+    public List<Triangle> getTriangles() {
+        return Collections.unmodifiableList(this.triangles);
     }
 
     /**
@@ -268,12 +269,18 @@ public class MapManager {
      * from the incident to the hospital; returns an empty list if routing cannot be performed
      */
     public List<Point> computeRoadForIncident(VictimIncident incident) {
-        if (incident.getClosestSite() == null || this.roadNetwork.isEmpty()) {
+        if (incident.getClosestSite() == null || this.roadNetwork.getRoads().isEmpty()) {
             return new ArrayList<>();
         }
 
         pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
 
-        return routingEngine.computeOptimalPath(incident, (Point) incident.getClosestSite(), roadNetwork).path();
+        pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(
+                incident,
+                (Point) incident.getClosestSite(),
+                this.roadNetwork.getRoads()
+        );
+
+        return result.path();
     }
 }
