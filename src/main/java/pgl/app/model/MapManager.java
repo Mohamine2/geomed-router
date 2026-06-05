@@ -161,6 +161,17 @@ public class MapManager {
             }
         }
 
+        if (closest == null) {
+            double minDistance = Double.MAX_VALUE;
+            for (Site site : this.hospitals) {
+                double dist = incident.distanceSquaredTo(site.getX(), site.getY());
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    closest = site;
+                }
+            }
+        }
+
         // On applique l'hôpital optimal trouvé (qu'il vienne du calcul géométrique ou routier)
         incident.setClosestSite(closest);
     }

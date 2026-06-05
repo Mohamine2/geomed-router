@@ -1,6 +1,10 @@
 package pgl.app;
 
+import pgl.app.io.MapBinarySerializer;
 import pgl.app.model.*;
+
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -13,6 +17,7 @@ public class ConsoleRunner {
 
     /** MapManager instance to manage lists of VictimIncidents, Hospitals and Triangles */
     private static final MapManager mapManager = new MapManager();
+    private static String currentMapFile = "map.pglm"; // Default value
 
     /**
      * Main entry point for the console application. Handles the main menu loop.
@@ -20,6 +25,12 @@ public class ConsoleRunner {
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
+
+        if (args.length > 0) {
+            currentMapFile = args[0];
+            System.out.println("Default file mode : " + currentMapFile);
+        }
+
         Scanner sc = new Scanner(System.in);
         System.out.println("--- Starting Emergency MVP Test: Console Mode ---");
 
@@ -28,7 +39,9 @@ public class ConsoleRunner {
             System.out.println("\nSelect an option:");
             System.out.println("1. Automated Test (Random Hospitals & Incidents)");
             System.out.println("2. Manual Test (Input Hospitals & Incidents)");
-            System.out.println("3. Exit");
+            System.out.println("3. Load RoadNetwork");
+            System.out.println("4. Save RoadNetwork");
+            System.out.println("5. Exit");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
@@ -53,11 +66,17 @@ public class ConsoleRunner {
                         displayRoutes(mapManager.getIncidents());
                         break;
                     case 3:
+                        loadFromFile();
+                        break;
+                    case 4:
+                        saveToFile();
+                        break;
+                    case 5:
                         running = false;
                         System.out.println("Exiting...");
                         break;
                     default:
-                        System.out.println("Invalid option! Please enter 1, 2, or 3.");
+                        System.out.println("Invalid option! Please enter 1, 2, 3, 4 or 5.");
                 }
             } else {
                 System.out.println("Error: Please enter a valid number.");
@@ -93,6 +112,8 @@ public class ConsoleRunner {
 
             mapManager.addHospital(h);
         }
+
+        generateRandomRoads(nbHospitals * 2);
 
         int nbIncidents = askNaturalNumber(sc, "How many victim incidents? ");
         System.out.println("\n--- Generating " + nbIncidents + " random incidents ---");
@@ -145,6 +166,12 @@ public class ConsoleRunner {
 
             String incidentId = "INC-M-" + String.format("%03d", i + 1);
             mapManager.addIncident(new VictimIncident(ux, uy, incidentId, emType));
+        }
+
+        System.out.println("\nWould you like to add manual roads? (y/n)");
+        String choice = sc.next();
+        if (choice.equalsIgnoreCase("y")) {
+            addManualRoads(sc);
         }
     }
 
@@ -239,6 +266,52 @@ public class ConsoleRunner {
         System.out.println("----------------------------------------");
     }
 
+    private static void addManualRoads(Scanner sc) {
+        System.out.println("\n--- Manual Road Addition ---");
+        System.out.println("Hospitals and Incidents act as intersections.");
+
+        int nbRoads = askInt(sc, "How many roads you want to add ? ");
+
+        for (int i = 1; i <= nbRoads; i++){
+            System.out.format("--- Road %d ---\n", i);
+            System.out.println("Enter start point coordinates or -1 to finish:");
+
+            int x1 = askInt(sc, "  Enter X: ");
+
+            if (x1 == -1) {
+                System.out.println("Exiting road addition mode.");
+                break;
+            }
+
+            int y1 = askInt(sc, "  Enter Y: ");
+
+            System.out.println("Enter end point coordinates:");
+            int x2 = askInt(sc, "  Enter X: ");
+            int y2 = askInt(sc, "  Enter Y: ");
+
+            mapManager.addRoad(new Point(x1, y1), new Point(x2, y2));
+            System.out.println("Road added.");
+        }
+    }
+
+    public static void generateRandomRoads(int nbRoads) {
+        List<Hospital> hospitals = mapManager.getSites();
+        if (hospitals.size() < 2) return;
+
+        Random rand = new Random();
+        System.out.println("\n--- Generating " + nbRoads + " random roads ---");
+
+        for (int i = 0; i < nbRoads; i++) {
+            Hospital h1 = hospitals.get(rand.nextInt(hospitals.size()));
+            Hospital h2 = hospitals.get(rand.nextInt(hospitals.size()));
+
+            // On évite de créer une route vers soi-même
+            if (h1 != h2) {
+                mapManager.addRoad(new Point(h1.getX(), h1.getY()), new Point(h2.getX(), h2.getY()));
+            }
+        }
+    }
+
     /**
      * Displays the calculated optimal routes for each incident.
      * * @param incidents The list of VictimIncidents provided by MapManager.
@@ -246,9 +319,13 @@ public class ConsoleRunner {
     public static void displayRoutes(List<VictimIncident> incidents) {
         System.out.println("\n--- GPS Routing Paths (Dijkstra) ---");
         for (VictimIncident incident : incidents) {
-            System.out.printf("Incident %s: Target Hospital ID %d\n",
-                    incident.getIncidentId(),
-                    incident.getClosestSite() != null ? incident.getClosestSite().getId() : "NONE");
+            System.out.printf("Incident %s: Target Hospital ID ", incident.getIncidentId());
+
+            if (incident.getClosestSite() != null) {
+                System.out.printf("%d\n", incident.getClosestSite().getId());
+            } else {
+                System.out.println("NONE");
+            }
 
             List<Point> path = mapManager.computeRoadForIncident(incident);
             if (!path.isEmpty()){
@@ -259,6 +336,25 @@ public class ConsoleRunner {
             else{
                 System.out.println("No map data (bird flight)");
             }
+        }
+    }
+
+    private static void saveToFile() {
+        try {
+            MapBinarySerializer.exportToFile(mapManager, Path.of(currentMapFile));
+            System.out.println("Map saved successfully to " + currentMapFile);
+        } catch (IOException e) {
+            System.err.println("Error saving map: " + e.getMessage());
+        }
+    }
+
+    private static void loadFromFile() {
+        try {
+            MapBinarySerializer.importFromFile(mapManager, Path.of(currentMapFile));
+            System.out.println("Map loaded successfully from " + currentMapFile);
+            displayRoutes(mapManager.getIncidents());
+        } catch (IOException e) {
+            System.err.println("Error loading map: " + e.getMessage());
         }
     }
 
