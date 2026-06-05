@@ -12,13 +12,24 @@ import pgl.app.model.Point;
 import pgl.app.model.Triangle;
 import pgl.app.model.VictimIncident;
 import pgl.app.model.Site;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.MouseButton;
 
 public class MapController {
-
+	
+	private double zoomFactor = 1.0;
+	
+	private double lastMouseX;
+	
+	private double lastMouseY;
+	
     @FXML
     private Pane mapPane;
 
     private MapManager mapManager;
+    
+    private SidebarController sidebarController;
 
     /**
      * Méthode appelée automatiquement par JavaFX après le chargement du fichier FXML.
@@ -26,6 +37,51 @@ public class MapController {
     @FXML
     public void initialize() {
         System.out.println("MapController initialisé avec succès !");
+        setupZoom();
+        setupPan();
+    }
+    
+    private void setupZoom() {
+        mapPane.setOnScroll((ScrollEvent event) -> {
+            double zoomDelta = 1.1;
+
+            if (event.getDeltaY() > 0) {
+                zoomFactor *= zoomDelta;
+            } else {
+                zoomFactor /= zoomDelta;
+            }
+
+            zoomFactor = Math.max(0.5, Math.min(zoomFactor, 3.0));
+
+            mapPane.setScaleX(zoomFactor);
+            mapPane.setScaleY(zoomFactor);
+
+            event.consume();
+        });
+    }
+    
+    private void setupPan() {
+        mapPane.setOnMousePressed(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                lastMouseX = event.getSceneX();
+                lastMouseY = event.getSceneY();
+            }
+        });
+
+        mapPane.setOnMouseDragged(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                double deltaX = event.getSceneX() - lastMouseX;
+                double deltaY = event.getSceneY() - lastMouseY;
+
+                mapPane.setTranslateX(mapPane.getTranslateX() + deltaX);
+                mapPane.setTranslateY(mapPane.getTranslateY() + deltaY);
+
+                lastMouseX = event.getSceneX();
+                lastMouseY = event.getSceneY();
+
+                event.consume();
+            }
+        });
     }
     
     private void drawAssignments() {
@@ -94,6 +150,10 @@ public class MapController {
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
     }
+    
+    public void setSidebarController(SidebarController sidebarController) {
+    	this.sidebarController = sidebarController;
+    }
 
     /**
      * Redessine entièrement la carte à partir des données du MapManager.
@@ -110,22 +170,123 @@ public class MapController {
         drawIncidents();
         drawLegend();
     }
+    
+    private void makeHospitalDraggable(Hospital hospital, Circle circle, Text label) {
+        final double[] dragOffset = new double[2];
+
+        circle.setOnMousePressed((MouseEvent event) -> {
+            dragOffset[0] = hospital.getX() - event.getX();
+            dragOffset[1] = hospital.getY() - event.getY();
+
+            if (sidebarController != null) {
+                sidebarController.showHospitalDetails(hospital);
+            }
+
+            event.consume();
+        });
+
+        circle.setOnMouseDragged((MouseEvent event) -> {
+            double newX = event.getX() + dragOffset[0];
+            double newY = event.getY() + dragOffset[1];
+
+            circle.setCenterX(newX);
+            circle.setCenterY(newY);
+            label.setX(newX + 8);
+            label.setY(newY - 8);
+
+            event.consume();
+        });
+
+        circle.setOnMouseReleased((MouseEvent event) -> {
+            double finalX = circle.getCenterX();
+            double finalY = circle.getCenterY();
+
+            hospital.setX(finalX);
+            hospital.setY(finalY);
+
+            mapManager.updateAll();
+            refreshMap();
+
+            event.consume();
+        });
+    }
 
     /**
      * Ajoute visuellement les hôpitaux sur la carte.
      */
     private void drawHospitals() {
         for (Site site : mapManager.getSites()) {
-            Circle hospitalCircle = new Circle(site.getX(), site.getY(), 6);
+            Hospital hospital = (Hospital) site;
+
+            Circle hospitalCircle = new Circle(hospital.getX(), hospital.getY(), 6);
             hospitalCircle.setFill(Color.DODGERBLUE);
             hospitalCircle.setStroke(Color.BLACK);
 
-            String labelText = "H" + ((Hospital) site).getId();
-            Text label = new Text(site.getX() + 8, site.getY() - 8, labelText);
+            String labelText = "H" + hospital.getId();
+            Text label = new Text(hospital.getX() + 8, hospital.getY() - 8, labelText);
             label.setFill(Color.BLACK);
+
+            makeHospitalDraggable(hospital, hospitalCircle, label);
+            
+            hospitalCircle.setOnMouseEntered(event -> {
+                hospitalCircle.setRadius(8);
+                hospitalCircle.setFill(Color.DEEPSKYBLUE);
+
+                if (sidebarController != null) {
+                    sidebarController.showHospitalDetails(hospital);
+                }
+
+                event.consume();
+            });
+
+            hospitalCircle.setOnMouseExited(event -> {
+                hospitalCircle.setRadius(6);
+                hospitalCircle.setFill(Color.DODGERBLUE);
+                event.consume();
+            });
 
             mapPane.getChildren().addAll(hospitalCircle, label);
         }
+    }
+    
+    private void makeIncidentDraggable(VictimIncident incident, Circle circle, Text label) {
+        final double[] dragOffset = new double[2];
+
+        circle.setOnMousePressed((MouseEvent event) -> {
+            dragOffset[0] = incident.getX() - event.getX();
+            dragOffset[1] = incident.getY() - event.getY();
+
+            if (sidebarController != null) {
+                sidebarController.showIncidentDetails(incident);
+            }
+
+            event.consume();
+        });
+
+        circle.setOnMouseDragged((MouseEvent event) -> {
+            double newX = event.getX() + dragOffset[0];
+            double newY = event.getY() + dragOffset[1];
+
+            circle.setCenterX(newX);
+            circle.setCenterY(newY);
+            label.setX(newX + 8);
+            label.setY(newY - 8);
+
+            event.consume();
+        });
+
+        circle.setOnMouseReleased((MouseEvent event) -> {
+            double finalX = circle.getCenterX();
+            double finalY = circle.getCenterY();
+
+            incident.setX(finalX);
+            incident.setY(finalY);
+
+            mapManager.updateAll();
+            refreshMap();
+
+            event.consume();
+        });
     }
 
     /**
@@ -144,6 +305,25 @@ public class MapController {
             );
             label.setFill(Color.BLACK);
 
+            makeIncidentDraggable(incident, incidentCircle, label);
+
+            incidentCircle.setOnMouseEntered(event -> {
+                incidentCircle.setRadius(6);
+                incidentCircle.setFill(Color.ORANGERED);
+
+                if (sidebarController != null) {
+                    sidebarController.showIncidentDetails(incident);
+                }
+
+                event.consume();
+            });
+
+            incidentCircle.setOnMouseExited(event -> {
+                incidentCircle.setRadius(4);
+                incidentCircle.setFill(Color.CRIMSON);
+                event.consume();
+            });
+
             mapPane.getChildren().addAll(incidentCircle, label);
         }
     }
@@ -160,6 +340,27 @@ public class MapController {
             Line ab = new Line(a.getX(), a.getY(), b.getX(), b.getY());
             Line bc = new Line(b.getX(), b.getY(), c.getX(), c.getY());
             Line ca = new Line(c.getX(), c.getY(), a.getX(), a.getY());
+            
+            ab.setOnMouseClicked(event -> {
+                if (sidebarController != null) {
+                    sidebarController.showTriangleDetails(triangle);
+                }
+                event.consume();
+            });
+
+            bc.setOnMouseClicked(event -> {
+                if (sidebarController != null) {
+                    sidebarController.showTriangleDetails(triangle);
+                }
+                event.consume();
+            });
+
+            ca.setOnMouseClicked(event -> {
+                if (sidebarController != null) {
+                    sidebarController.showTriangleDetails(triangle);
+                }
+                event.consume();
+            });
 
             ab.setStroke(Color.GRAY);
             bc.setStroke(Color.GRAY);

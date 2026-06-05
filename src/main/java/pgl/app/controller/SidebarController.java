@@ -8,6 +8,7 @@ import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.VictimIncident;
 import pgl.app.model.MedicalSpecialty;
+import pgl.app.model.Triangle;
 
 public class SidebarController {
 
@@ -28,6 +29,15 @@ public class SidebarController {
 
     @FXML
     private Label assignedHospitalLabel;
+    
+    @FXML
+    private Label selectedTypeLabel;
+
+    @FXML
+    private Label selectedIdLabel;
+
+    @FXML
+    private Label selectedDetailsLabel;
 
     private final Random random = new Random();
 
@@ -71,6 +81,102 @@ public class SidebarController {
 
     public void setMapController(MapController mapController) {
         this.mapController = mapController;
+    }
+    
+    public void showHospitalDetails(Hospital hospital) {
+        if (hospital == null) {
+            selectedTypeLabel.setText("Type: none");
+            selectedIdLabel.setText("Id: none");
+            selectedDetailsLabel.setText("Details: none");
+            return;
+        }
+
+        int assignedIncidents = 0;
+        for (VictimIncident incident : mapManager.getIncidents()) {
+            if (incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()) {
+                assignedIncidents++;
+            }
+        }
+
+        selectedTypeLabel.setText("Type: Hospital");
+        selectedIdLabel.setText("Id: H" + hospital.getId());
+        selectedDetailsLabel.setText(
+                "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n" +
+                "Capacity: " + hospital.getCapacityMax() + "\n" +
+                "Assigned incidents: " + assignedIncidents
+        );
+    }
+    
+    public void showIncidentDetails(VictimIncident incident) {
+        if (incident == null) {
+            selectedTypeLabel.setText("Type: none");
+            selectedIdLabel.setText("Id: none");
+            selectedDetailsLabel.setText("Details: none");
+            return;
+        }
+
+        selectedTypeLabel.setText("Type: Incident");
+        selectedIdLabel.setText("Id: " + incident.getIncidentId());
+
+        String assignedHospital = "none";
+        if (incident.getClosestSite() != null) {
+            assignedHospital = "H" + incident.getClosestSite().getId();
+        }
+
+        selectedDetailsLabel.setText(
+                "Position: (" + (int) incident.getX() + ", " + (int) incident.getY() + ")\n" +
+                "Emergency type: " + incident.getEmergencyType() + "\n" +
+                "Assigned hospital: " + assignedHospital
+        );
+    }
+    
+    public void showTriangleDetails(Triangle triangle) {
+        if (triangle == null) {
+            selectedTypeLabel.setText("Type: none");
+            selectedIdLabel.setText("Id: none");
+            selectedDetailsLabel.setText("Details: none");
+            return;
+        }
+
+        Hospital h1 = (Hospital) triangle.getA();
+        Hospital h2 = (Hospital) triangle.getB();
+        Hospital h3 = (Hospital) triangle.getC();
+
+        int countH1 = 0;
+        int countH2 = 0;
+        int countH3 = 0;
+
+        for (VictimIncident incident : mapManager.getIncidents()) {
+            if (incident.getClosestSite() != null) {
+                int siteId = incident.getClosestSite().getId();
+                if (siteId == h1.getId()) countH1++;
+                if (siteId == h2.getId()) countH2++;
+                if (siteId == h3.getId()) countH3++;
+            }
+        }
+
+        double area = Math.abs(
+                h1.getX() * (h2.getY() - h3.getY()) +
+                h2.getX() * (h3.getY() - h1.getY()) +
+                h3.getX() * (h1.getY() - h2.getY())
+        ) / 2.0;
+
+        selectedTypeLabel.setText("Type: Triangle");
+        selectedIdLabel.setText("Id: H" + h1.getId() + "-H" + h2.getId() + "-H" + h3.getId());
+        selectedDetailsLabel.setText(
+                "Vertices: H" + h1.getId() + ", H" + h2.getId() + ", H" + h3.getId() + "\n" +
+                "Area: " + String.format("%.2f", area) + "\n" +
+                "Assigned incidents:\n" +
+                "H" + h1.getId() + ": " + countH1 + "\n" +
+                "H" + h2.getId() + ": " + countH2 + "\n" +
+                "H" + h3.getId() + ": " + countH3
+        );
+    }
+    
+    public void clearSelectionDetails() {
+        selectedTypeLabel.setText("Type: none");
+        selectedIdLabel.setText("Id: none");
+        selectedDetailsLabel.setText("Details: none");
     }
 
     @FXML
@@ -144,5 +250,6 @@ public class SidebarController {
         
         updateStats();
         updateLastAssignment();
+        clearSelectionDetails();
     }
 }

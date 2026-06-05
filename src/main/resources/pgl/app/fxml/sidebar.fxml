@@ -59,6 +59,19 @@
 
 				<Label fx:id="triangleCountLabel"
        			text="Triangles: 0" />
+       			
+       			<Label text="Selected element"
+       				style="-fx-font-size! 16px; -fx-font-weight: bold;" />
+       			
+       			<Label fx:id="selectedTypeLabel"
+       			text="Type : none" />
+       			
+       			<Label fx:id="selectedIdLabel"
+       			text="Id : none" />
+       			
+       			<Label fx:id="selectedDetailsLabel"
+       			text="Details : none"
+       			wrapText="true" />
 
 				<Separator />
 

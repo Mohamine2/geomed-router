@@ -34,6 +34,7 @@ public class MainController {
             mapController.setMapManager(mapManager);
             sidebarController.setMapManager(mapManager);
             sidebarController.setMapController(mapController);
+            mapController.setSidebarController(sidebarController);
 
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement des sous-vues JavaFX.");
