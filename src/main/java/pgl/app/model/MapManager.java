@@ -64,6 +64,15 @@ public class MapManager {
         this.updateAll();
     }
 
+    public Hospital findHospitalById(int id) {
+        for (Hospital h : this.hospitals) {
+            if (h.getId() == id) {
+                return h;
+            }
+        }
+        return null;
+    }
+
     /**
      * Adds a user point to the map and immediately assigns it to its closest site.
      * This operation does not trigger a full triangulation recalculation.
@@ -95,6 +104,16 @@ public class MapManager {
      */
     public void removeIncident(VictimIncident incident) {
         this.incidents.remove(incident);
+    }
+
+    public VictimIncident findIncidentById(String id) {
+        if (id == null) return null;
+        for (VictimIncident vi : this.incidents) {
+            if (vi.getIncidentId().equalsIgnoreCase(id)) {
+                return vi;
+            }
+        }
+        return null;
     }
 
     public void addRoad(Point start, Point end){
@@ -196,7 +215,6 @@ public class MapManager {
             }
         }
 
-        // On applique l'hôpital optimal trouvé (qu'il vienne du calcul géométrique ou routier)
         incident.setClosestSite(closest);
     }
 

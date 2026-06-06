@@ -17,79 +17,278 @@ public class ConsoleRunner {
 
     /** MapManager instance to manage lists of VictimIncidents, Hospitals and Triangles */
     private static final MapManager mapManager = new MapManager();
-    private static String currentMapFile = "map.pglm"; // Default value
+
+    /** Default binary map file path used for serialization */
+    private static String currentMapFile = "map.pglm";
 
     /**
      * Main entry point for the console application. Handles the main menu loop.
      *
-     * @param args Command line arguments (not used).
+     * @param args Command line arguments (optional file mode override).
      */
     public static void main(String[] args) {
-
         if (args.length > 0) {
             currentMapFile = args[0];
             System.out.println("Default file mode : " + currentMapFile);
         }
 
         Scanner sc = new Scanner(System.in);
-        System.out.println("--- Starting Emergency MVP Test: Console Mode ---");
+        System.out.println("--- Urgent Emergency Dispatcher - Console Mode ---");
 
         boolean running = true;
         while (running) {
-            System.out.println("\nSelect an option:");
-            System.out.println("1. Automated Test (Random Hospitals & Incidents)");
-            System.out.println("2. Manual Test (Input Hospitals & Incidents)");
-            System.out.println("3. Import Data from CSV (Mass Import)");
-            System.out.println("4. Load RoadNetwork");
-            System.out.println("5. Save RoadNetwork");
-            System.out.println("6. Exit");
+            System.out.println("\n===== MAIN MENU =====");
+            System.out.println("1. Manage Hospitals (Add, Remove, Move)");
+            System.out.println("2. Manage Incidents (Add, Remove, Move, Mass Random)");
+            System.out.println("3. Mass Import Data from CSV Files");
+            System.out.println("4. Inspection Panel & Specific Queries");
+            System.out.println("5. Global Map Binary IO (Load/Save)");
+            System.out.println("6. Full Automated Random Test Simulation");
+            System.out.println("7. Exit Application");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
                 int mode = sc.nextInt();
                 switch (mode) {
-                    case 1:
-                        int randSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
-                        randomTest(sc, randSites);
-
-                        displayResults();
-                        break;
-                    case 2:
-                        int manualSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
-                        manualTest(sc, manualSites);
-
-                        displayResults();
-                        break;
-                    case 3:
-                        importCsvMenu(sc);
-                        displayResults();
-                        break;
-                    case 4:
-                        loadFromFile();
-                        break;
-                    case 5:
-                        saveToFile();
-                        break;
+                    case 1: manageHospitalsMenu(sc); break;
+                    case 2: manageIncidentsMenu(sc); break;
+                    case 3: importCsvMenu(sc); displayResults(); break;
+                    case 4: inspectionMenu(sc); break;
+                    case 5: binaryIoMenu(sc); break;
                     case 6:
+                        int randSites = askNaturalNumber(sc, "How many hospitals (Min 3)? ");
+                        randomTest(sc, randSites);
+                        displayResults();
+                        break;
+                    case 7:
                         running = false;
                         System.out.println("Exiting...");
                         break;
                     default:
-                        System.out.println("Invalid option! Please enter 1, 2, 3, 4 or 5.");
+                        System.out.println("Invalid option! Please enter a number between 1 and 7.");
                 }
             } else {
                 System.out.println("Error: Please enter a valid number.");
-                sc.next(); // Clear invalid input from the buffer
+                sc.next();
             }
         }
         sc.close();
-        System.out.println("--- Test finished successfully ---");
+    }
+
+    /**
+     * Sub-menu handling hospital lifecycle management (Add, Remove, Move).
+     *
+     * @param sc The Scanner object for user input.
+     */
+    private static void manageHospitalsMenu(Scanner sc) {
+        System.out.println("\n--- Hospital Management ---");
+        System.out.println("1. Add a single Hospital");
+        System.out.println("2. Remove a Hospital (by ID)");
+        System.out.println("3. Move an existing Hospital");
+        int choice = askInt(sc, "Choice: ");
+
+        if (choice == 1) {
+            int id = mapManager.getSites().size() + 1;
+            double x = askInt(sc, "  Enter X: ");
+            double y = askInt(sc, "  Enter Y: ");
+            int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
+            Hospital h = new Hospital(x, y, id, cap);
+            h.addSpecialty(askMedicalSpecialty(sc, "  Select primary specialty:"));
+            mapManager.addHospital(h);
+            System.out.println("Hospital H" + id + " successfully added.");
+        }
+
+        else if (choice == 2) {
+            int id = askInt(sc, "  Enter Hospital ID to remove: ");
+            Hospital h = mapManager.findHospitalById(id);
+            if (h != null) {
+                mapManager.removeHospital(h);
+                System.out.println("Hospital H" + id + " removed.");
+            } else {
+                System.out.println("Hospital not found.");
+            }
+        }
+
+        else if (choice == 3) {
+            int id = askInt(sc, "  Enter Hospital ID to move: ");
+            Hospital h = mapManager.findHospitalById(id);
+            if (h != null) {
+                h.setX(askInt(sc, "  Enter New X: "));
+                h.setY(askInt(sc, "  Enter New Y: "));
+                mapManager.updateAll();
+                System.out.println("Hospital H" + id + " moved successfully.");
+            } else {
+                System.out.println("Hospital not found.");
+            }
+        }
+    }
+
+    /**
+     * Sub-menu handling victim incident lifecycle management (Add, Remove, Move, Mass Generation).
+     *
+     * @param sc The Scanner object for user input.
+     */
+    private static void manageIncidentsMenu(Scanner sc) {
+        System.out.println("\n--- Incident Management ---");
+        System.out.println("1. Add a manual Incident");
+        System.out.println("2. Remove an Incident (by ID)");
+        System.out.println("3. Move an existing Incident");
+        System.out.println("4. Add Mass Random Incidents (Random Positions)");
+        int choice = askInt(sc, "Choice: ");
+
+        switch(choice) {
+            case 1: {
+                double ux = askInt(sc, "  Enter Incident X: ");
+                double uy = askInt(sc, "  Enter Incident Y: ");
+                MedicalSpecialty emType = askMedicalSpecialty(sc, "  Select Emergency Type:");
+                String id = "INC-M-" + String.format("%03d", mapManager.getIncidents().size() + 1);
+                mapManager.addIncident(new VictimIncident(ux, uy, id, emType));
+                System.out.println("Incident " + id + " logged and linked to closest site.");
+                break;
+            }
+
+            case 2: {
+                System.out.print("  Enter Incident ID to remove (ex: INC-M-001): ");
+                String id = sc.next();
+                VictimIncident vi = mapManager.findIncidentById(id);
+                if (vi != null) {
+                    mapManager.removeIncident(vi);
+                    System.out.println("Incident " + id + " removed.");
+                } else {
+                    System.out.println("Incident not found.");
+                }
+                break;
+            }
+
+            case 3: {
+                System.out.print("  Enter Incident ID to move: ");
+                String id = sc.next();
+                VictimIncident vi = mapManager.findIncidentById(id);
+                if (vi != null) {
+                    vi.setX(askInt(sc, "  Enter New X: "));
+                    vi.setY(askInt(sc, "  Enter New Y: "));
+                    mapManager.updateAll();
+                    System.out.println("Incident " + id + " repositioned and re-assigned.");
+                } else {
+                    System.out.println("Incident not found.");
+                }
+                break;
+            }
+
+            case 4: {
+                int count = askNaturalNumber(sc, "  How many random incidents to generate? ");
+                Random rand = new Random();
+                MedicalSpecialty[] specialties = MedicalSpecialty.values();
+                int startCount = mapManager.getIncidents().size() + 1;
+                List<VictimIncident> newIncidents = new ArrayList<>();
+                for (int i = 0; i < count; i++) {
+                    String incidentId = "INC-RAND-" + String.format("%03d", startCount++);
+                    MedicalSpecialty type = specialties[rand.nextInt(specialties.length)];
+                    newIncidents.add(new VictimIncident(rand.nextInt(201) - 100, rand.nextInt(201) - 100, incidentId, type));
+                }
+                mapManager.addIncidents(newIncidents);
+                System.out.println(count + " random incidents generated and linked.");
+                break;
+            }
+        }
+    }
+
+    /**
+     * Sub-menu providing granular structural analysis for hospitals, incidents, and geometric components.
+     *
+     * @param sc The Scanner object for user input.
+     */
+    private static void inspectionMenu(Scanner sc) {
+        System.out.println("\n--- Inspection Panel ---");
+        System.out.println("1. Inspect a specific Hospital & Voronoi Cell Metrics");
+        System.out.println("2. Inspect a specific Victim Incident (View Zone Neighbors)");
+        System.out.println("3. Inspect a specific Delaunay Triangle (Workload Disparity)");
+        System.out.println("4. Display Global Dashboard (All summary stats)");
+        int choice = askInt(sc, "Choice: ");
+
+        switch (choice) {
+            case 1:
+                int hId = askInt(sc, "Enter Hospital ID: ");
+                Hospital h = mapManager.findHospitalById(hId);
+                if (h != null) {
+                    HospitalStats stats = mapManager.getStatsForHospital(h);
+                    System.out.printf("\n[Hospital H%d Inspection Profile]\n", h.getId());
+                    System.out.printf("  Position: (%.1f, %.1f) | Occupancy: %d/%d (%.1f%%)\n", h.getX(), h.getY(), h.getCurrentPatients(), h.getCapacityMax(), h.getOccupancyRate()*100);
+                    System.out.printf("  Active Assigned Incidents workload: %d cases\n", stats.getAssignedIncidentsCount());
+                    if (stats.getAssignedIncidentsCount() > 0) {
+                        System.out.printf("  Response Vector Distances -> Min: %.2f | Max: %.2f | Avg: %.2f\n", stats.getMinDistance(), stats.getMaxDistance(), stats.getAverageDistance());
+                    }
+                } else {
+                    System.out.println("Hospital not found.");
+                }
+                break;
+            case 2:
+                System.out.print("Enter Incident ID: ");
+                String viId = sc.next();
+                VictimIncident vi = mapManager.findIncidentById(viId);
+                if (vi != null) {
+                    System.out.printf("\n[Incident %s Inspection Profile]\n", vi.getIncidentId());
+                    System.out.printf("  Coordinates: (%.1f, %.1f) | Specialty Required: %s\n", vi.getX(), vi.getY(), vi.getEmergencyType());
+                    if (vi.getClosestSite() != null) {
+                        int attachedId = vi.getClosestSite().getId();
+                        System.out.println("  Linked Center: Hospital H" + attachedId);
+                        System.out.println("  Zone Neighbors (Other victims routed to the same hospital):");
+                        int countNeighbors = 0;
+                        for (VictimIncident other : mapManager.getIncidents()) {
+                            if (!other.getIncidentId().equals(vi.getIncidentId()) && other.getClosestSite() != null && other.getClosestSite().getId() == attachedId) {
+                                System.out.printf("    -> %s at position (%.1f, %.1f)\n", other.getIncidentId(), other.getX(), other.getY());
+                                countNeighbors++;
+                            }
+                        }
+                        if (countNeighbors == 0) System.out.println("    No other neighbors inside this sector.");
+                    } else {
+                        System.out.println("  Linked Center: None (Orphan incident)");
+                    }
+                } else {
+                    System.out.println("Incident not found.");
+                }
+                break;
+            case 3:
+                List<Triangle> triangles = mapManager.getTriangles();
+                if (triangles.isEmpty()) {
+                    System.out.println("No Delaunay mesh structure computed yet.");
+                    return;
+                }
+                System.out.println("Available Triangles index (1 to " + triangles.size() + "):");
+                int tIdx = askInt(sc, "Select Index: ") - 1;
+                if (tIdx >= 0 && tIdx < triangles.size()) {
+                    Triangle t = triangles.get(tIdx);
+                    Hospital hA = (Hospital) t.getA();
+                    Hospital hB = (Hospital) t.getB();
+                    Hospital hC = (Hospital) t.getC();
+                    int countA = mapManager.getIncidentCountForHospital(hA);
+                    int countB = mapManager.getIncidentCountForHospital(hB);
+                    int countC = mapManager.getIncidentCountForHospital(hC);
+
+                    System.out.printf("\n[Delaunay Triangle #%d Inspection Panel]\n", (tIdx + 1));
+                    System.out.printf("  Vertices coordinates: A(H%d: %.1f,%.1f) B(H%d: %.1f,%.1f) C(H%d: %.1f,%.1f)\n", hA.getId(), hA.getX(), hA.getY(), hB.getId(), hB.getX(), hB.getY(), hC.getId(), hC.getX(), hC.getY());
+                    System.out.printf("  Arête metrics: AB = %.2f | BC = %.2f | CA = %.2f\n", t.getEdgeABLength(), t.getEdgeBCLength(), t.getEdgeCALength());
+                    System.out.printf("  Geometric Surface Area: %.2f square units\n", t.getArea());
+                    System.out.println("  Demographic Load distribution per vertex:");
+                    System.out.printf("    - Hospital H%d: %d active users\n", hA.getId(), countA);
+                    System.out.printf("    - Hospital H%d: %d active users\n", hB.getId(), countB);
+                    System.out.printf("    - Hospital H%d: %d active users\n", hC.getId(), countC);
+                    System.out.printf("  Localized Workload Imbalance Disparity: %d cases difference\n", mapManager.getTriangleLoadImbalance(t));
+                } else {
+                    System.out.println("Index out of bounds.");
+                }
+                break;
+
+            case 4:
+                displayResults();
+                break;
+        }
     }
 
     /**
      * Performs an automated test by generating random hospitals and victim incidents.
      *
-     * @param sc         The Scanner object for input.
+     * @param sc          The Scanner object for input.
      * @param nbHospitals The number of hospitals to generate.
      */
     public static void randomTest(Scanner sc, int nbHospitals) {
@@ -131,50 +330,6 @@ public class ConsoleRunner {
     }
 
     /**
-     * Performs a manual test by prompting the user for hospital and incident parameters.
-     *
-     * @param sc        The Scanner object for input.
-     * @param hospitalNb The number of hospitals to define.
-     */
-    public static void manualTest(Scanner sc, int hospitalNb) {
-        mapManager.clear();
-
-        System.out.println("\n--- Manual entry for " + hospitalNb + " hospitals ---");
-        for (int i = 0; i < hospitalNb; i++) {
-            System.out.println("Hospital #" + (i + 1) + ":");
-            int x = askInt(sc, "  Enter X: ");
-            int y = askInt(sc, "  Enter Y: ");
-            int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
-
-            Hospital h = new Hospital(x, y, i + 1, cap);
-            MedicalSpecialty spec = askMedicalSpecialty(sc, "  Select primary specialty:");
-            h.addSpecialty(spec);
-
-            mapManager.addHospital(h);
-        }
-
-        int nbIncidents = askNaturalNumber(sc, "How many victim incidents? ");
-        System.out.println("\n--- Manual entry for " + nbIncidents + " incidents ---");
-
-        for (int i = 0; i < nbIncidents; i++) {
-            System.out.println("Incident " + (i + 1) + ":");
-            int ux = askInt(sc, "  Enter Incident X: ");
-            int uy = askInt(sc, "  Enter Incident Y: ");
-
-            MedicalSpecialty emType = askMedicalSpecialty(sc, "  Select Emergency Type:");
-
-            String incidentId = "INC-M-" + String.format("%03d", i + 1);
-            mapManager.addIncident(new VictimIncident(ux, uy, incidentId, emType));
-        }
-
-        System.out.println("\nWould you like to add manual roads? (y/n)");
-        String choice = sc.next();
-        if (choice.equalsIgnoreCase("y")) {
-            addManualRoads(sc);
-        }
-    }
-
-    /**
      * Displays advanced operational and distance statistics for all active hospitals.
      * * @param hospitals The list of hospitals to inspect.
      */
@@ -209,7 +364,7 @@ public class ConsoleRunner {
 
     /**
      * Displays the triangles with advanced geometric and operational metrics.
-     * @param triangles The list of triangles given by the DelaunayEngine.
+     * * @param triangles The list of triangles provided by the Delaunay triangulation engine.
      */
     public static void displayTriangles(List<Triangle> triangles) {
         System.out.println("\n--- Delaunay Triangulation & Inspection Results ---");
@@ -265,34 +420,11 @@ public class ConsoleRunner {
         System.out.println("----------------------------------------");
     }
 
-    private static void addManualRoads(Scanner sc) {
-        System.out.println("\n--- Manual Road Addition ---");
-        System.out.println("Hospitals and Incidents act as intersections.");
-
-        int nbRoads = askInt(sc, "How many roads you want to add ? ");
-
-        for (int i = 1; i <= nbRoads; i++){
-            System.out.format("--- Road %d ---\n", i);
-            System.out.println("Enter start point coordinates or -1 to finish:");
-
-            int x1 = askInt(sc, "  Enter X: ");
-
-            if (x1 == -1) {
-                System.out.println("Exiting road addition mode.");
-                break;
-            }
-
-            int y1 = askInt(sc, "  Enter Y: ");
-
-            System.out.println("Enter end point coordinates:");
-            int x2 = askInt(sc, "  Enter X: ");
-            int y2 = askInt(sc, "  Enter Y: ");
-
-            mapManager.addRoad(new Point(x1, y1), new Point(x2, y2));
-            System.out.println("Road added.");
-        }
-    }
-
+    /**
+     * Generates random road connections between existing hospitals.
+     *
+     * @param nbRoads The number of road connections to randomly generate.
+     */
     public static void generateRandomRoads(int nbRoads) {
         List<Hospital> hospitals = mapManager.getSites();
         if (hospitals.size() < 2) return;
@@ -304,7 +436,7 @@ public class ConsoleRunner {
             Hospital h1 = hospitals.get(rand.nextInt(hospitals.size()));
             Hospital h2 = hospitals.get(rand.nextInt(hospitals.size()));
 
-            // On évite de créer une route vers soi-même
+            // Prevent self-loop roads
             if (h1 != h2) {
                 mapManager.addRoad(new Point(h1.getX(), h1.getY()), new Point(h2.getX(), h2.getY()));
             }
@@ -312,7 +444,7 @@ public class ConsoleRunner {
     }
 
     /**
-     * Displays the calculated optimal routes for each incident.
+     * Displays the calculated optimal routes for each active incident.
      * * @param incidents The list of VictimIncidents provided by MapManager.
      */
     public static void displayRoutes(List<VictimIncident> incidents) {
@@ -390,7 +522,7 @@ public class ConsoleRunner {
     }
 
     /**
-     * Helper to display all results on the screen.
+     * Helper method to display comprehensive simulation metrics and topologies.
      */
     private static void displayResults() {
         displayAdvancedHospitalStats(mapManager.getSites());
@@ -399,6 +531,26 @@ public class ConsoleRunner {
         displayRoutes(mapManager.getIncidents());
     }
 
+    /**
+     * Sub-menu handling binary file serialization and deserialization tasks.
+     *
+     * @param sc The Scanner object for user input.
+     */
+    private static void binaryIoMenu(Scanner sc) {
+        System.out.println("\n--- Map Serialization (Binary File Format) ---");
+        System.out.println("1. Load / Import entire Map Topology (" + currentMapFile + ")");
+        System.out.println("2. Save / Export current Map State (" + currentMapFile + ")");
+        int choice = askInt(sc, "Choice: ");
+        if (choice == 1) {
+            loadFromFile();
+        } else if (choice == 2) {
+            saveToFile();
+        }
+    }
+
+    /**
+     * Exports the current map structure and states into a persistent binary file.
+     */
     private static void saveToFile() {
         try {
             MapBinarySerializer.exportToFile(mapManager, Path.of(currentMapFile));
@@ -408,6 +560,9 @@ public class ConsoleRunner {
         }
     }
 
+    /**
+     * Imports and reconstructs the total map infrastructure from a binary data file.
+     */
     private static void loadFromFile() {
         try {
             MapBinarySerializer.importFromFile(mapManager, Path.of(currentMapFile));
@@ -451,6 +606,10 @@ public class ConsoleRunner {
 
     /**
      * Helper method to robustly ask for a natural number.
+     *
+     * @param sc  The Scanner object for user input.
+     * @param msg The contextual prompt message.
+     * @return A valid integer strictly greater than 0.
      */
     public static int askNaturalNumber(Scanner sc, String msg) {
         while (true) {
@@ -462,6 +621,10 @@ public class ConsoleRunner {
 
     /**
      * Helper method to robustly request an integer from the user.
+     *
+     * @param sc      The Scanner object for user input.
+     * @param message The contextual prompt message.
+     * @return A valid integer parsed from the console.
      */
     private static int askInt(Scanner sc, String message) {
         while (true) {
