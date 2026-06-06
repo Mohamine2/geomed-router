@@ -151,13 +151,10 @@ public final class MapBinarySerializer {
             double x = data.readDouble();
             double y = data.readDouble();
             String incidentId = data.readUTF();
-            String name = data.readUTF();
-            MedicalSpecialty type;
-            try {
-                type = MedicalSpecialty.valueOf(name);
-            } catch (IllegalArgumentException e) {
-                throw new IOException("Invalid File Format: Unknown medical specialty '" + name + "'", e);
-            }
+
+            byte specialtyOrdinal = data.readByte();
+            MedicalSpecialty type = readSpecialty(specialtyOrdinal);
+
             int preferredId = data.readInt();
             VictimIncident incident = preferredId < 0
                     ? new VictimIncident(x, y, incidentId, type)
