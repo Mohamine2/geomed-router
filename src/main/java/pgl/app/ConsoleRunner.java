@@ -39,9 +39,10 @@ public class ConsoleRunner {
             System.out.println("\nSelect an option:");
             System.out.println("1. Automated Test (Random Hospitals & Incidents)");
             System.out.println("2. Manual Test (Input Hospitals & Incidents)");
-            System.out.println("3. Load RoadNetwork");
-            System.out.println("4. Save RoadNetwork");
-            System.out.println("5. Exit");
+            System.out.println("3. Import Data from CSV (Mass Import)");
+            System.out.println("4. Load RoadNetwork");
+            System.out.println("5. Save RoadNetwork");
+            System.out.println("6. Exit");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
@@ -51,27 +52,25 @@ public class ConsoleRunner {
                         int randSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
                         randomTest(sc, randSites);
 
-                        displayAdvancedHospitalStats(mapManager.getSites());
-                        displayTriangles(mapManager.getTriangles());
-                        displayVoronoiCells(mapManager.getVoronoiCells());
-                        displayRoutes(mapManager.getIncidents());
+                        displayResults();
                         break;
                     case 2:
                         int manualSites = askNaturalNumber(sc, "How many hospitals (Min 3 for triangulation)? ");
                         manualTest(sc, manualSites);
 
-                        displayAdvancedHospitalStats(mapManager.getSites());
-                        displayTriangles(mapManager.getTriangles());
-                        displayVoronoiCells(mapManager.getVoronoiCells());
-                        displayRoutes(mapManager.getIncidents());
+                        displayResults();
                         break;
                     case 3:
-                        loadFromFile();
+                        importCsvMenu(sc);
+                        displayResults();
                         break;
                     case 4:
-                        saveToFile();
+                        loadFromFile();
                         break;
                     case 5:
+                        saveToFile();
+                        break;
+                    case 6:
                         running = false;
                         System.out.println("Exiting...");
                         break;
@@ -242,7 +241,7 @@ public class ConsoleRunner {
         System.out.println("Total cells generated: " + cells.size());
 
         if (cells.isEmpty()) {
-            System.out.println("  No cells constructed (Requires at least 3 non-colinear hospitals).");
+            System.out.println("Coverage areas: Too few sites to close the cells. Add more hospitals to visualize the Voronoi areas.");
         }
 
         for (VoronoiCell cell : cells) {
@@ -337,6 +336,67 @@ public class ConsoleRunner {
                 System.out.println("No map data (bird flight)");
             }
         }
+    }
+
+    /**
+     * Sub-menu to manage mass importation from a CSV file.
+     *
+     * @param sc the {@link Scanner} used for user input
+     */
+    private static void importCsvMenu(Scanner sc) {
+        System.out.println("\n--- Mass Import (CSV) ---");
+        System.out.println("1. Import Hospitals (Sites)");
+        System.out.println("2. Import Victim Incidents");
+        int choice = askInt(sc, "Choice: ");
+
+        System.out.print("Enter the relative or absolute CSV file path (ex: test_incidents.csv): ");
+        String filePath = sc.next();
+        Path path = Path.of(filePath);
+
+        if (!java.nio.file.Files.exists(path)) {
+            System.out.println("Error: File not found at " + path.toAbsolutePath());
+            return;
+        }
+
+        try {
+            if (choice == 1) {
+                int startId = mapManager.getSites().size() + 1;
+                List<Hospital> hospitals = pgl.app.io.CsvSiteImporter.importFromCsv(path, startId);
+
+                if (!hospitals.isEmpty()) {
+                    mapManager.addHospitals(hospitals);
+                    System.out.println(hospitals.size() + " hospitals successfully imported!");
+                } else {
+                    System.out.println("No valid data found in the CSV.");
+                }
+
+            } else if (choice == 2) {
+                int startCount = mapManager.getIncidents().size() + 1;
+                List<VictimIncident> incidents = pgl.app.io.CsvIncidentImporter.importFromCsv(path, startCount);
+
+                if (!incidents.isEmpty()) {
+                    mapManager.addIncidents(incidents);
+                    System.out.println(incidents.size() + " incidents successfully imported!");
+                } else {
+                    System.out.println("No valid data found in the CSV.");
+                }
+
+            } else {
+                System.out.println("Invalid choice.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error during CSV import: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Helper to display all results on the screen.
+     */
+    private static void displayResults() {
+        displayAdvancedHospitalStats(mapManager.getSites());
+        displayTriangles(mapManager.getTriangles());
+        displayVoronoiCells(mapManager.getVoronoiCells());
+        displayRoutes(mapManager.getIncidents());
     }
 
     private static void saveToFile() {

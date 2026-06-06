@@ -44,6 +44,17 @@ public class MapManager {
     }
 
     /**
+     * Adds a list of sites in bulk and updates the map only once
+     * to optimize the performance of the triangulation engine.
+     *
+     * @param newHospitals the hodpitals list to import
+     */
+    public void addHospitals(List<Hospital> newHospitals) {
+        this.hospitals.addAll(newHospitals);
+        this.updateAll();
+    }
+
+    /**
      * Removes a reference site from the map and updates the entire map structure.
      *
      * @param hospital the hospital to be removed
@@ -62,6 +73,19 @@ public class MapManager {
     public void addIncident(VictimIncident incident) {
         this.incidents.add(incident);
         this.updateSingleUserAssignment(incident);
+    }
+
+    /**
+     * Adds a list of incidents in bulk.
+     * * Automatically assigns each new incident to its nearest site.
+     *
+     * @param newIncidents the incidents' list to import
+     */
+    public void addIncidents(List<VictimIncident> newIncidents) {
+        for (VictimIncident incident : newIncidents) {
+            this.incidents.add(incident);
+            this.updateSingleUserAssignment(incident);
+        }
     }
 
     /**
