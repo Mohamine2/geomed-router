@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextArea?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -18,6 +19,7 @@
         <VBox spacing="12.0"
               prefWidth="250.0"
               prefHeight="700.0"
+              fillWidth="true"
               style="-fx-background-color: #f1f5f9; -fx-border-color: #cbd5e1; -fx-border-width: 0 0 0 1;">
             <padding>
                 <Insets top="20.0" right="16.0" bottom="20.0" left="16.0"/>
@@ -69,25 +71,36 @@
        			<Label fx:id="selectedIdLabel"
        			text="Id : none" />
        			
-       			<Label fx:id="selectedDetailsLabel"
-       			text="Details : none"
-       			wrapText="true" />
+       			<TextArea fx:id="selectedDetailsArea"
+          		editable="false"
+          		wrapText="true"
+          		focusTraversable="false"
+         	 	prefRowCount="10"
+          		prefWidth="220.0" />
 
 				<Separator />
 
 				<Label fx:id="infoLabel"
        			text="No action yet."
        			wrapText="true"
+       			maxWidth="Infinity"
+       			prefWidth="220.0"
        			style="-fx-font-size: 13px;" />
        			
        			<Label text="Last assignment"
        			style="-fx-font-size: 16px; -fx-font-weight: bold;" />
 
 				<Label fx:id="lastIncidentLabel"
-       			text="Last incident: none" />
+       			text="Last incident: none" 
+       			wrapText="true"
+       			prefWidth="220.0"
+       			maxWidth="Infinity"/>
 
 				<Label fx:id="assignedHospitalLabel"
-       			text="Assigned hospital: none" />
+       			text="Assigned hospital: none" 
+       			wrapText="true"
+       			prefWidth="220.0"
+       			maxWidth="Infinity"/>
             </children>
         </VBox>
     </children>

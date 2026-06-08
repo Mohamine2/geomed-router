@@ -9,6 +9,8 @@ import pgl.app.model.MapManager;
 import pgl.app.model.VictimIncident;
 import pgl.app.model.MedicalSpecialty;
 import pgl.app.model.Triangle;
+import javafx.scene.control.TextArea;
+
 
 public class SidebarController {
 
@@ -37,11 +39,12 @@ public class SidebarController {
     private Label selectedIdLabel;
 
     @FXML
-    private Label selectedDetailsLabel;
+    private TextArea selectedDetailsArea;
 
     private final Random random = new Random();
 
     private MapManager mapManager;
+    
     private MapController mapController;
     
     private void updateStats() {
@@ -87,31 +90,60 @@ public class SidebarController {
         if (hospital == null) {
             selectedTypeLabel.setText("Type: none");
             selectedIdLabel.setText("Id: none");
-            selectedDetailsLabel.setText("Details: none");
+            selectedDetailsArea.setText("Details: none");
             return;
         }
 
         int assignedIncidents = 0;
+        double minDistance = Double.MAX_VALUE;
+        double maxDistance = 0.0;
+        double totalDistance = 0.0;
+
         for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()) {
+            if (incident.getClosestSite() != null
+                    && incident.getClosestSite().getId() == hospital.getId()) {
+
                 assignedIncidents++;
+
+                double dx = incident.getX() - hospital.getX();
+                double dy = incident.getY() - hospital.getY();
+                double distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+
+                totalDistance += distance;
             }
         }
 
+        if (assignedIncidents == 0) {
+            minDistance = 0.0;
+        }
+
+        double averageDistance = assignedIncidents > 0 ? totalDistance / assignedIncidents : 0.0;
+
         selectedTypeLabel.setText("Type: Hospital");
         selectedIdLabel.setText("Id: H" + hospital.getId());
-        selectedDetailsLabel.setText(
+        selectedDetailsArea.setText(
                 "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n" +
                 "Capacity: " + hospital.getCapacityMax() + "\n" +
-                "Assigned incidents: " + assignedIncidents
+                "Assigned incidents: " + assignedIncidents + "\n" +
+                "Min distance: " + String.format("%.2f", minDistance) + "\n" +
+                "Max distance: " + String.format("%.2f", maxDistance) + "\n" +
+                "Avg distance: " + String.format("%.2f", averageDistance)
         );
+        System.out.println(selectedDetailsArea.getText());
     }
     
     public void showIncidentDetails(VictimIncident incident) {
         if (incident == null) {
             selectedTypeLabel.setText("Type: none");
             selectedIdLabel.setText("Id: none");
-            selectedDetailsLabel.setText("Details: none");
+            selectedDetailsArea.setText("Details: none");
             return;
         }
 
@@ -123,7 +155,7 @@ public class SidebarController {
             assignedHospital = "H" + incident.getClosestSite().getId();
         }
 
-        selectedDetailsLabel.setText(
+        selectedDetailsArea.setText(
                 "Position: (" + (int) incident.getX() + ", " + (int) incident.getY() + ")\n" +
                 "Emergency type: " + incident.getEmergencyType() + "\n" +
                 "Assigned hospital: " + assignedHospital
@@ -134,7 +166,7 @@ public class SidebarController {
         if (triangle == null) {
             selectedTypeLabel.setText("Type: none");
             selectedIdLabel.setText("Id: none");
-            selectedDetailsLabel.setText("Details: none");
+            selectedDetailsArea.setText("Details: none");
             return;
         }
 
@@ -149,6 +181,7 @@ public class SidebarController {
         for (VictimIncident incident : mapManager.getIncidents()) {
             if (incident.getClosestSite() != null) {
                 int siteId = incident.getClosestSite().getId();
+
                 if (siteId == h1.getId()) countH1++;
                 if (siteId == h2.getId()) countH2++;
                 if (siteId == h3.getId()) countH3++;
@@ -161,22 +194,34 @@ public class SidebarController {
                 h3.getX() * (h1.getY() - h2.getY())
         ) / 2.0;
 
+        double edge12 = Math.sqrt(Math.pow(h1.getX() - h2.getX(), 2) + Math.pow(h1.getY() - h2.getY(), 2));
+        double edge23 = Math.sqrt(Math.pow(h2.getX() - h3.getX(), 2) + Math.pow(h2.getY() - h3.getY(), 2));
+        double edge31 = Math.sqrt(Math.pow(h3.getX() - h1.getX(), 2) + Math.pow(h3.getY() - h1.getY(), 2));
+
+        int maxLoad = Math.max(countH1, Math.max(countH2, countH3));
+        int minLoad = Math.min(countH1, Math.min(countH2, countH3));
+        int workloadImbalance = maxLoad - minLoad;
+
         selectedTypeLabel.setText("Type: Triangle");
         selectedIdLabel.setText("Id: H" + h1.getId() + "-H" + h2.getId() + "-H" + h3.getId());
-        selectedDetailsLabel.setText(
+        selectedDetailsArea.setText(
                 "Vertices: H" + h1.getId() + ", H" + h2.getId() + ", H" + h3.getId() + "\n" +
                 "Area: " + String.format("%.2f", area) + "\n" +
+                "Edge H" + h1.getId() + "-H" + h2.getId() + ": " + String.format("%.2f", edge12) + "\n" +
+                "Edge H" + h2.getId() + "-H" + h3.getId() + ": " + String.format("%.2f", edge23) + "\n" +
+                "Edge H" + h3.getId() + "-H" + h1.getId() + ": " + String.format("%.2f", edge31) + "\n" +
                 "Assigned incidents:\n" +
                 "H" + h1.getId() + ": " + countH1 + "\n" +
                 "H" + h2.getId() + ": " + countH2 + "\n" +
-                "H" + h3.getId() + ": " + countH3
+                "H" + h3.getId() + ": " + countH3 + "\n" +
+                "Workload imbalance: " + workloadImbalance
         );
     }
     
     public void clearSelectionDetails() {
         selectedTypeLabel.setText("Type: none");
         selectedIdLabel.setText("Id: none");
-        selectedDetailsLabel.setText("Details: none");
+        selectedDetailsArea.setText("Details: none");
     }
 
     @FXML
@@ -245,6 +290,7 @@ public class SidebarController {
         }
 
         mapManager.clear();
+        mapController.clearSelection();
         mapController.clearMap();
         infoLabel.setText("Map cleared.");
         

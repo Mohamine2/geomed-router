@@ -263,6 +263,12 @@ public class MapManager {
     public int getIncidentCountForHospital(Hospital hospital){
         return AnalyticsEngine.getIncidentCountForHospital(hospital, incidents);
     }
+    
+    private void addWithoutDuplicate(List<Hospital> list, Hospital hospital) {
+        if (!list.contains(hospital)) {
+            list.add(hospital);
+        }
+    }
 
     /**
      * Delegates the generation of Voronoi cells to the dedicated geometry engine.
@@ -277,6 +283,25 @@ public class MapManager {
      */
     public List<VoronoiCell> getVoronoiCells() {
         return this.voronoiEngine.generateVoronoiCells(this.hospitals, this.triangles);
+    }
+    
+    public List<Hospital> getVoronoiNeighbors(Hospital hospital) {
+        List<Hospital> neighbors = new ArrayList<>();
+
+        for (Triangle triangle : this.triangles) {
+            if (triangle.getA().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getB());
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getC());
+            } else if (triangle.getB().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getA());
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getC());
+            } else if (triangle.getC().equals(hospital)) {
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getA());
+                addWithoutDuplicate(neighbors, (Hospital) triangle.getB());
+            }
+        }
+
+        return neighbors;
     }
 
     /**

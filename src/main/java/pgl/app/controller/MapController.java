@@ -15,6 +15,8 @@ import pgl.app.model.Site;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.MouseButton;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MapController {
 	
@@ -24,12 +26,18 @@ public class MapController {
 	
 	private double lastMouseY;
 	
+	private VictimIncident selectedIncident;
+	
+	private final Set<Integer> highlightedHospitalIds = new HashSet<>();
+	
     @FXML
     private Pane mapPane;
 
     private MapManager mapManager;
     
     private SidebarController sidebarController;
+    
+    private Integer selectedAssignedHospitalId;
 
     /**
      * Méthode appelée automatiquement par JavaFX après le chargement du fichier FXML.
@@ -84,16 +92,52 @@ public class MapController {
         });
     }
     
+    private void selectIncident(VictimIncident incident) {
+        if (selectedIncident != null
+                && selectedIncident.getIncidentId().equals(incident.getIncidentId())) {
+            selectedIncident = null;
+            selectedAssignedHospitalId = null;
+            highlightedHospitalIds.clear();
+
+            if (sidebarController != null) {
+                sidebarController.clearSelectionDetails();
+            }
+
+            refreshMap();
+            return;
+        }
+
+        selectedIncident = incident;
+        highlightedHospitalIds.clear();
+        selectedAssignedHospitalId = null;
+
+        if (incident != null && incident.getClosestSite() != null) {
+            Hospital assignedHospital = (Hospital) incident.getClosestSite();
+            selectedAssignedHospitalId = assignedHospital.getId();
+            highlightedHospitalIds.add(assignedHospital.getId());
+
+            for (Hospital neighbor : mapManager.getVoronoiNeighbors(assignedHospital)) {
+                highlightedHospitalIds.add(neighbor.getId());
+            }
+        }
+
+        refreshMap();
+    }
+    
     private void drawAssignments() {
         for (VictimIncident incident : mapManager.getIncidents()) {
             if (incident.getClosestSite() != null) {
+                boolean isSelected = selectedIncident != null
+                        && selectedIncident.getIncidentId().equals(incident.getIncidentId());
+
                 Line assignmentLine = new Line(
                         incident.getX(), incident.getY(),
                         incident.getClosestSite().getX(), incident.getClosestSite().getY()
                 );
 
-                assignmentLine.setStroke(Color.INDIANRED);
-                assignmentLine.setOpacity(0.7);
+                assignmentLine.setStroke(isSelected ? Color.RED : Color.INDIANRED);
+                assignmentLine.setStrokeWidth(isSelected ? 2.5 : 1.2);
+                assignmentLine.setOpacity(isSelected ? 1.0 : 0.7);
                 assignmentLine.getStrokeDashArray().addAll(6.0, 4.0);
 
                 mapPane.getChildren().add(assignmentLine);
@@ -218,8 +262,24 @@ public class MapController {
         for (Site site : mapManager.getSites()) {
             Hospital hospital = (Hospital) site;
 
-            Circle hospitalCircle = new Circle(hospital.getX(), hospital.getY(), 6);
-            hospitalCircle.setFill(Color.DODGERBLUE);
+            boolean isHighlighted = highlightedHospitalIds.contains(hospital.getId());
+            boolean isAssigned = selectedAssignedHospitalId != null
+                    && selectedAssignedHospitalId.equals(hospital.getId());
+
+            Circle hospitalCircle = new Circle(
+                    hospital.getX(),
+                    hospital.getY(),
+                    isAssigned ? 9 : (isHighlighted ? 8 : 6)
+            );
+
+            if (isAssigned) {
+                hospitalCircle.setFill(Color.ORANGE);
+            } else if (isHighlighted) {
+                hospitalCircle.setFill(Color.GOLD);
+            } else {
+                hospitalCircle.setFill(Color.DODGERBLUE);
+            }
+
             hospitalCircle.setStroke(Color.BLACK);
 
             String labelText = "H" + hospital.getId();
@@ -227,10 +287,12 @@ public class MapController {
             label.setFill(Color.BLACK);
 
             makeHospitalDraggable(hospital, hospitalCircle, label);
-            
+
             hospitalCircle.setOnMouseEntered(event -> {
-                hospitalCircle.setRadius(8);
-                hospitalCircle.setFill(Color.DEEPSKYBLUE);
+                if (!isAssigned && !isHighlighted) {
+                    hospitalCircle.setRadius(8);
+                    hospitalCircle.setFill(Color.DEEPSKYBLUE);
+                }
 
                 if (sidebarController != null) {
                     sidebarController.showHospitalDetails(hospital);
@@ -240,8 +302,10 @@ public class MapController {
             });
 
             hospitalCircle.setOnMouseExited(event -> {
-                hospitalCircle.setRadius(6);
-                hospitalCircle.setFill(Color.DODGERBLUE);
+                if (!isAssigned && !isHighlighted) {
+                    hospitalCircle.setRadius(6);
+                    hospitalCircle.setFill(Color.DODGERBLUE);
+                }
                 event.consume();
             });
 
@@ -259,6 +323,8 @@ public class MapController {
             if (sidebarController != null) {
                 sidebarController.showIncidentDetails(incident);
             }
+
+            selectIncident(incident);
 
             event.consume();
         });
@@ -294,8 +360,15 @@ public class MapController {
      */
     private void drawIncidents() {
         for (VictimIncident incident : mapManager.getIncidents()) {
-            Circle incidentCircle = new Circle(incident.getX(), incident.getY(), 4);
-            incidentCircle.setFill(Color.CRIMSON);
+            boolean isSelected = selectedIncident != null
+                    && selectedIncident.getIncidentId().equals(incident.getIncidentId());
+
+            Circle incidentCircle = new Circle(
+                    incident.getX(),
+                    incident.getY(),
+                    isSelected ? 6 : 4
+            );
+            incidentCircle.setFill(isSelected ? Color.DARKRED : Color.CRIMSON);
             incidentCircle.setStroke(Color.BLACK);
 
             Text label = new Text(
@@ -308,8 +381,10 @@ public class MapController {
             makeIncidentDraggable(incident, incidentCircle, label);
 
             incidentCircle.setOnMouseEntered(event -> {
-                incidentCircle.setRadius(6);
-                incidentCircle.setFill(Color.ORANGERED);
+                if (!isSelected) {
+                    incidentCircle.setRadius(6);
+                    incidentCircle.setFill(Color.ORANGERED);
+                }
 
                 if (sidebarController != null) {
                     sidebarController.showIncidentDetails(incident);
@@ -319,8 +394,10 @@ public class MapController {
             });
 
             incidentCircle.setOnMouseExited(event -> {
-                incidentCircle.setRadius(4);
-                incidentCircle.setFill(Color.CRIMSON);
+                if (!isSelected) {
+                    incidentCircle.setRadius(4);
+                    incidentCircle.setFill(Color.CRIMSON);
+                }
                 event.consume();
             });
 
@@ -368,6 +445,12 @@ public class MapController {
 
             mapPane.getChildren().addAll(ab, bc, ca);
         }
+    }
+    
+    public void clearSelection() {
+    	selectedIncident = null;
+    	selectedAssignedHospitalId = null;
+    	highlightedHospitalIds.clear();
     }
 
     /**
