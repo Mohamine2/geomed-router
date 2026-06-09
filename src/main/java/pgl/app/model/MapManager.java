@@ -3,15 +3,19 @@ package pgl.app.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import pgl.app.algo.AnalyticsEngine;
 import pgl.app.algo.DelaunayEngine;
 import pgl.app.algo.VoronoiEngine;
+import pgl.app.algo.exception.HospitalCollisionException;
+import pgl.app.explainability.DecisionScore;
+import pgl.app.explainability.ExplainabilityService;
 
 /**
  * Manages and orchestrates map data.
  * Centralizes entities (Sites, UserPoints, Triangles) and synchronizes geometric calculations.
- * @version 1.0
+ * @version 2.0
  */
 public class MapManager {
 
@@ -37,8 +41,23 @@ public class MapManager {
      * Adds a reference site to the map and updates the entire map structure.
      *
      * @param hospital the hospital to be added
+     * @throws HospitalCollisionException if a hospital already exists at the snapped location
      */
-    public void addHospital(Hospital hospital) {
+    public void addHospital(Hospital hospital) throws HospitalCollisionException {
+        if (!roadNetwork.getRoads().isEmpty()){
+            Point snapped = this.roadNetwork.findNearestIntersection(new Point(hospital.getX(), hospital.getY()));
+
+            for (Hospital h : this.hospitals) {
+                if (h.getX() == snapped.getX() && h.getY() == snapped.getY()) {
+                    // Throw our domain-specific exception if a collision is detected
+                    throw new HospitalCollisionException("Collision detected at intersection: " + snapped.getX() + "," + snapped.getY());
+                }
+            }
+            // Update the hospital's coordinates with its snapped position on the graph
+            hospital.setX(snapped.getX());
+            hospital.setY(snapped.getY());
+        }
+
         this.hospitals.add(hospital);
         this.updateAll();
     }
@@ -74,14 +93,21 @@ public class MapManager {
     }
 
     /**
-     * Adds a user point to the map and immediately assigns it to its closest site.
-     * This operation does not trigger a full triangulation recalculation.
+     * Adds an incident point to the map, snaps it to the nearest road network
+     * intersection if available, and updates the map view.
      *
-     * @param incident the user point to be added
+     * @param incident the incident point to be added
      */
     public void addIncident(VictimIncident incident) {
+        // If a valid road network is loaded, snap the incident to the nearest intersection
+        if (!this.roadNetwork.getRoads().isEmpty()) {
+            Point snapped = this.roadNetwork.findNearestIntersection(new Point(incident.getX(), incident.getY()));
+            incident.setX(snapped.getX());
+            incident.setY(snapped.getY());
+        }
+
         this.incidents.add(incident);
-        this.updateSingleUserAssignment(incident);
+        this.updateAll();
     }
 
     /**
@@ -171,53 +197,69 @@ public class MapManager {
 
     /**
      * Calculates and applies the optimal assignment for an emergency based on
-     * the multi-criteria decision matrix (Explainability / GDPR).
+     * the multi-criteria decision matrix (Explainability / GDPR compliance).
+     * * <p>This method evaluates all available hospitals using an explainability service
+     * to find the best match based on performance scores. If no valid optimal hospital
+     * can be determined via the decision matrix, a fallback mechanism assigns the
+     * geometrically closest hospital.</p>
+     *
+     * @param incident The victim incident requiring hospital assignment.
      */
     private void updateSingleUserAssignment(VictimIncident incident) {
+        // 1. Guard clause for empty hospital list
         if (this.hospitals.isEmpty()) {
             incident.setClosestSite(null);
             return;
         }
 
-        // Instantiate the explainability service to utilize its score calculations
-        pgl.app.explainability.ExplainabilityService localService = new pgl.app.explainability.ExplainabilityService();
+        // 2. Compute decision scores via Explainability Service
+        ExplainabilityService localService = new ExplainabilityService();
+        Map<Hospital, DecisionScore> scoreMatrix = localService.computeDecisionScores(
+                incident,
+                this.hospitals,
+                this.roadNetwork.getRoads()
+        );
 
-        // Compute the score matrix for all hospitals regarding this incident
-        java.util.Map<Hospital, pgl.app.explainability.DecisionScore> scoreMatrix =
-                localService.computeDecisionScores(incident, this.hospitals, this.roadNetwork.getRoads());
-
+        // 3. Search for the hospital with the highest valid score
         Hospital bestHospital = null;
         double maxScore = -Double.MAX_VALUE;
 
-        // Find the facility that maximizes the overall performance score
         for (Hospital hospital : this.hospitals) {
-            pgl.app.explainability.DecisionScore scoreDTO = scoreMatrix.get(hospital);
+            DecisionScore scoreDTO = scoreMatrix.get(hospital);
             if (scoreDTO != null && scoreDTO.getTotalScore() > maxScore) {
                 maxScore = scoreDTO.getTotalScore();
                 bestHospital = hospital;
             }
         }
 
-        // If an optimal hospital is found, proceed with dispatching and medical admission
+        // 4. Assign hospital (Optimal path vs. Geometric Fallback)
         if (bestHospital != null) {
             incident.setClosestSite(bestHospital);
             bestHospital.admitPatient();
         } else {
-            // Safety fallback if all scores are invalid (we assign the geometric closest site)
-            Hospital absoluteClosest = this.hospitals.get(0);
-            double minDistance = Double.MAX_VALUE;
-
-            for (Hospital hospital : this.hospitals) {
-                double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    absoluteClosest = hospital;
-                }
-            }
-
+            // Safety fallback: Assign the absolute geometrically closest site
+            Hospital absoluteClosest = findGeometricallyClosestHospital(incident);
             incident.setClosestSite(absoluteClosest);
             absoluteClosest.admitPatient();
         }
+    }
+
+    /**
+     * Helper method to find the geometrically closest hospital when scores are unavailable.
+     * @param incident The victim incident requiring hospital assignment.
+     */
+    private Hospital findGeometricallyClosestHospital(VictimIncident incident) {
+        Hospital closest = this.hospitals.get(0);
+        double minDistance = Double.MAX_VALUE;
+
+        for (Hospital hospital : this.hospitals) {
+            double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
+            if (dist < minDistance) {
+                minDistance = dist;
+                closest = hospital;
+            }
+        }
+        return closest;
     }
 
     /**

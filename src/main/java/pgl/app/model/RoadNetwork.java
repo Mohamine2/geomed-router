@@ -15,6 +15,21 @@ public class RoadNetwork {
         }
     }
 
+    public Point findNearestIntersection(Point p) {
+        Point nearest = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (Point intersection : this.intersections) {
+            double dist = Math.pow(intersection.getX() - p.getX(), 2) +
+                    Math.pow(intersection.getY() - p.getY(), 2);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearest = intersection;
+            }
+        }
+        return nearest;
+    }
+
     /**
      * Creates a road between two intersections identified by their indices.
      * * @param startIdx Index of the starting intersection.

@@ -1,5 +1,6 @@
 package pgl.app;
 
+import pgl.app.algo.exception.HospitalCollisionException;
 import pgl.app.explainability.DecisionScore;
 import pgl.app.explainability.ExplainabilityService;
 import pgl.app.io.MapBinarySerializer;
@@ -48,7 +49,9 @@ public class ConsoleRunner {
             System.out.println("4. Inspection Panel & Specific Queries");
             System.out.println("5. Global Map Binary IO (Load/Save)");
             System.out.println("6. Full Automated Random Test Simulation");
-            System.out.println("7. Exit Application");
+            System.out.println("7. Import OSM Map");
+            System.out.println("8. Clear Data");
+            System.out.println("9. Exit Application");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
@@ -65,6 +68,13 @@ public class ConsoleRunner {
                         displayResults();
                         break;
                     case 7:
+                        importOsmMenu(sc);
+                        break;
+                    case 8:
+                        mapManager.clear();
+                        System.out.println("Data cleared successfully !");
+                        break;
+                    case 9:
                         running = false;
                         System.out.println("Exiting...");
                         break;
@@ -98,7 +108,12 @@ public class ConsoleRunner {
             int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
             Hospital h = new Hospital(x, y, id, cap);
             h.addSpecialty(askMedicalSpecialty(sc, "  Select primary specialty:"));
-            mapManager.addHospital(h);
+            try {
+                mapManager.addHospital(h);
+                System.out.println("Hospital added successfully.");
+            } catch (HospitalCollisionException e) {
+                System.err.println("ALERT: " + e.getMessage());
+            }
             System.out.println("Hospital H" + id + " successfully added.");
         }
 
@@ -317,7 +332,6 @@ public class ConsoleRunner {
      */
     public static void randomTest(Scanner sc, int nbHospitals) {
         Random rand = new Random();
-        mapManager.clear();
 
         MedicalSpecialty[] specialties = MedicalSpecialty.values();
 
@@ -332,7 +346,12 @@ public class ConsoleRunner {
             h.addSpecialty(randSpec);
             h.addSpecialty(MedicalSpecialty.GENERAL);
 
-            mapManager.addHospital(h);
+            try {
+                mapManager.addHospital(h);
+                System.out.println("Hospital added successfully.");
+            } catch (HospitalCollisionException e) {
+                System.err.println("ALERT: " + e.getMessage());
+            }
         }
 
         generateRandomRoads(nbHospitals * 2);
@@ -593,7 +612,36 @@ public class ConsoleRunner {
             System.out.println("Map loaded successfully from " + currentMapFile);
             displayRoutes(mapManager.getIncidents());
         } catch (IOException e) {
-            System.err.println("Error loading map: " + e.getMessage());
+            System.err.println("Error loading map (I/O): " + e.getMessage());
+        } catch (HospitalCollisionException e) {
+            System.err.println("Critical Error: The map file is corrupted. " + e.getMessage());
+        }
+    }
+
+    private static void importOsmMenu(Scanner sc) {
+        System.out.println("\n--- OSM Import (JSON) ---");
+        System.out.print("Entrez le chemin du fichier JSON OSM : ");
+        String path = sc.next();
+        Path filePath = Path.of(path);
+
+        if (!java.nio.file.Files.exists(filePath)) {
+            System.out.println("Erreur : Fichier introuvable.");
+            return;
+        }
+
+        try {
+            // 1. On nettoie la carte actuelle pour éviter les mélanges de données
+            mapManager.clear();
+
+            // 2. On importe les données OSM en mémoire
+            pgl.app.io.MapImporterOSM.importFromOSM(mapManager, filePath);
+
+            System.out.println("Import réussi ! La carte est maintenant en mémoire.");
+            System.out.println("N'oubliez pas de faire 'Save' (Option 5) pour la convertir en .pglm binaire.");
+
+        } catch (Exception e) {
+            System.err.println("Erreur critique lors de l'import : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
