@@ -1,37 +1,55 @@
 package pgl.app.model;
 
+import java.util.Random;
+
 /**
- * Represents a medical emergency incident on the map.
- * This class extends {@link Point} to inherit geometric coordinates (x, y)
- * and encapsulates the medical context required by the routing and scoring engines
- * to determine the optimal hospital.
+ * Represents a medical emergency incident on the map topology.
+ * <p>
+ * This class extends {@link Point} to inherit geometric coordinates ($x$, $y$)
+ * and encapsulates the vital medical context required by the routing and scoring engines
+ * to determine the optimal hospital assignment under multi-criteria constraints.
+ * </p>
  *
  * @version 2.0
  */
 public class VictimIncident extends Point {
 
-    private Site closestSite;
+    /** The closest designated hospital (Voronoi site) assigned to this incident. */
+    private Site closestHospital;
 
-    /** The unique identifier of the incident/call (e.g., "INC-2026-001"). */
+    /** The unique identifier of the incident or dispatch call (e.g., "INC-2026-001"). */
     private final String incidentId;
 
-    /** The specific medical specialty required to treat the victim. */
+    /** The specific medical specialty required to safely treat the victim. */
     private final MedicalSpecialty emergencyType;
 
-    /** * The ID of the hospital where the patient already has a clinical history.
-     * Uses the Integer wrapper class to allow null values if no history exists.
+    /** * The unique identifier of the hospital where the patient has a historical clinical record.
+     * Uses the {@link Integer} wrapper class to allow {@code null} values if no history exists.
      */
     private final Integer preferredHospitalId;
 
+    /** A randomly assigned medical anamnesis string used for simulation purposes. */
+    private final String medicalNotes;
+
+    /** Static mock dataset containing various clinical anamnesis templates for emergency generation. */
+    private static final String[] MOCK_ANAMNESIS = {
+            "Asthmatic patient, current Albuterol/Ventolin prescription.",
+            "History of chronic hypertension and type 2 diabetes.",
+            "Known allergy to Penicillin. Suspected lower limb fracture.",
+            "No known medical history. Patient is fully conscious.",
+            "Chronic heart failure, carrier of a permanent pacemaker.",
+            "On heavy anticoagulant therapy. Sustained mild head trauma."
+    };
+
     /**
-     * Full constructor to instantiate a VictimIncident when all information is known,
-     * including the patient's medical history.
+     * Constructs a {@code VictimIncident} with complete medical and structural metadata,
+     * including known historical patient data.
      *
-     * @param x                   The X coordinate of the emergency on the map.
-     * @param y                   The Y coordinate of the emergency on the map.
-     * @param incidentId          The unique call identifier.
-     * @param emergencyType       The required medical specialty.
-     * @param preferredHospitalId The ID of the patient's historical hospital (can be null).
+     * @param x                   The X coordinate of the emergency location.
+     * @param y                   The Y coordinate of the emergency location.
+     * @param incidentId          The unique call or dispatch identifier.
+     * @param emergencyType       The required medical specialty for treatment.
+     * @param preferredHospitalId The ID of the patient's historical hospital, or {@code null} if none.
      */
     public VictimIncident(double x, double y, String incidentId, MedicalSpecialty emergencyType, Integer preferredHospitalId) {
         super(x, y); // Inherit geometric coordinates from Point
@@ -41,18 +59,24 @@ public class VictimIncident extends Point {
         // Safe assignment: defaults to GENERAL if null
         this.emergencyType = (emergencyType != null) ? emergencyType : MedicalSpecialty.GENERAL;
 
-        this.closestSite = null;
+        Random rand = new Random();
+        this.medicalNotes = MOCK_ANAMNESIS[rand.nextInt(MOCK_ANAMNESIS.length)];
+
+        this.closestHospital = null;
         this.preferredHospitalId = preferredHospitalId;
     }
 
     /**
-     * Simplified constructor for a VictimIncident when the patient is unknown
-     * or has no prior clinical history.
+     * Simplified constructor for a {@code VictimIncident} when the patient identity is anonymous,
+     * unknown, or has no prior registered clinical history.
+     * <p>
+     * Invokes the primary constructor passing {@code null} for the preferred hospital ID.
+     * </p>
      *
-     * @param x             The X coordinate of the emergency on the map.
-     * @param y             The Y coordinate of the emergency on the map.
-     * @param incidentId    The unique call identifier.
-     * @param emergencyType The required medical specialty.
+     * @param x             The X coordinate of the emergency location.
+     * @param y             The Y coordinate of the emergency location.
+     * @param incidentId    The unique call or dispatch identifier.
+     * @param emergencyType The required medical specialty for treatment.
      */
     public VictimIncident(double x, double y, String incidentId, MedicalSpecialty emergencyType) {
         // Calls the full constructor, explicitly passing 'null' for the preferred hospital
@@ -60,58 +84,77 @@ public class VictimIncident extends Point {
     }
 
     /**
-     * Gets the unique identifier of the incident.
+     * Gets the unique tracking identifier of the incident.
      *
-     * @return The incident ID.
+     * @return The incident ID string.
      */
     public String getIncidentId() {
         return incidentId;
     }
 
     /**
-     * Gets the specific medical emergency type required for treatment.
+     * Gets the specific medical emergency type or department required for treatment.
      *
-     * @return The medical emergency type.
+     * @return The required {@link MedicalSpecialty}.
      */
     public MedicalSpecialty getEmergencyType() {
         return emergencyType;
     }
 
     /**
-     * Checks if the victim has a known medical history linked to a specific hospital.
+     * Retrieves the simulated clinical notes and patient anamnesis for this emergency.
      *
-     * @return {@code true} if a preferred hospital is recorded, {@code false} otherwise.
+     * @return A string describing the medical situation.
+     */
+    public String getMedicalNotes() {
+        return this.medicalNotes;
+    }
+
+    /**
+     * Checks whether the victim has a recognized medical history linked to a specific healthcare facility.
+     *
+     * @return {@code true} if a preferred hospital ID is available; {@code false} otherwise.
      */
     public boolean hasMedicalHistory() {
         return preferredHospitalId != null;
     }
 
     /**
-     * Gets the ID of the hospital where the patient has a clinical history.
+     * Gets the unique identifier of the hospital where the patient has a historical clinical record.
      *
-     * @return The hospital ID, or null if no history exists.
+     * @return The preferred hospital ID, or {@code null} if no prior history is registered.
      */
     public Integer getPreferredHospitalId() {
         return preferredHospitalId;
     }
 
-    public Site getClosestSite() {
-        return closestSite;
+    /**
+     * Gets the current assigned closest hospital facility for this incident.
+     *
+     * @return The assigned {@link Site}, or {@code null} if unassigned.
+     */
+    public Site getClosestHospital() {
+        return closestHospital;
     }
 
     /**
-     * Associate the user point to the closest site.
-     * @param closestSite The closest Voronoi site
+     * Associates this incident point to its optimized or closest geographical hospital site.
+     * * @param closestHospital The target {@link Site} representing the assigned facility.
      */
-    public void setClosestSite(Site closestSite) {
-        this.closestSite = closestSite;
+    public void setClosestHospital(Site closestHospital) {
+        this.closestHospital = closestHospital;
     }
 
+    /**
+     * Returns a string representation of the incident, including its coordinates and assigned hospital.
+     *
+     * @return A formatted string detailing the structural attributes of this incident.
+     */
     @Override
     public String toString() {
         return "UserPoint{" +
                 super.toString() +
-                ", closestSite=" + (closestSite != null ? closestSite.getId() : null) +
+                ", closestHospital=" + (closestHospital != null ? closestHospital.getId() : null) +
                 '}';
     }
 }

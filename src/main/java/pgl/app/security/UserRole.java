@@ -8,7 +8,7 @@ package pgl.app.security;
  * professional responsibilities.
  * </p>
  *
- * @since 1.0.0
+ * @version 2.0
  */
 public enum UserRole {
 
@@ -28,5 +28,13 @@ public enum UserRole {
      * incident reporting capabilities required in pre-hospital environments.
      * </p>
      */
-    PARAMEDIC
+    PARAMEDIC,
+
+    /**
+     * Represents an administrator.
+     * <p>
+     * Grants access to map management such as roads, incidents and hospitals creation
+     * </p>
+     */
+    ADMIN
 }

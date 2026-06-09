@@ -5,6 +5,8 @@ import pgl.app.explainability.DecisionScore;
 import pgl.app.explainability.ExplainabilityService;
 import pgl.app.io.MapBinarySerializer;
 import pgl.app.model.*;
+import pgl.app.security.SecurityContext;
+import pgl.app.security.UserRole;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -51,7 +53,8 @@ public class ConsoleRunner {
             System.out.println("6. Full Automated Random Test Simulation");
             System.out.println("7. Import OSM Map");
             System.out.println("8. Clear Data");
-            System.out.println("9. Exit Application");
+            System.out.println("9. Change User Role (RBAC)");
+            System.out.println("10. Exit Application");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
@@ -67,19 +70,11 @@ public class ConsoleRunner {
                         randomTest(sc, randSites);
                         displayResults();
                         break;
-                    case 7:
-                        importOsmMenu(sc);
-                        break;
-                    case 8:
-                        mapManager.clear();
-                        System.out.println("Data cleared successfully !");
-                        break;
-                    case 9:
-                        running = false;
-                        System.out.println("Exiting...");
-                        break;
-                    default:
-                        System.out.println("Invalid option! Please enter a number between 1 and 7.");
+                    case 7: importOsmMenu(sc); break;
+                    case 8: clearAllDataMenu(); break;
+                    case 9: roleChangeMenu(sc); break; // Ta méthode pour switch les rôles en démo
+                    case 10: running = false; System.out.println("Exiting..."); break;
+                    default: System.out.println("Invalid option! Please enter a number between 1 and 10.");
                 }
             } else {
                 System.out.println("Error: Please enter a valid number.");
@@ -95,6 +90,10 @@ public class ConsoleRunner {
      * @param sc The Scanner object for user input.
      */
     private static void manageHospitalsMenu(Scanner sc) {
+        if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println(" Access denied : Hospital management is reserved to ADMIN Role (RBAC).");
+            return;
+        }
         System.out.println("\n--- Hospital Management ---");
         System.out.println("1. Add a single Hospital");
         System.out.println("2. Remove a Hospital (by ID)");
@@ -148,6 +147,10 @@ public class ConsoleRunner {
      * @param sc The Scanner object for user input.
      */
     private static void manageIncidentsMenu(Scanner sc) {
+        if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN, UserRole.DOCTOR)) {
+            System.out.println(" Access denied : Incident management is reserved to ADMIN Role (RBAC).");
+            return;
+        }
         System.out.println("\n--- Incident Management ---");
         System.out.println("1. Add a manual Incident");
         System.out.println("2. Remove an Incident (by ID)");
@@ -248,37 +251,47 @@ public class ConsoleRunner {
                 if (vi != null) {
                     System.out.printf("\n[Incident %s Inspection Profile]\n", vi.getIncidentId());
                     System.out.printf("  Coordinates: (%.1f, %.1f) | Specialty Required: %s\n", vi.getX(), vi.getY(), vi.getEmergencyType());
-                    if (vi.getClosestSite() != null) {
-                        int attachedId = vi.getClosestSite().getId();
-                        Hospital chosenHospital = (Hospital) vi.getClosestSite();
+
+                    if (SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
+                        System.out.println("  Medical Notes : " + vi.getMedicalNotes());
+                    } else {
+                        System.out.println("  Medical Notes : [CONFIDENTIAL - ADMIN or DOCTOR Role required]");
+                    }
+
+                    if (vi.getClosestHospital() != null) {
+                        int attachedId = vi.getClosestHospital().getId();
+                        Hospital chosenHospital = (Hospital) vi.getClosestHospital();
                         System.out.println("  Linked Center: Hospital H" + attachedId);
 
                         // 1. Neighbors display
                         System.out.println("  Zone Neighbors (Other victims routed to the same hospital):");
                         int countNeighbors = 0;
                         for (VictimIncident other : mapManager.getIncidents()) {
-                            if (!other.getIncidentId().equals(vi.getIncidentId()) && other.getClosestSite() != null && other.getClosestSite().getId() == attachedId) {
+                            if (!other.getIncidentId().equals(vi.getIncidentId()) && other.getClosestHospital() != null && other.getClosestHospital().getId() == attachedId) {
                                 System.out.printf("    -> %s at position (%.1f, %.1f)\n", other.getIncidentId(), other.getX(), other.getY());
                                 countNeighbors++;
                             }
                         }
                         if (countNeighbors == 0) System.out.println("    No other neighbors inside this sector.");
 
-                        System.out.println("\nWould you like to generate the GDPR Transparency & Accessibility Report? (y/n)");
-                        if (sc.next().equalsIgnoreCase("y")) {
+                        if (pgl.app.security.SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
+                            System.out.println("\nWould you like to generate the GDPR Transparency & Accessibility Report? (y/n)");
+                            if (sc.next().equalsIgnoreCase("y")) {
+                                Map<Hospital, DecisionScore> matrix = explainabilityService.computeDecisionScores(
+                                        vi,
+                                        mapManager.getSites(),
+                                        mapManager.getRoadNetwork().getRoads()
+                                );
 
-                            Map<Hospital, DecisionScore> matrix = explainabilityService.computeDecisionScores(
-                                    vi,
-                                    mapManager.getSites(),
-                                    mapManager.getRoadNetwork().getRoads()
-                            );
+                                // 2. Generate and display the report
+                                String gdprReport = explainabilityService.generateGDPRSummary(vi, chosenHospital, matrix);
+                                System.out.println(gdprReport);
 
-                            // 2. Generate and display the report
-                            String gdprReport = explainabilityService.generateGDPRSummary(vi, chosenHospital, matrix);
-                            System.out.println(gdprReport);
-
-                            String auditLog = explainabilityService.createAuditMessage(vi, chosenHospital);
-                            System.out.println(auditLog);
+                                String auditLog = explainabilityService.createAuditMessage(vi, chosenHospital);
+                                System.out.println(auditLog);
+                            }
+                        } else {
+                            System.out.println("\n[RESTRICTED] ADMIN or DOCTOR Role required.");
                         }
                     } else {
                         System.out.println("  Linked Center: None (Orphan incident)");
@@ -331,6 +344,11 @@ public class ConsoleRunner {
      * @param nbHospitals The number of hospitals to generate.
      */
     public static void randomTest(Scanner sc, int nbHospitals) {
+        if (!SecurityContext.hasAccess(UserRole.ADMIN, UserRole.DOCTOR)) {
+            System.out.println("Access Denied: Automated simulation tests are restricted to Doctors or Admins.");
+            return;
+        }
+
         Random rand = new Random();
 
         MedicalSpecialty[] specialties = MedicalSpecialty.values();
@@ -495,8 +513,8 @@ public class ConsoleRunner {
         for (VictimIncident incident : incidents) {
             System.out.printf("Incident %s: Target Hospital ID ", incident.getIncidentId());
 
-            if (incident.getClosestSite() != null) {
-                System.out.printf("%d\n", incident.getClosestSite().getId());
+            if (incident.getClosestHospital() != null) {
+                System.out.printf("%d\n", incident.getClosestHospital().getId());
             } else {
                 System.out.println("NONE");
             }
@@ -519,6 +537,10 @@ public class ConsoleRunner {
      * @param sc the {@link Scanner} used for user input
      */
     private static void importCsvMenu(Scanner sc) {
+        if (!SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println("Access Denied: CSV data imports are restricted to Administrators.");
+            return;
+        }
         System.out.println("\n--- Mass Import (CSV) ---");
         System.out.println("1. Import Hospitals (Sites)");
         System.out.println("2. Import Victim Incidents");
@@ -580,6 +602,10 @@ public class ConsoleRunner {
      * @param sc The Scanner object for user input.
      */
     private static void binaryIoMenu(Scanner sc) {
+        if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println("Access Denied: Read/Write disk serialization is restricted to Administrators.");
+            return;
+        }
         System.out.println("\n--- Map Serialization (Binary File Format) ---");
         System.out.println("1. Load / Import entire Map Topology (" + currentMapFile + ")");
         System.out.println("2. Save / Export current Map State (" + currentMapFile + ")");
@@ -619,6 +645,11 @@ public class ConsoleRunner {
     }
 
     private static void importOsmMenu(Scanner sc) {
+        if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println("Access Denied: OSM map builders are restricted to Administrators.");
+            return;
+        }
+
         System.out.println("\n--- OSM Import (JSON) ---");
         System.out.print("Entrez le chemin du fichier JSON OSM : ");
         String path = sc.next();
@@ -643,6 +674,25 @@ public class ConsoleRunner {
             System.err.println("Erreur critique lors de l'import : " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private static void roleChangeMenu(Scanner sc){
+        System.out.println("\n--- Current Role: " + SecurityContext.getCurrentRole() + " ---");
+        System.out.println("Select new Role:\n1. AMBULANCIER\n2. MEDECIN_REGULATEUR\n3. ADMIN");
+        int roleChoice = askInt(sc, "Choice: ");
+        if (roleChoice == 1) SecurityContext.setCurrentRole(UserRole.PARAMEDIC);
+        else if (roleChoice == 2) SecurityContext.setCurrentRole(UserRole.DOCTOR);
+        else if (roleChoice == 3) SecurityContext.setCurrentRole(UserRole.ADMIN);
+        System.out.println("Role updated to: " + SecurityContext.getCurrentRole());
+    }
+
+    private static void clearAllDataMenu() {
+        if (!SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println("Access Denied: Only an Administrator can clear the map data structures.");
+            return;
+        }
+        mapManager.clear();
+        System.out.println("Data cleared successfully!");
     }
 
     /**

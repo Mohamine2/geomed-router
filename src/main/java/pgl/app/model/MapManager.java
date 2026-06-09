@@ -208,7 +208,7 @@ public class MapManager {
     private void updateSingleUserAssignment(VictimIncident incident) {
         // 1. Guard clause for empty hospital list
         if (this.hospitals.isEmpty()) {
-            incident.setClosestSite(null);
+            incident.setClosestHospital(null);
             return;
         }
 
@@ -234,12 +234,12 @@ public class MapManager {
 
         // 4. Assign hospital (Optimal path vs. Geometric Fallback)
         if (bestHospital != null) {
-            incident.setClosestSite(bestHospital);
+            incident.setClosestHospital(bestHospital);
             bestHospital.admitPatient();
         } else {
             // Safety fallback: Assign the absolute geometrically closest site
             Hospital absoluteClosest = findGeometricallyClosestHospital(incident);
-            incident.setClosestSite(absoluteClosest);
+            incident.setClosestHospital(absoluteClosest);
             absoluteClosest.admitPatient();
         }
     }
@@ -391,7 +391,7 @@ public class MapManager {
      * from the incident to the hospital; returns an empty list if routing cannot be performed
      */
     public List<Point> computeRoadForIncident(VictimIncident incident) {
-        if (incident.getClosestSite() == null || this.roadNetwork.getRoads().isEmpty()) {
+        if (incident.getClosestHospital() == null || this.roadNetwork.getRoads().isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -399,7 +399,7 @@ public class MapManager {
 
         pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(
                 incident,
-                (Point) incident.getClosestSite(),
+                incident.getClosestHospital(),
                 this.roadNetwork.getRoads()
         );
 

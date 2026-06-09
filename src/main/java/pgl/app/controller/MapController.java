@@ -11,7 +11,6 @@ import pgl.app.model.MapManager;
 import pgl.app.model.Point;
 import pgl.app.model.Triangle;
 import pgl.app.model.VictimIncident;
-import pgl.app.model.Site;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.MouseButton;
@@ -111,8 +110,8 @@ public class MapController {
         highlightedHospitalIds.clear();
         selectedAssignedHospitalId = null;
 
-        if (incident != null && incident.getClosestSite() != null) {
-            Hospital assignedHospital = (Hospital) incident.getClosestSite();
+        if (incident != null && incident.getClosestHospital() != null) {
+            Hospital assignedHospital = (Hospital) incident.getClosestHospital();
             selectedAssignedHospitalId = assignedHospital.getId();
             highlightedHospitalIds.add(assignedHospital.getId());
 
@@ -126,13 +125,13 @@ public class MapController {
     
     private void drawAssignments() {
         for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestSite() != null) {
+            if (incident.getClosestHospital() != null) {
                 boolean isSelected = selectedIncident != null
                         && selectedIncident.getIncidentId().equals(incident.getIncidentId());
 
                 Line assignmentLine = new Line(
                         incident.getX(), incident.getY(),
-                        incident.getClosestSite().getX(), incident.getClosestSite().getY()
+                        incident.getClosestHospital().getX(), incident.getClosestHospital().getY()
                 );
 
                 assignmentLine.setStroke(isSelected ? Color.RED : Color.INDIANRED);
@@ -259,8 +258,7 @@ public class MapController {
      * Ajoute visuellement les hôpitaux sur la carte.
      */
     private void drawHospitals() {
-        for (Site site : mapManager.getSites()) {
-            Hospital hospital = (Hospital) site;
+        for (Hospital hospital : mapManager.getSites()) {
 
             boolean isHighlighted = highlightedHospitalIds.contains(hospital.getId());
             boolean isAssigned = selectedAssignedHospitalId != null

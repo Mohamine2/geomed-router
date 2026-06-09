@@ -70,8 +70,8 @@ public class SidebarController {
 
         lastIncidentLabel.setText("Last incident: " + lastIncident.getIncidentId());
 
-        if (lastIncident.getClosestSite() != null) {
-            assignedHospitalLabel.setText("Assigned hospital: H" + lastIncident.getClosestSite().getId());
+        if (lastIncident.getClosestHospital() != null) {
+            assignedHospitalLabel.setText("Assigned hospital: H" + lastIncident.getClosestHospital().getId());
         } else {
             assignedHospitalLabel.setText("Assigned hospital: none");
         }
@@ -101,8 +101,8 @@ public class SidebarController {
         double totalDistance = 0.0;
 
         for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestSite() != null
-                    && incident.getClosestSite().getId() == hospital.getId()) {
+            if (incident.getClosestHospital() != null
+                    && incident.getClosestHospital().getId() == hospital.getId()) {
 
                 assignedIncidents++;
 
@@ -152,8 +152,8 @@ public class SidebarController {
         selectedIdLabel.setText("Id: " + incident.getIncidentId());
 
         String assignedHospital = "none";
-        if (incident.getClosestSite() != null) {
-            assignedHospital = "H" + incident.getClosestSite().getId();
+        if (incident.getClosestHospital() != null) {
+            assignedHospital = "H" + incident.getClosestHospital().getId();
         }
 
         selectedDetailsArea.setText(
@@ -180,8 +180,8 @@ public class SidebarController {
         int countH3 = 0;
 
         for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestSite() != null) {
-                int siteId = incident.getClosestSite().getId();
+            if (incident.getClosestHospital() != null) {
+                int siteId = incident.getClosestHospital().getId();
 
                 if (siteId == h1.getId()) countH1++;
                 if (siteId == h2.getId()) countH2++;
