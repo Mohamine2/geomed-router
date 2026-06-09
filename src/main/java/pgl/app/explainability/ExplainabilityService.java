@@ -3,6 +3,11 @@ package pgl.app.explainability;
 import pgl.app.model.Hospital;
 import pgl.app.model.VictimIncident;
 import java.util.Map;
+import pgl.app.model.RoadEdge;
+import pgl.app.algo.RoutingEngine;
+import pgl.app.algo.RoutingResult;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Service responsible for generating human-readable justifications for automated 
@@ -13,6 +18,54 @@ import java.util.Map;
  * @version 2.0
  */
 public class ExplainabilityService {
+
+    /**
+     * Calcule la matrice multi-critères des scores pour chaque hôpital
+     * vis-à-vis d'un incident donné afin d'alimenter le rapport de transparence.
+     */
+    public Map<Hospital, DecisionScore> computeDecisionScores(VictimIncident incident, List<Hospital> hospitals, List<RoadEdge> roads) {
+        Map<Hospital, DecisionScore> scoresMap = new HashMap<>();
+
+        for (Hospital hospital : hospitals) {
+            // 1. Base Proximité (Voronoi)
+            double distanceRaw = Math.sqrt(incident.distanceSquaredTo(hospital.getX(), hospital.getY()));
+            double distanceScore = Math.max(0, 100 - (distanceRaw / 5));
+
+            // 2. Base Routière (Dijkstra)
+            double routingScore = distanceScore;
+            if (roads != null && !roads.isEmpty()) {
+                RoutingEngine routingEngine = new RoutingEngine();
+                RoutingResult res = routingEngine.computeOptimalPath(incident, hospital, roads);
+                if (res.totalCost() != Double.MAX_VALUE) {
+                    routingScore = Math.max(0, 100 - (res.totalCost() / 5));
+                }
+            }
+
+            // 3. Pénalité de Saturation
+            double saturationPenalty = hospital.isSaturated() ? -40.0 : 0.0;
+
+            // 4. Correspondance de spécialité médicale
+            boolean specialtyMatched = hospital.canTreat(incident.getEmergencyType());
+
+            // 5. Bonus d'historique médical
+            double historyBonus = 0.0;
+            if (incident.hasMedicalHistory() && incident.getPreferredHospitalId() != null
+                    && incident.getPreferredHospitalId() == hospital.getId()) {
+                historyBonus = 25.0;
+            }
+
+            // 6. Score Total Agrégé
+            double totalScore = routingScore + saturationPenalty + historyBonus;
+            if (!specialtyMatched) totalScore -= 100;
+
+            scoresMap.put(hospital, new DecisionScore(
+                    distanceScore, routingScore, saturationPenalty,
+                    specialtyMatched, historyBonus, totalScore
+            ));
+        }
+
+        return scoresMap;
+    }
 
     /**
      * Generates a detailed, transparent text summary explaining the automated decision-making process
@@ -82,14 +135,15 @@ public class ExplainabilityService {
     }
 
     /**
-     * Logs the critical metadata of a dispatch decision to the standard system output
-     * for immutable accountability tracking, data governance, and auditing purposes.
+     * Constructs the audit message as an immutable string.
+     * The service does not perform any display operations, delegating this responsibility to the presentation layer.
      *
-     * @param incident The medical emergency incident evaluated.
-     * @param chosen   The hospital facility selected for dispatch.
+     * @param incident the medical incident being evaluated
+     * @param chosen   the selected hospital
+     * @return the formatted audit message
      */
-    public void logDecision(VictimIncident incident, Hospital chosen) {
-        System.out.printf("[AUDIT LOG] Decision logged securely for incident %s. Dispatched to Hospital ID: %d\n", 
+    public String createAuditMessage(VictimIncident incident, Hospital chosen) {
+        return String.format("[AUDIT LOG] Decision logged securely for incident %s. Dispatched to Hospital ID: %d",
                 incident.getIncidentId(), chosen.getId());
     }
 }

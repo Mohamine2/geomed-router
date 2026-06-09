@@ -1,5 +1,7 @@
 package pgl.app;
 
+import pgl.app.explainability.DecisionScore;
+import pgl.app.explainability.ExplainabilityService;
 import pgl.app.io.MapBinarySerializer;
 import pgl.app.model.*;
 
@@ -20,6 +22,8 @@ public class ConsoleRunner {
 
     /** Default binary map file path used for serialization */
     private static String currentMapFile = "map.pglm";
+
+    private static final ExplainabilityService explainabilityService = new ExplainabilityService();
 
     /**
      * Main entry point for the console application. Handles the main menu loop.
@@ -231,7 +235,10 @@ public class ConsoleRunner {
                     System.out.printf("  Coordinates: (%.1f, %.1f) | Specialty Required: %s\n", vi.getX(), vi.getY(), vi.getEmergencyType());
                     if (vi.getClosestSite() != null) {
                         int attachedId = vi.getClosestSite().getId();
+                        Hospital chosenHospital = (Hospital) vi.getClosestSite();
                         System.out.println("  Linked Center: Hospital H" + attachedId);
+
+                        // 1. Neighbors display
                         System.out.println("  Zone Neighbors (Other victims routed to the same hospital):");
                         int countNeighbors = 0;
                         for (VictimIncident other : mapManager.getIncidents()) {
@@ -241,6 +248,23 @@ public class ConsoleRunner {
                             }
                         }
                         if (countNeighbors == 0) System.out.println("    No other neighbors inside this sector.");
+
+                        System.out.println("\nWould you like to generate the GDPR Transparency & Accessibility Report? (y/n)");
+                        if (sc.next().equalsIgnoreCase("y")) {
+
+                            Map<Hospital, DecisionScore> matrix = explainabilityService.computeDecisionScores(
+                                    vi,
+                                    mapManager.getSites(),
+                                    mapManager.getRoadNetwork().getRoads()
+                            );
+
+                            // 2. Generate and display the report
+                            String gdprReport = explainabilityService.generateGDPRSummary(vi, chosenHospital, matrix);
+                            System.out.println(gdprReport);
+
+                            String auditLog = explainabilityService.createAuditMessage(vi, chosenHospital);
+                            System.out.println(auditLog);
+                        }
                     } else {
                         System.out.println("  Linked Center: None (Orphan incident)");
                     }
