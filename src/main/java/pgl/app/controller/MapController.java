@@ -16,6 +16,9 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.MouseButton;
 import java.util.HashSet;
 import java.util.Set;
+import javafx.scene.shape.Polygon;
+import pgl.app.model.VoronoiCell;
+import java.util.List;
 
 public class MapController {
 	
@@ -208,6 +211,8 @@ public class MapController {
 
         mapPane.getChildren().clear();
         drawTriangles();
+        drawVoronoiCells();
+        drawVoronoiVertices();
         drawAssignments();
         drawHospitals();
         drawIncidents();
@@ -402,7 +407,49 @@ public class MapController {
             mapPane.getChildren().addAll(incidentCircle, label);
         }
     }
+    /** dessine les polygones des cellules de voronoi **/
+    private void drawVoronoiCells() {
+        List<VoronoiCell> cells = mapManager.getVoronoiCells();
 
+        for (VoronoiCell cell : cells) {
+            List<Point> vertices = cell.getVertices();
+
+            double[] coords = new double[vertices.size() * 2];
+            for (int i = 0; i < vertices.size(); i++) {
+                coords[i * 2]     = vertices.get(i).getX();
+                coords[i * 2 + 1] = vertices.get(i).getY();
+            }
+
+            Polygon polygon = new Polygon(coords);
+            polygon.setFill(Color.TRANSPARENT);
+            polygon.setStroke(Color.MEDIUMPURPLE);
+            polygon.setStrokeWidth(1.0);
+            polygon.setOpacity(0.6);
+
+            mapPane.getChildren().add(polygon);
+        }
+    }
+    private void drawVoronoiVertices() {
+        List<VoronoiCell> cells = mapManager.getVoronoiCells();
+        Set<Point> drawnVertices = new HashSet<>();
+
+        for (VoronoiCell cell : cells) {
+            for (Point vertex : cell.getVertices()) {
+
+                if (!drawnVertices.add(vertex)) {
+                    continue;
+                }
+
+                Circle vertexCircle = new Circle(vertex.getX(), vertex.getY(), 3);
+                vertexCircle.setFill(Color.MEDIUMPURPLE);
+                vertexCircle.setStroke(Color.INDIGO);
+                vertexCircle.setStrokeWidth(0.8);
+                vertexCircle.setOpacity(0.85);
+
+                mapPane.getChildren().add(vertexCircle);
+            }
+        }
+    }
     /**
      * Dessine la triangulation de Delaunay.
      */
