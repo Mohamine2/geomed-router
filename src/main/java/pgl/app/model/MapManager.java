@@ -157,16 +157,21 @@ public class MapManager {
      */
     private void updateAllUserAssignments() {
         if (this.hospitals.isEmpty()) return;
+
+        for (Hospital hospital : this.hospitals) {
+            while (hospital.getCurrentPatients() > 0) {
+                hospital.dischargePatient();
+            }
+        }
+
         for (VictimIncident incident : this.incidents) {
             this.updateSingleUserAssignment(incident);
         }
     }
 
     /**
-     * Calculates and assigns the closest site for a specific user point based on squared distance
-     * or real road network constraints (Dijkstra) if available.
-     *
-     * @param incident the user point to update
+     * Calculates and applies the optimal assignment for an emergency based on
+     * the multi-criteria decision matrix (Explainability / GDPR).
      */
     private void updateSingleUserAssignment(VictimIncident incident) {
         if (this.hospitals.isEmpty()) {
@@ -174,48 +179,45 @@ public class MapManager {
             return;
         }
 
-        Site closest = null;
+        // Instantiate the explainability service to utilize its score calculations
+        pgl.app.explainability.ExplainabilityService localService = new pgl.app.explainability.ExplainabilityService();
 
-        // CAS 1 : Pas de routes -> Repli sur la distance géométrique (vol d'oiseau)
-        if (this.roadNetwork.getRoads().isEmpty()) {
-            double minDistance = Double.MAX_VALUE;
-            for (Site site : this.hospitals) {
-                double dist = incident.distanceSquaredTo(site.getX(), site.getY());
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    closest = site;
-                }
+        // Compute the score matrix for all hospitals regarding this incident
+        java.util.Map<Hospital, pgl.app.explainability.DecisionScore> scoreMatrix =
+                localService.computeDecisionScores(incident, this.hospitals, this.roadNetwork.getRoads());
+
+        Hospital bestHospital = null;
+        double maxScore = -Double.MAX_VALUE;
+
+        // Find the facility that maximizes the overall performance score
+        for (Hospital hospital : this.hospitals) {
+            pgl.app.explainability.DecisionScore scoreDTO = scoreMatrix.get(hospital);
+            if (scoreDTO != null && scoreDTO.getTotalScore() > maxScore) {
+                maxScore = scoreDTO.getTotalScore();
+                bestHospital = hospital;
             }
         }
-        // CAS 2 : Réseau routier présent -> Affectation par le chemin le plus rapide (Dijkstra)
-        else {
-            double minCost = Double.MAX_VALUE;
-            pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
+
+        // If an optimal hospital is found, proceed with dispatching and medical admission
+        if (bestHospital != null) {
+            incident.setClosestSite(bestHospital);
+            bestHospital.admitPatient();
+        } else {
+            // Safety fallback if all scores are invalid (we assign the geometric closest site)
+            Hospital absoluteClosest = this.hospitals.get(0);
+            double minDistance = Double.MAX_VALUE;
 
             for (Hospital hospital : this.hospitals) {
-                // Dijkstra nous donne le chemin ET le coût en un seul et unique passage !
-                pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(incident, hospital, this.roadNetwork.getRoads());
-
-                // Accès direct à la propriété du record sans calcul additionnel
-                if (result.totalCost() < minCost) {
-                    minCost = result.totalCost();
-                    closest = hospital;
-                }
-            }
-        }
-
-        if (closest == null) {
-            double minDistance = Double.MAX_VALUE;
-            for (Site site : this.hospitals) {
-                double dist = incident.distanceSquaredTo(site.getX(), site.getY());
+                double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
                 if (dist < minDistance) {
                     minDistance = dist;
-                    closest = site;
+                    absoluteClosest = hospital;
                 }
             }
-        }
 
-        incident.setClosestSite(closest);
+            incident.setClosestSite(absoluteClosest);
+            absoluteClosest.admitPatient();
+        }
     }
 
     /**
