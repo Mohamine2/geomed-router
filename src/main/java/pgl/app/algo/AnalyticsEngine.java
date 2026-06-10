@@ -30,7 +30,7 @@ public class AnalyticsEngine {
     public static int getIncidentCountForHospital(Hospital hospital, List<VictimIncident> incidents) {
         int count = 0;
         for (VictimIncident incident : incidents) {
-            if (incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()) {
+            if (incident.getClosestHospital() != null && incident.getClosestHospital().getId() == hospital.getId()) {
                 count++;
             }
         }
@@ -58,7 +58,7 @@ public class AnalyticsEngine {
         double sum = 0.0;
 
         for (VictimIncident incident : incidents) {
-            if (incident.getClosestSite() != null && incident.getClosestSite().getId() == hospital.getId()) {
+            if (incident.getClosestHospital() != null && incident.getClosestHospital().getId() == hospital.getId()) {
                 count++;
                 double dist = Math.sqrt(incident.distanceSquaredTo(hospital.getX(), hospital.getY()));
                 if (dist < min) min = dist;

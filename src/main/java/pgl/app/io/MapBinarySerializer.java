@@ -1,5 +1,6 @@
 package pgl.app.io;
 
+import pgl.app.algo.exception.HospitalCollisionException;
 import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.MedicalSpecialty;
@@ -39,7 +40,7 @@ public final class MapBinarySerializer {
         }
     }
 
-    public static void importFromFile(MapManager manager, Path file) throws IOException {
+    public static void importFromFile(MapManager manager, Path file) throws IOException, HospitalCollisionException{
         try (InputStream in = Files.newInputStream(file)) {
             importMap(manager, in);
         }
@@ -94,7 +95,7 @@ public final class MapBinarySerializer {
         data.flush();
     }
 
-    public static void importMap(MapManager manager, InputStream in) throws IOException {
+    public static void importMap(MapManager manager, InputStream in) throws IOException, HospitalCollisionException {
         DataInputStream data = new DataInputStream(in);
 
         int magic = data.readInt();
