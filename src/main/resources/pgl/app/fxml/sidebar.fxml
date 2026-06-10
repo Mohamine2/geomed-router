@@ -46,6 +46,10 @@
                 <Button text="Clear"
                         maxWidth="Infinity"
                         onAction="#handleClear" />
+                        
+                <Button text="Delete Selected"
+        				maxWidth="Infinity"
+        				onAction="#handleDeleteSelected" />
 
                 <Separator />
                 <Separator />

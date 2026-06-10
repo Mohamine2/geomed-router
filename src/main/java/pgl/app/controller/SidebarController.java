@@ -282,6 +282,16 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
     }
+    
+    @FXML
+    private void handleDeleteSelected() {
+        if (mapController != null) {
+            mapController.deleteSelectedElement();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText("Selected element deleted.");
+        }
+    }
 
     @FXML
     private void handleClear() {
