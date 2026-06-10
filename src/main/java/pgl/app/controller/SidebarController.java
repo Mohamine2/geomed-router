@@ -2,6 +2,7 @@ package pgl.app.controller;
 
 import java.util.Random;
 
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.algo.exception.HospitalCollisionException;
@@ -11,7 +12,7 @@ import pgl.app.model.VictimIncident;
 import pgl.app.model.MedicalSpecialty;
 import pgl.app.model.Triangle;
 import javafx.scene.control.TextArea;
-
+import javafx.scene.control.TextField;
 
 public class SidebarController {
 
@@ -41,12 +42,24 @@ public class SidebarController {
 
     @FXML
     private TextArea selectedDetailsArea;
+    
+    @FXML
+    private TextField randomUserCountField;
 
     private final Random random = new Random();
 
     private MapManager mapManager;
     
     private MapController mapController;
+    
+    private int parsePositiveInteger(String text, int defaultValue) {
+        try {
+            int value = Integer.parseInt(text.trim());
+            return value > 0 ? value : defaultValue;
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
     
     private void updateStats() {
         if (mapManager == null) {
@@ -321,5 +334,35 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
         clearSelectionDetails();
+    }
+    
+    @FXML
+    private void handleAddRandomUsers() {
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = parsePositiveInteger(randomUserCountField.getText(), 5);
+
+        for (int i = 0; i < count; i++) {
+            int incidentNumber = mapManager.getIncidents().size() + 1;
+
+            double x = 80 + random.nextDouble() * 500;
+            double y = 80 + random.nextDouble() * 400;
+
+            String incidentId = "INC-" + incidentNumber;
+
+            mapManager.addIncident(new VictimIncident(
+                    x,
+                    y,
+                    incidentId,
+                    MedicalSpecialty.GENERAL
+            ));
+        }
+
+        mapController.refreshMap();
+        updateStats();
+        updateLastAssignment();
+        infoLabel.setText(count + " random incidents added.");
     }
 }
