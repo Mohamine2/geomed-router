@@ -13,6 +13,12 @@ import pgl.app.model.MedicalSpecialty;
 import pgl.app.model.Triangle;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import java.io.File;
+import java.nio.file.Path;
+import javafx.stage.FileChooser;
+import pgl.app.io.CsvSiteImporter;
+import pgl.app.io.CsvIncidentImporter;
+import java.util.List;
 
 public class SidebarController {
 
@@ -275,6 +281,47 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
     }
+    
+    @FXML
+    private void handleImportHospitalsCsv() {
+        if (mapManager == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Hospitals CSV");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        try {
+            int startId = mapManager.getSites().size() + 1;
+
+            List<Hospital> importedHospitals = CsvSiteImporter.importFromCsv(
+                    Path.of(selectedFile.getAbsolutePath()),
+                    startId
+            );
+
+            for (Hospital hospital : importedHospitals) {
+                mapManager.addHospital(hospital);
+            }
+
+            mapController.refreshMap();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText(importedHospitals.size() + " hospitals imported.");
+
+        } catch (Exception e) {
+            infoLabel.setText("Import failed.");
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleAddUserPoint() {
@@ -294,6 +341,47 @@ public class SidebarController {
         
         updateStats();
         updateLastAssignment();
+    }
+    
+    @FXML
+    private void handleImportIncidentsCsv() {
+        if (mapManager == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Incidents CSV");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        try {
+            int startCount = mapManager.getIncidents().size() + 1;
+
+            List<VictimIncident> importedIncidents = CsvIncidentImporter.importFromCsv(
+                    Path.of(selectedFile.getAbsolutePath()),
+                    startCount
+            );
+
+            for (VictimIncident incident : importedIncidents) {
+                mapManager.addIncident(incident);
+            }
+
+            mapController.refreshMap();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText(importedIncidents.size() + " incidents imported.");
+
+        } catch (Exception e) {
+            infoLabel.setText("Incident import failed.");
+            e.printStackTrace();
+        }
     }
 
     @FXML

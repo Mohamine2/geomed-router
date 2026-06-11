@@ -44,6 +44,10 @@
                         <Button text="Add Site"
                                 maxWidth="Infinity"
                                 onAction="#handleAddSite" />
+                        
+                        <Button text="Import Hospitals CSV"
+        						maxWidth="Infinity"
+        						onAction="#handleImportHospitalsCsv" />
 
                         <Button text="Add User Point"
                                 maxWidth="Infinity"
@@ -58,6 +62,10 @@
                         <Button text="Add Random Users"
                                 maxWidth="Infinity"
                                 onAction="#handleAddRandomUsers" />
+                                
+                        <Button text="Import Incidents CSV"
+        						maxWidth="Infinity"
+        						onAction="#handleImportIncidentsCsv" />
 
                         <Button text="Recompute Delaunay"
                                 maxWidth="Infinity"
