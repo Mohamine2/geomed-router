@@ -90,10 +90,6 @@
         						maxWidth="Infinity"
         						onAction="#handleImportIncidentsCsv" />
 
-                        <Button text="Recompute Delaunay"
-                                maxWidth="Infinity"
-                                onAction="#handleRecompute" />
-
                         <Button text="Clear"
                                 maxWidth="Infinity"
                                 onAction="#handleClear" />
