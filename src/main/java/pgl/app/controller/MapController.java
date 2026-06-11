@@ -19,6 +19,8 @@ import java.util.Set;
 import javafx.scene.shape.Polygon;
 import pgl.app.model.VoronoiCell;
 import java.util.List;
+import javafx.scene.shape.Shape;
+import javafx.scene.shape.Rectangle;
 
 
 public class MapController {
@@ -440,18 +442,26 @@ public class MapController {
             mapPane.getChildren().addAll(incidentCircle, label);
         }
     }
-    /** dessine les polygones des cellules de voronoi **/
+
+    /**
+     * Draws the geometric polygons representing the Voronoi cells on the map pane.
+     * <p>
+     * This method retrieves all computed Voronoi cells and clips them against a strict
+     * bounding box (0 to 750 on X, 0 to 700 on Y) using JavaFX {@link Shape#intersect(Shape, Shape)}.
+     * This layout operation constrains unbounded, far-away outer cell vertices to the map's visible
+     * area, ensuring a clean, professional map border alignment without overlapping the sidebar controls.
+     * </p>
+     */
     private void drawVoronoiCells() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
+
+        // 1. Define the strict map viewport boundaries (Bounding Box)
+        Rectangle boundingBox = new Rectangle(0, 0, 750, 700);
 
         for (VoronoiCell cell : cells) {
             List<Point> vertices = cell.getVertices();
 
-            // Skip cell if any vertex is outside the map bounds
-            boolean allInBounds = vertices.stream()
-                    .allMatch(p -> p.getX() >= 0 && p.getX() <= 750
-                            && p.getY() >= 0 && p.getY() <= 700);
-            if (!allInBounds) continue;
+            if (vertices.size() < 3) continue;
 
             double[] coords = new double[vertices.size() * 2];
             for (int i = 0; i < vertices.size(); i++) {
@@ -460,14 +470,20 @@ public class MapController {
             }
 
             Polygon polygon = new Polygon(coords);
-            polygon.setFill(Color.TRANSPARENT);
-            polygon.setStroke(Color.MEDIUMPURPLE);
-            polygon.setStrokeWidth(1.0);
-            polygon.setOpacity(0.6);
 
-            mapPane.getChildren().add(polygon);
+            // 2. Geometric intersection: clip the polygon to the map boundaries
+            Shape clippedCell = Shape.intersect(polygon, boundingBox);
+
+            // 3. Apply styles and visual properties on the clipped shape
+            clippedCell.setFill(Color.rgb(147, 112, 219, 0.05));
+            clippedCell.setStroke(Color.MEDIUMPURPLE);
+            clippedCell.setStrokeWidth(1.5);
+            clippedCell.setOpacity(0.8);
+
+            mapPane.getChildren().add(clippedCell);
         }
     }
+
     private void drawVoronoiVertices() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
         Set<Point> drawnVertices = new HashSet<>();
