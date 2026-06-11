@@ -6,14 +6,21 @@ import pgl.app.model.RoadEdge;
 import java.util.*;
 
 /**
- * The "GPS" of the application. 
- * Contains the routing algorithm to find the fastest path on the road network.
+ * Optimized routing engine that calculates shortest paths on a road network.
+ * <p>
+ * The graph's adjacency list is built once at instantiation, enabling thousands
+ * of ultra-fast routing queries without the need to reconstruct the graph.
  */
 public class RoutingEngine {
 
     /**
-     * Utility inner class (Record) to store a point and its current distance 
-     * in the priority queue.
+     * Map storing the adjacency list where each Point maps to its connected road edges.
+     */
+    private final Map<Point, List<RoadEdge>> adjList;
+
+    /**
+     * Internal data structure representing a node and its current shortest distance
+     * from the starting point, used to populate the priority queue in Dijkstra's algorithm.
      */
     private static class NodeRecord implements Comparable<NodeRecord> {
         Point node;
@@ -26,109 +33,108 @@ public class RoutingEngine {
 
         @Override
         public int compareTo(NodeRecord other) {
-            return Double.compare(this.distance, other.distance); // Sorts from closest to furthest
+            return Double.compare(this.distance, other.distance);
         }
     }
+
     /**
-     * Converts a flat list of roads into an efficient adjacency list graph representation.
-     * @param roadNetwork the map cartography represented by a graph
-     * @return adjList The adjacence list of the graph
+     * Constructs a RoutingEngine and pre-computes the adjacency list.
+     *
+     * @param roadNetwork the flat list of road edges representing the map network
+     */
+    public RoutingEngine(List<RoadEdge> roadNetwork) {
+        this.adjList = buildAdjacencyList(roadNetwork);
+    }
+
+    /**
+     * Converts a flat list of road edges into a bidirectional adjacency list map.
+     *
+     * @param roadNetwork the flat list of road edges
+     * @return a map linking each point to its connected road edges
      */
     private Map<Point, List<RoadEdge>> buildAdjacencyList(List<RoadEdge> roadNetwork) {
-        Map<Point, List<RoadEdge>> adjList = new HashMap<>();
+        Map<Point, List<RoadEdge>> map = new HashMap<>();
+        if (roadNetwork == null) return map;
 
         for (RoadEdge edge : roadNetwork) {
-            adjList.computeIfAbsent(edge.getStart(), k -> new ArrayList<>()).add(edge);
-            adjList.computeIfAbsent(edge.getEnd(), k -> new ArrayList<>()).add(edge);
+            map.computeIfAbsent(edge.getStart(), k -> new ArrayList<>()).add(edge);
+            map.computeIfAbsent(edge.getEnd(), k -> new ArrayList<>()).add(edge);
         }
-
-        return adjList;
+        return map;
     }
 
-
     /**
-     * Computes the optimal path (the "lightest" in terms of weight/time) between a start and an end point.
+     * Computes the optimal (shortest) path between two points using an optimized Dijkstra's algorithm.
+     * <p>
+     * <b>Optimization Note:</b> To achieve maximum performance, this method does not pre-initialize
+     * all graph nodes with {@code Double.MAX_VALUE}. Instead, distances are initialized dynamically
+     * on-the-fly using {@code Map.getOrDefault}.
      *
-     * @param start       The starting intersection (where the victim is).
-     * @param end         The ending intersection (the target hospital).
-     * @param roadNetwork The list of all roads in the city.
-     * @return The list of intersections to traverse in order (the route).
+     * @param start the starting coordinates/point
+     * @param end   the destination coordinates/point
+     * @return a {@link RoutingResult} containing the list of points forming the path and the total cost;
+     * returns an empty path with {@code Double.MAX_VALUE} cost if no path exists or if points are invalid.
      */
-    public RoutingResult computeOptimalPath(Point start, Point end, List<RoadEdge> roadNetwork) {
-        
-        // 1. PREPARATION: Transform the flat list of roads into an adjacency list
-        // (For a given intersection, we want to know which roads depart from it)
-        Map<Point, List<RoadEdge>> adjList = buildAdjacencyList(roadNetwork);
+    public RoutingResult computeOptimalPath(Point start, Point end) {
 
-        // 2. DIJKSTRA INITIALIZATION
-        Map<Point, Double> distances = new HashMap<>(); // Stores the best known time for each point
-        Map<Point, Point> previous = new HashMap<>();   // Stores the previous point to reconstruct the path at the end
-        PriorityQueue<NodeRecord> pq = new PriorityQueue<>();
-
-        // Initially, all intersections are infinitely far away
-        for (Point p : adjList.keySet()) {
-            distances.put(p, Double.MAX_VALUE);
+        // Instant guard clause: check if both start and end points exist in the graph
+        if (!adjList.containsKey(start) || !adjList.containsKey(end)) {
+            return new RoutingResult(new ArrayList<>(), Double.MAX_VALUE);
         }
 
-        // Except the starting point which is at a distance of 0
+        Map<Point, Double> distances = new HashMap<>();
+        Map<Point, Point> previous = new HashMap<>();
+        PriorityQueue<NodeRecord> pq = new PriorityQueue<>();
+
+        // MAJOR OPTIMIZATION: Only the start point is initialized in the distance map
         distances.put(start, 0.0);
         pq.add(new NodeRecord(start, 0.0));
 
-        // 3. THE MAIN LOOP (Exploration)
         while (!pq.isEmpty()) {
-            NodeRecord current = pq.poll(); // We take the closest intersection
+            NodeRecord current = pq.poll();
             Point currentPoint = current.node;
 
-            // OPTIMIZATION: If we have reached the hospital, we stop searching!
+            // Target reached
             if (currentPoint.equals(end)) {
                 break;
             }
 
-            // If we already found a better path for this point in the past, we ignore it
-            if (current.distance > distances.get(currentPoint)) {
+            // Skip processing if a shorter path to this node has already been processed
+            if (current.distance > distances.getOrDefault(currentPoint, Double.MAX_VALUE)) {
                 continue;
             }
 
-            // We look at all the roads departing from this intersection
-            List<RoadEdge> neighbors = adjList.getOrDefault(currentPoint, new ArrayList<>());
+            List<RoadEdge> neighbors = adjList.getOrDefault(currentPoint, Collections.emptyList());
             for (RoadEdge edge : neighbors) {
-                // Find the point on the other side of the road
                 Point neighbor = edge.getStart().equals(currentPoint) ? edge.getEnd() : edge.getStart();
-                
-                // THIS IS THE MAGIC: We use getWeight() (Distance * Traffic)
                 double newDist = distances.get(currentPoint) + edge.getWeight();
 
-                // If this new path is faster than what we knew before
-                if (newDist < distances.get(neighbor)) {
+                // getOrDefault bypasses the need to pre-fill the distances HashMap
+                if (newDist < distances.getOrDefault(neighbor, Double.MAX_VALUE)) {
                     distances.put(neighbor, newDist);
-                    previous.put(neighbor, currentPoint); // We remember where we came from
-                    pq.add(new NodeRecord(neighbor, newDist)); // We add it to the exploration queue
+                    previous.put(neighbor, currentPoint);
+                    pq.add(new NodeRecord(neighbor, newDist));
                 }
             }
         }
 
         double totalCost = distances.getOrDefault(end, Double.MAX_VALUE);
-
-        // 4. PATH RECONSTRUCTION
         List<Point> path = new ArrayList<>();
-        Point step = end;
-        
-        // Safety check: If the hospital is unreachable (e.g., disconnected road)
-        if (previous.get(step) == null && !step.equals(start)) {
-            System.out.println(" No possible path to this hospital!");
+
+        // If the destination remains unreachable
+        if (totalCost == Double.MAX_VALUE) {
             return new RoutingResult(path, Double.MAX_VALUE);
         }
 
-        // We trace back the breadcrumbs from the destination to the start
+        // Reconstruct the path backwards from end to start
+        Point step = end;
         path.add(step);
         while (previous.containsKey(step)) {
             step = previous.get(step);
             path.add(step);
         }
 
-        // We reverse the list to have the correct order (Start -> End)
         Collections.reverse(path);
-
         return new RoutingResult(path, totalCost);
     }
 }

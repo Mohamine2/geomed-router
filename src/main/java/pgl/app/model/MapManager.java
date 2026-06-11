@@ -3,14 +3,10 @@ package pgl.app.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import pgl.app.algo.AnalyticsEngine;
-import pgl.app.algo.DelaunayEngine;
-import pgl.app.algo.VoronoiEngine;
+import pgl.app.algo.*;
 import pgl.app.algo.exception.HospitalCollisionException;
-import pgl.app.explainability.DecisionScore;
-import pgl.app.explainability.ExplainabilityService;
+import pgl.app.explainability.DispatchDecision;
 
 /**
  * Manages and orchestrates map data.
@@ -27,6 +23,9 @@ public class MapManager {
     private final VoronoiEngine voronoiEngine = new VoronoiEngine();
 
     private final RoadNetwork roadNetwork = new RoadNetwork();
+    DispatchEngine dispatchEngine = new DispatchEngine();
+
+    RoutingEngine cachedRoutingEngine = null;
 
     /**
      * Constructs a new MapManager with initialized empty lists for sites, user points, and triangles.
@@ -107,7 +106,8 @@ public class MapManager {
         }
 
         this.incidents.add(incident);
-        this.updateAll();
+
+        this.updateSingleUserAssignment(incident);
     }
 
     /**
@@ -118,8 +118,7 @@ public class MapManager {
      */
     public void addIncidents(List<VictimIncident> newIncidents) {
         for (VictimIncident incident : newIncidents) {
-            this.incidents.add(incident);
-            this.updateSingleUserAssignment(incident);
+            this.addIncident(incident);
         }
     }
 
@@ -143,10 +142,12 @@ public class MapManager {
     }
 
     public void addRoad(Point start, Point end){
+        this.cachedRoutingEngine = null;
         this.roadNetwork.addRoad(start, end);
     }
 
     public RoadEdge addRoad(int startIdx, int endIdx) {
+        this.cachedRoutingEngine = null;
         return this.roadNetwork.addRoad(startIdx, endIdx);
     }
 
@@ -195,71 +196,32 @@ public class MapManager {
         }
     }
 
-    /**
-     * Calculates and applies the optimal assignment for an emergency based on
-     * the multi-criteria decision matrix (Explainability / GDPR compliance).
-     * * <p>This method evaluates all available hospitals using an explainability service
-     * to find the best match based on performance scores. If no valid optimal hospital
-     * can be determined via the decision matrix, a fallback mechanism assigns the
-     * geometrically closest hospital.</p>
-     *
-     * @param incident The victim incident requiring hospital assignment.
-     */
     private void updateSingleUserAssignment(VictimIncident incident) {
-        // 1. Guard clause for empty hospital list
         if (this.hospitals.isEmpty()) {
             incident.setClosestHospital(null);
             return;
         }
 
-        // 2. Compute decision scores via Explainability Service
-        ExplainabilityService localService = new ExplainabilityService();
-        Map<Hospital, DecisionScore> scoreMatrix = localService.computeDecisionScores(
+        // 1. On demande au Cerveau de calculer
+        DispatchDecision decision = dispatchEngine.evaluateBestDispatch(
                 incident,
                 this.hospitals,
-                this.roadNetwork.getRoads()
+                getRoutingEngine(),
+                this.triangles
         );
 
-        // 3. Search for the hospital with the highest valid score
-        Hospital bestHospital = null;
-        double maxScore = -Double.MAX_VALUE;
+        Hospital bestHospital = decision.getOptimalHospital();
 
-        for (Hospital hospital : this.hospitals) {
-            DecisionScore scoreDTO = scoreMatrix.get(hospital);
-            if (scoreDTO != null && scoreDTO.getTotalScore() > maxScore) {
-                maxScore = scoreDTO.getTotalScore();
-                bestHospital = hospital;
-            }
-        }
-
-        // 4. Assign hospital (Optimal path vs. Geometric Fallback)
+        // 2. On applique la décision
         if (bestHospital != null) {
             incident.setClosestHospital(bestHospital);
             bestHospital.admitPatient();
-        } else {
-            // Safety fallback: Assign the absolute geometrically closest site
-            Hospital absoluteClosest = findGeometricallyClosestHospital(incident);
-            incident.setClosestHospital(absoluteClosest);
-            absoluteClosest.admitPatient();
-        }
-    }
 
-    /**
-     * Helper method to find the geometrically closest hospital when scores are unavailable.
-     * @param incident The victim incident requiring hospital assignment.
-     */
-    private Hospital findGeometricallyClosestHospital(VictimIncident incident) {
-        Hospital closest = this.hospitals.get(0);
-        double minDistance = Double.MAX_VALUE;
-
-        for (Hospital hospital : this.hospitals) {
-            double dist = incident.distanceSquaredTo(hospital.getX(), hospital.getY());
-            if (dist < minDistance) {
-                minDistance = dist;
-                closest = hospital;
-            }
+            // 3. Optionnel : Si vous avez besoin de générer le rapport au moment de l'affectation
+            // GDPRReportingService reporter = new GDPRReportingService();
+            // String rapport = reporter.generateGDPRSummary(incident, decision);
+            // System.out.println(rapport);
         }
-        return closest;
     }
 
     /**
@@ -349,6 +311,18 @@ public class MapManager {
     }
 
     /**
+     * Retourne le moteur de routage. S'il n'existe pas encore, il le crée.
+     * C'est ce qu'on appelle le "Lazy Loading" (Chargement paresseux).
+     */
+    public RoutingEngine getRoutingEngine() {
+        if (this.cachedRoutingEngine == null) {
+            // Création unique : le graphe des routes est calculé ici une seule fois
+            this.cachedRoutingEngine = new RoutingEngine(this.roadNetwork.getRoads());
+        }
+        return this.cachedRoutingEngine;
+    }
+
+    /**
      * Delegates statistical calculation to the stateless AnalyticsEngine.
      * <p>
      * Computes performance and operational metrics (such as total incidents,
@@ -395,12 +369,9 @@ public class MapManager {
             return new ArrayList<>();
         }
 
-        pgl.app.algo.RoutingEngine routingEngine = new pgl.app.algo.RoutingEngine();
-
-        pgl.app.algo.RoutingResult result = routingEngine.computeOptimalPath(
+        pgl.app.algo.RoutingResult result = getRoutingEngine().computeOptimalPath(
                 incident,
-                incident.getClosestHospital(),
-                this.roadNetwork.getRoads()
+                incident.getClosestHospital()
         );
 
         return result.path();

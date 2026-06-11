@@ -1,8 +1,9 @@
 package pgl.app;
 
+import pgl.app.algo.DispatchEngine;
 import pgl.app.algo.exception.HospitalCollisionException;
-import pgl.app.explainability.DecisionScore;
-import pgl.app.explainability.ExplainabilityService;
+import pgl.app.explainability.DispatchDecision;
+import pgl.app.explainability.GDPRReportingService;
 import pgl.app.io.MapBinarySerializer;
 import pgl.app.model.*;
 import pgl.app.security.SecurityContext;
@@ -25,8 +26,6 @@ public class ConsoleRunner {
 
     /** Default binary map file path used for serialization */
     private static String currentMapFile = "map.pglm";
-
-    private static final ExplainabilityService explainabilityService = new ExplainabilityService();
 
     /**
      * Main entry point for the console application. Handles the main menu loop.
@@ -252,7 +251,7 @@ public class ConsoleRunner {
                     System.out.printf("\n[Incident %s Inspection Profile]\n", vi.getIncidentId());
                     System.out.printf("  Coordinates: (%.1f, %.1f) | Specialty Required: %s\n", vi.getX(), vi.getY(), vi.getEmergencyType());
 
-                    if (SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
+                    if (pgl.app.security.SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
                         System.out.println("  Medical Notes : " + vi.getMedicalNotes());
                     } else {
                         System.out.println("  Medical Notes : [CONFIDENTIAL - ADMIN or DOCTOR Role required]");
@@ -277,17 +276,26 @@ public class ConsoleRunner {
                         if (pgl.app.security.SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
                             System.out.println("\nWould you like to generate the GDPR Transparency & Accessibility Report? (y/n)");
                             if (sc.next().equalsIgnoreCase("y")) {
-                                Map<Hospital, DecisionScore> matrix = explainabilityService.computeDecisionScores(
+
+                                // --- NOUVELLE ARCHITECTURE ---
+
+                                // A. On demande au moteur de recréer l'évaluation pour obtenir la matrice de score complète
+                                DispatchEngine engine = new pgl.app.algo.DispatchEngine();
+                                DispatchDecision decision = engine.evaluateBestDispatch(
                                         vi,
                                         mapManager.getSites(),
-                                        mapManager.getRoadNetwork().getRoads()
+                                        mapManager.getRoutingEngine(), // Utilisation du cache ultra-rapide
+                                        mapManager.getTriangles()
                                 );
 
+                                // B. On confie la décision au service de reporting pour le formatage
+                                GDPRReportingService reporter = new GDPRReportingService();
+
                                 // 2. Generate and display the report
-                                String gdprReport = explainabilityService.generateGDPRSummary(vi, chosenHospital, matrix);
+                                String gdprReport = reporter.generateGDPRSummary(vi, decision);
                                 System.out.println(gdprReport);
 
-                                String auditLog = explainabilityService.createAuditMessage(vi, chosenHospital);
+                                String auditLog = reporter.createAuditMessage(vi, chosenHospital);
                                 System.out.println(auditLog);
                             }
                         } else {
