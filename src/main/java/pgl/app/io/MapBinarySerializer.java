@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Serializes and deserializes a complete map to a binary file.
@@ -66,7 +67,7 @@ public final class MapBinarySerializer {
             data.writeDouble(road.getTrafficFactor());
         }
 
-        List<Hospital> hospitals = manager.getSites();
+        Set<Hospital> hospitals = manager.getSites();
         data.writeInt(hospitals.size());
         for (Hospital hospital : hospitals) {
             data.writeInt(hospital.getId());

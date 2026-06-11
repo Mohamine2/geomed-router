@@ -32,7 +32,7 @@ public class DelaunayEngine {
 	 * Returns an empty list if there are fewer than 3 hospitals.
 	 * @throws IllegalArgumentException if the {@code hospitals} list is {@code null}.
 	 */
-	public List<Triangle> triangulate(List<Hospital> hospitals){
+	public List<Triangle> triangulate(Set<Hospital> hospitals){
 		if(hospitals == null) {
 			throw new IllegalArgumentException("La liste des hospitals ne peut pas être nulle.");
 		}
@@ -66,27 +66,32 @@ public class DelaunayEngine {
 	 * * @param sites the list of input sites used to calculate the bounding box.
 	 * @return a {@link Triangle} surrounding all input sites.
 	 */
-	private Triangle createSuperTriangle(List<Hospital> sites) {
-		double minX = sites.get(0).getX();
-		double minY = sites.get(0).getY();
-		double maxX = sites.get(0).getX();
-		double maxY = sites.get(0).getY();
-		
-		for(Site site : sites) {
-			minX = Math.min(minX, site.getX());
-			minY = Math.min(minY,  site.getY());
-			maxX = Math.max(maxX, site.getX());
-			maxY = Math.max(maxY,  site.getY());
+	private Triangle createSuperTriangle(Set<Hospital> sites) {
+		if (sites == null || sites.isEmpty()) {
+			throw new IllegalArgumentException("La liste des hôpitaux ne peut pas être vide.");
 		}
-		
+
+		Hospital first = sites.iterator().next();
+		double minX = first.getX();
+		double minY = first.getY();
+		double maxX = first.getX();
+		double maxY = first.getY();
+
+		for (Hospital site : sites) {
+			minX = Math.min(minX, site.getX());
+			minY = Math.min(minY, site.getY());
+			maxX = Math.max(maxX, site.getX());
+			maxY = Math.max(maxY, site.getY());
+		}
+
 		double dx = maxX - minX;
 		double dy = maxY - minY;
 		double deltaMax = Math.max(dx, dy) * 10;
-		
+
 		Point p1 = new Point(minX - deltaMax, minY - deltaMax);
 		Point p2 = new Point(minX + 2 * deltaMax, minY - deltaMax);
-		Point p3 = new Point(minX + dx/2, maxY + 2 * deltaMax);
-		
+		Point p3 = new Point(minX + dx / 2, maxY + 2 * deltaMax);
+
 		return new Triangle(p1, p2, p3);
 	}
 	

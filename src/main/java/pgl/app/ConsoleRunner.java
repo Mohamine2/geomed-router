@@ -402,7 +402,7 @@ public class ConsoleRunner {
      * Displays advanced operational and distance statistics for all active hospitals.
      * * @param hospitals The list of hospitals to inspect.
      */
-    public static void displayAdvancedHospitalStats(List<Hospital> hospitals) {
+    public static void displayAdvancedHospitalStats(Set<Hospital> hospitals) {
         System.out.println("\n--- Emergency Dispatch Advanced Statistics ---");
 
         for (Hospital hospital: hospitals){
@@ -495,15 +495,17 @@ public class ConsoleRunner {
      * @param nbRoads The number of road connections to randomly generate.
      */
     public static void generateRandomRoads(int nbRoads) {
-        List<Hospital> hospitals = mapManager.getSites();
-        if (hospitals.size() < 2) return;
+        Set<Hospital> hospitalSet = mapManager.getSites();
+        if (hospitalSet.size() < 2) return;
+
+        Hospital[] hospitals = hospitalSet.toArray(new Hospital[0]);
 
         Random rand = new Random();
         System.out.println("\n--- Generating " + nbRoads + " random roads ---");
 
         for (int i = 0; i < nbRoads; i++) {
-            Hospital h1 = hospitals.get(rand.nextInt(hospitals.size()));
-            Hospital h2 = hospitals.get(rand.nextInt(hospitals.size()));
+            Hospital h1 = hospitals[rand.nextInt(hospitals.length)];
+            Hospital h2 = hospitals[rand.nextInt(hospitals.length)];
 
             // Prevent self-loop roads
             if (h1 != h2) {

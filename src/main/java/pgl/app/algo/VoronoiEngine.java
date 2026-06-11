@@ -3,6 +3,7 @@ package pgl.app.algo;
 import pgl.app.model.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Engine responsible for computing Voronoi cells from a Delaunay mesh.
@@ -54,12 +55,12 @@ public class VoronoiEngine {
      * fewer than 3 vertices, which cannot form a valid closed polygon).
      * </p>
      *
-     * @param hospitals the {@link List} of {@link Hospital} objects acting as the Voronoi sites
+     * @param hospitals the set of {@link Hospital} objects acting as the Voronoi sites
      * @param triangles the {@link List} of {@link Triangle} objects representing the Delaunay mesh
      * @return a {@link List} of valid, closed {@link VoronoiCell} objects representing
      * the map regions
      */
-    public List<VoronoiCell> generateVoronoiCells(List<Hospital> hospitals, List<Triangle> triangles) {
+    public List<VoronoiCell> generateVoronoiCells(Set<Hospital> hospitals, List<Triangle> triangles) {
         List<VoronoiCell> cells = new ArrayList<>();
         for (Hospital hospital : hospitals) {
             List<Point> vertices = computeVoronoiCellVertices(hospital, triangles);

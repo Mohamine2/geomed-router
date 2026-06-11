@@ -24,13 +24,13 @@ public class DispatchEngine {
      * by Delaunay triangulation neighbors of the geometrically closest hospital.
      *
      * @param incident      the victim's medical incident details
-     * @param hospitals     the list of all available hospitals in the system
+     * @param hospitals     the set of all available hospitals in the system
      * @param routingEngine the routing engine used to compute precise topological distances
      * @param triangles     the list of triangles forming the Delaunay triangulation network
      * @return a {@link DispatchDecision} containing the chosen hospital and a detailed score map for explainability
      */
     public DispatchDecision evaluateBestDispatch(VictimIncident incident,
-                                                 List<Hospital> hospitals,
+                                                 Set<Hospital> hospitals,
                                                  RoutingEngine routingEngine,
                                                  List<Triangle> triangles) {
 
@@ -68,10 +68,10 @@ public class DispatchEngine {
      * Finds the geometrically closest hospital to the incident using Euclidean squared distance.
      *
      * @param incident  the emergency incident
-     * @param hospitals the list of hospitals to check
+     * @param hospitals the set of hospitals to check
      * @return the closest {@link Hospital} instance based on raw coordinates
      */
-    private Hospital findClosestHospital(VictimIncident incident, List<Hospital> hospitals) {
+    private Hospital findClosestHospital(VictimIncident incident, Set<Hospital> hospitals) {
         Hospital closest = null;
         double minDistanceSq = Double.MAX_VALUE;
         for (Hospital hospital : hospitals) {

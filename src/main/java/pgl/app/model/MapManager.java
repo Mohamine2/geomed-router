@@ -1,8 +1,6 @@
 package pgl.app.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import pgl.app.algo.*;
 import pgl.app.algo.exception.HospitalCollisionException;
@@ -15,7 +13,7 @@ import pgl.app.explainability.DispatchDecision;
  */
 public class MapManager {
 
-    private final List<Hospital> hospitals;
+    private final Set<Hospital> hospitals;
     private final List<VictimIncident> incidents;
     private final List<Triangle> triangles;
 
@@ -31,7 +29,7 @@ public class MapManager {
      * Constructs a new MapManager with initialized empty lists for sites, user points, and triangles.
      */
     public MapManager() {
-        this.hospitals = new ArrayList<>();
+        this.hospitals = new HashSet<>();
         this.incidents = new ArrayList<>();
         this.triangles = new ArrayList<>();
     }
@@ -230,8 +228,8 @@ public class MapManager {
      *
      * @return an unmodifiable list of sites
      */
-    public List<Hospital> getSites() {
-        return Collections.unmodifiableList(this.hospitals);
+    public Set<Hospital> getSites() {
+        return Collections.unmodifiableSet(this.hospitals);
     }
 
     /**
@@ -270,12 +268,6 @@ public class MapManager {
     public int getIncidentCountForHospital(Hospital hospital){
         return AnalyticsEngine.getIncidentCountForHospital(hospital, incidents);
     }
-    
-    private void addWithoutDuplicate(List<Hospital> list, Hospital hospital) {
-        if (!list.contains(hospital)) {
-            list.add(hospital);
-        }
-    }
 
     /**
      * Delegates the generation of Voronoi cells to the dedicated geometry engine.
@@ -291,24 +283,24 @@ public class MapManager {
     public List<VoronoiCell> getVoronoiCells() {
         return this.voronoiEngine.generateVoronoiCells(this.hospitals, this.triangles);
     }
-    
-    public List<Hospital> getVoronoiNeighbors(Hospital hospital) {
-        List<Hospital> neighbors = new ArrayList<>();
+
+    public Set<Hospital> getVoronoiNeighbors(Hospital hospital) {
+        Set<Hospital> neighborsSet = new HashSet<>();
 
         for (Triangle triangle : this.triangles) {
             if (triangle.getA().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getB());
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getC());
+                neighborsSet.add((Hospital) triangle.getB());
+                neighborsSet.add((Hospital) triangle.getC());
             } else if (triangle.getB().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getA());
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getC());
+                neighborsSet.add((Hospital) triangle.getA());
+                neighborsSet.add((Hospital) triangle.getC());
             } else if (triangle.getC().equals(hospital)) {
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getA());
-                addWithoutDuplicate(neighbors, (Hospital) triangle.getB());
+                neighborsSet.add((Hospital) triangle.getA());
+                neighborsSet.add((Hospital) triangle.getB());
             }
         }
 
-        return neighbors;
+        return neighborsSet;
     }
 
     /**
