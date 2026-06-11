@@ -1,0 +1,32 @@
+.sidebar-root {
+    -fx-background-color: #2d6a4f;
+}
+
+.scroll-pane {
+    -fx-background: #2d6a4f;
+    -fx-background-color: #2d6a4f;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #2d6a4f;
+}
+
+.vbox-sidebar {
+    -fx-background-color: #2d6a4f;
+    -fx-border-color: #1b4332;
+    -fx-border-width: 0 0 0 1;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.button {
+    -fx-background-color: white;
+    -fx-text-fill: #2d6a4f;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #d8f3dc;
+}
