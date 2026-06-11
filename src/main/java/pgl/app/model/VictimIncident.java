@@ -67,23 +67,6 @@ public class VictimIncident extends Point {
     }
 
     /**
-     * Simplified constructor for a {@code VictimIncident} when the patient identity is anonymous,
-     * unknown, or has no prior registered clinical history.
-     * <p>
-     * Invokes the primary constructor passing {@code null} for the preferred hospital ID.
-     * </p>
-     *
-     * @param x             The X coordinate of the emergency location.
-     * @param y             The Y coordinate of the emergency location.
-     * @param incidentId    The unique call or dispatch identifier.
-     * @param emergencyType The required medical specialty for treatment.
-     */
-    public VictimIncident(double x, double y, String incidentId, MedicalSpecialty emergencyType) {
-        // Calls the full constructor, explicitly passing 'null' for the preferred hospital
-        this(x, y, incidentId, emergencyType, null);
-    }
-
-    /**
      * Gets the unique tracking identifier of the incident.
      *
      * @return The incident ID string.

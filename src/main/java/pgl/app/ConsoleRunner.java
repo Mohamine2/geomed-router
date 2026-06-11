@@ -162,8 +162,12 @@ public class ConsoleRunner {
                 double ux = askInt(sc, "  Enter Incident X: ");
                 double uy = askInt(sc, "  Enter Incident Y: ");
                 MedicalSpecialty emType = askMedicalSpecialty(sc, "  Select Emergency Type:");
+
+                int prefInput = askInt(sc, "  Patient has a preferred hospital ID? (Enter ID or 0 for none): ");
+                Integer prefId = (prefInput > 0) ? prefInput : null;
+
                 String id = "INC-M-" + String.format("%03d", mapManager.getIncidents().size() + 1);
-                mapManager.addIncident(new VictimIncident(ux, uy, id, emType));
+                mapManager.addIncident(new VictimIncident(ux, uy, id, emType, prefId));
                 System.out.println("Incident " + id + " logged and linked to closest site.");
                 break;
             }
@@ -188,7 +192,10 @@ public class ConsoleRunner {
                 if (vi != null) {
                     vi.setX(askInt(sc, "  Enter New X: "));
                     vi.setY(askInt(sc, "  Enter New Y: "));
-                    mapManager.updateAll();
+
+                    vi.setClosestHospital(null);
+                    mapManager.updateSingleUserAssignment(vi);
+
                     System.out.println("Incident " + id + " repositioned and re-assigned.");
                 } else {
                     System.out.println("Incident not found.");
@@ -202,10 +209,21 @@ public class ConsoleRunner {
                 MedicalSpecialty[] specialties = MedicalSpecialty.values();
                 int startCount = mapManager.getIncidents().size() + 1;
                 List<VictimIncident> newIncidents = new ArrayList<>();
+
+                List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
+                int nbHospitals = currentHospitals.size();
+
                 for (int i = 0; i < count; i++) {
                     String incidentId = "INC-RAND-" + String.format("%03d", startCount++);
                     MedicalSpecialty type = specialties[rand.nextInt(specialties.length)];
-                    newIncidents.add(new VictimIncident(rand.nextInt(201) - 100, rand.nextInt(201) - 100, incidentId, type));
+
+                    Integer prefId = null;
+                    if (nbHospitals > 0 && rand.nextDouble() < 0.20) {
+                        Hospital randomHosp = currentHospitals.get(rand.nextInt(nbHospitals));
+                        prefId = randomHosp.getId();
+                    }
+
+                    newIncidents.add(new VictimIncident(rand.nextInt(201) - 100, rand.nextInt(201) - 100, incidentId, type, prefId));
                 }
                 mapManager.addIncidents(newIncidents);
                 System.out.println(count + " random incidents generated and linked.");
@@ -389,11 +407,17 @@ public class ConsoleRunner {
             String incidentId = "INC-R-" + String.format("%03d", i + 1);
             MedicalSpecialty emergencyType = specialties[rand.nextInt(specialties.length)];
 
+            Integer prefHospitalId = null;
+            if (rand.nextDouble() < 0.20 && nbHospitals > 0) {
+                prefHospitalId = rand.nextInt(nbHospitals) + 1;
+            }
+
             mapManager.addIncident(new VictimIncident(
                     rand.nextInt(201) - 100,
                     rand.nextInt(201) - 100,
                     incidentId,
-                    emergencyType
+                    emergencyType,
+                    prefHospitalId
             ));
         }
     }
@@ -509,7 +533,11 @@ public class ConsoleRunner {
 
             // Prevent self-loop roads
             if (h1 != h2) {
-                mapManager.addRoad(new Point(h1.getX(), h1.getY()), new Point(h2.getX(), h2.getY()));
+                // Traffic jam probability of 30%
+                // (slowdown from 1.5x to 4.0x)
+                double traffic = (rand.nextDouble() < 0.30) ? (1.5 + rand.nextDouble() * 2.5) : 1.0;
+
+                mapManager.addRoad(new Point(h1.getX(), h1.getY()), new Point(h2.getX(), h2.getY()), traffic);
             }
         }
     }

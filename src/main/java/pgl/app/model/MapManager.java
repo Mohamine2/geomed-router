@@ -140,9 +140,14 @@ public class MapManager {
         return null;
     }
 
-    public void addRoad(Point start, Point end){
+    public RoadEdge addRoad(Point start, Point end) {
         this.cachedRoutingEngine = null;
-        this.roadNetwork.addRoad(start, end);
+        return this.roadNetwork.addRoad(start, end);
+    }
+
+    public RoadEdge addRoad(Point start, Point end, double trafficFactor) {
+        this.cachedRoutingEngine = null;
+        return this.roadNetwork.addRoad(start, end, trafficFactor);
     }
 
     public RoadEdge addRoad(int startIdx, int endIdx) {
@@ -195,7 +200,7 @@ public class MapManager {
         }
     }
 
-    private void updateSingleUserAssignment(VictimIncident incident) {
+    public void updateSingleUserAssignment(VictimIncident incident) {
         if (this.hospitals.isEmpty()) {
             incident.setClosestHospital(null);
             return;

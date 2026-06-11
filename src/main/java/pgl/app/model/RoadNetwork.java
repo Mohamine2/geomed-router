@@ -50,10 +50,11 @@ public class RoadNetwork {
 
     /**
      * Connects two points with a road, ensuring the points are tracked as intersections.
-     * * @param start The starting point
+     * @param start The starting point
      * @param end   The ending point
+     * @param trafficFactor Indicator for traffic jam
      */
-    public void addRoad(Point start, Point end) {
+    public RoadEdge addRoad(Point start, Point end, double trafficFactor) {
         if (!intersections.contains(start)) {
             intersections.add(start);
         }
@@ -61,8 +62,13 @@ public class RoadNetwork {
             intersections.add(end);
         }
 
-        RoadEdge road = new RoadEdge(start, end);
+        RoadEdge road = new RoadEdge(start, end, trafficFactor);
         this.roads.add(road);
+        return road;
+    }
+
+    public RoadEdge addRoad(Point start, Point end) {
+        return this.addRoad(start, end, 1.0);
     }
 
     public List<Point> getIntersections() { return Collections.unmodifiableList(intersections); }

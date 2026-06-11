@@ -22,7 +22,7 @@ public class RoadEdge {
      * @param start The starting intersection.
      * @param end   The ending intersection.
      */
-    public RoadEdge(Point start, Point end) {
+    public RoadEdge(Point start, Point end, double trafficFactor) {
         if (start == null || end == null) {
             throw new IllegalArgumentException("Intersections cannot be null.");
         }
@@ -33,7 +33,11 @@ public class RoadEdge {
         this.baseDistance = Math.sqrt(start.distanceSquaredTo(end.getX(), end.getY()));
         
         // By default, the road is perfectly clear (no traffic)
-        this.trafficFactor = 1.0; 
+        this.trafficFactor = trafficFactor;
+    }
+
+    public RoadEdge(Point start, Point end) {
+        this(start, end, 1.0);
     }
 
     public Point getStart() { return start; }
