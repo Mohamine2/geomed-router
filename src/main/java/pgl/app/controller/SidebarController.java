@@ -22,6 +22,11 @@ import pgl.app.io.CsvIncidentImporter;
 import java.util.List;
 import pgl.app.io.MapImporterOSM;
 import pgl.app.io.MapBinarySerializer;
+import pgl.app.algo.DispatchEngine;
+import pgl.app.explainability.DispatchDecision;
+import pgl.app.explainability.GDPRReportingService;
+import pgl.app.security.SecurityContext;
+import pgl.app.security.UserRole;
 
 public class SidebarController {
 
@@ -165,7 +170,7 @@ public class SidebarController {
         );
         System.out.println(selectedDetailsArea.getText());
     }
-    
+
     public void showIncidentDetails(VictimIncident incident) {
         if (incident == null) {
             selectedTypeLabel.setText("Type: none");
@@ -182,11 +187,48 @@ public class SidebarController {
             assignedHospital = "H" + incident.getClosestHospital().getId();
         }
 
-        selectedDetailsArea.setText(
-                "Position: (" + (int) incident.getX() + ", " + (int) incident.getY() + ")\n" +
-                "Emergency type: " + incident.getEmergencyType() + "\n" +
-                "Assigned hospital: " + assignedHospital
-        );
+        // On utilise un StringBuilder pour construire un texte long proprement
+        StringBuilder details = new StringBuilder();
+        details.append("Position: (").append((int) incident.getX()).append(", ").append((int) incident.getY()).append(")\n");
+        details.append("Emergency type: ").append(incident.getEmergencyType()).append("\n");
+        details.append("Assigned hospital: ").append(assignedHospital).append("\n\n");
+
+        // --- NOUVEAU : Intégration du rapport d'explicabilité RGPD ---
+        if (incident.getClosestHospital() != null) {
+
+            // On vérifie les droits d'accès (RBAC) comme dans la console
+            if (SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
+                try {
+                    // 1. On demande au moteur de recréer l'évaluation complète
+                    DispatchEngine engine = new DispatchEngine();
+                    DispatchDecision decision = engine.evaluateBestDispatch(
+                            incident,
+                            mapManager.getSites(),
+                            mapManager.getRoutingEngine(),
+                            mapManager.getTriangles()
+                    );
+
+                    // 2. On confie la décision au service de reporting
+                    GDPRReportingService reporter = new GDPRReportingService();
+                    String gdprReport = reporter.generateGDPRSummary(incident, decision);
+
+                    details.append("--- GDPR TRANSPARENCY REPORT ---\n");
+                    details.append(gdprReport);
+
+                } catch (Exception e) {
+                    details.append("[Error generating GDPR report: ").append(e.getMessage()).append("]\n");
+                }
+            } else {
+                details.append("--- GDPR TRANSPARENCY REPORT ---\n");
+                details.append("[RESTRICTED] ADMIN or DOCTOR Role required to view algorithmic dispatch logic and medical data.");
+            }
+        }
+
+        // On affiche tout le texte dans la zone de droite
+        selectedDetailsArea.setText(details.toString());
+
+        // Petite astuce JavaFX pour s'assurer que le curseur remonte en haut du texte long
+        selectedDetailsArea.positionCaret(0);
     }
     
     public void showTriangleDetails(Triangle triangle) {
