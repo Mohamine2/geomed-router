@@ -21,6 +21,7 @@ import pgl.app.model.VoronoiCell;
 import java.util.List;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Rectangle;
+import pgl.app.model.RoadEdge;
 
 
 public class MapController {
@@ -40,6 +41,9 @@ public class MapController {
 	private Hospital selectedHospital;
 	
 	private Triangle selectedTriangle;
+
+    private boolean showTriangles = true;
+    private boolean showVoronoi = true;
 	
     @FXML
     private Pane mapPane;
@@ -60,15 +64,21 @@ public class MapController {
         setupPan();
 
     }
-    
+
     private void setupZoom() {
+        mapPane.setPickOnBounds(true);
+
         mapPane.setOnScroll((ScrollEvent event) -> {
             double zoomDelta = 1.1;
 
+            // Correction : On cible explicitement les scrolls positifs et négatifs
             if (event.getDeltaY() > 0) {
                 zoomFactor *= zoomDelta;
-            } else {
+            } else if (event.getDeltaY() < 0) {
                 zoomFactor /= zoomDelta;
+            } else {
+                // Si le deltaY est 0 (ex: inertie trackpad), on ne fait rien
+                return;
             }
 
             zoomFactor = Math.max(0.5, Math.min(zoomFactor, 3.0));
@@ -168,12 +178,56 @@ public class MapController {
             }
         }
     }
+
+    public void setMapManager(MapManager mapManager) {
+        this.mapManager = mapManager;
+    }
     
+    public void setSidebarController(SidebarController sidebarController) {
+    	this.sidebarController = sidebarController;
+    }
+
+    public void toggleTrianglesVisibility() {
+        showTriangles = !showTriangles;
+        refreshMap();
+    }
+
+    public void toggleVoronoiVisibility() {
+        showVoronoi = !showVoronoi;
+        refreshMap();
+    }
+
+    /**
+     * Redessine entièrement la carte à partir des données du MapManager.
+     */
+    public void refreshMap() {
+        if (mapPane == null || mapManager == null) {
+            return;
+        }
+
+        mapPane.getChildren().clear();
+
+        drawRoads();
+
+        if (showTriangles) {
+            drawTriangles();
+        }
+
+        if (showVoronoi) {
+            drawVoronoiCells();
+        }
+
+        drawAssignments();
+        drawHospitals();
+        drawIncidents();
+        drawLegend();
+    }
+
     private void drawLegend() {
         double boxX = 20;
-        double boxY = 520;
+        double boxY = 500;
         double boxWidth = 220;
-        double boxHeight = 110;
+        double boxHeight = 130;
 
         javafx.scene.shape.Rectangle background = new javafx.scene.shape.Rectangle(boxX, boxY, boxWidth, boxHeight);
         background.setFill(Color.WHITE);
@@ -205,40 +259,21 @@ public class MapController {
         assignLine.getStrokeDashArray().addAll(6.0, 4.0);
         Text assignText = new Text(boxX + 30, boxY + 104, "Incident assignment");
 
+        // <-- NOUVELLE LIGNE POUR LA LÉGENDE DES ROUTES
+        Line roadLine = new Line(boxX + 8, boxY + 120, boxX + 22, boxY + 120);
+        roadLine.setStroke(Color.DARKGRAY);
+        roadLine.setStrokeWidth(3.0);
+        Text roadText = new Text(boxX + 30, boxY + 124, "Road Network (Traffic)");
+
         mapPane.getChildren().addAll(
                 background,
                 title,
                 hospitalCircle, hospitalText,
                 incidentCircle, incidentText,
                 delaunayLine, delaunayText,
-                assignLine, assignText
+                assignLine, assignText,
+                roadLine, roadText
         );
-    }
-
-    public void setMapManager(MapManager mapManager) {
-        this.mapManager = mapManager;
-    }
-    
-    public void setSidebarController(SidebarController sidebarController) {
-    	this.sidebarController = sidebarController;
-    }
-
-    /**
-     * Redessine entièrement la carte à partir des données du MapManager.
-     */
-    public void refreshMap() {
-        if (mapPane == null || mapManager == null) {
-            return;
-        }
-
-        mapPane.getChildren().clear();
-        drawTriangles();
-        drawVoronoiCells();
-        drawVoronoiVertices();
-        drawAssignments();
-        drawHospitals();
-        drawIncidents();
-        drawLegend();
     }
     
     private void makeHospitalDraggable(Hospital hospital, Circle circle, Text label) {
@@ -446,8 +481,8 @@ public class MapController {
     /**
      * Draws the geometric polygons representing the Voronoi cells on the map pane.
      * <p>
-     * This method retrieves all computed Voronoi cells and clips them against a strict
-     * bounding box (0 to 750 on X, 0 to 700 on Y) using JavaFX {@link Shape#intersect(Shape, Shape)}.
+     * This method retrieves all computed Voronoi cells and clips them against a dynamic
+     * bounding box using JavaFX {@link Shape#intersect(Shape, Shape)}.
      * This layout operation constrains unbounded, far-away outer cell vertices to the map's visible
      * area, ensuring a clean, professional map border alignment without overlapping the sidebar controls.
      * </p>
@@ -455,8 +490,23 @@ public class MapController {
     private void drawVoronoiCells() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
 
-        // 1. Define the strict map viewport boundaries (Bounding Box)
-        Rectangle boundingBox = new Rectangle(0, 0, 750, 700);
+        // 1. Calculer dynamiquement les limites de la carte
+        double minX = 0, minY = 0, maxX = 750, maxY = 700;
+        if (mapManager.getSites() != null && !mapManager.getSites().isEmpty()) {
+            minX = mapManager.getSites().stream().mapToDouble(h -> h.getX()).min().orElse(0);
+            minY = mapManager.getSites().stream().mapToDouble(h -> h.getY()).min().orElse(0);
+            maxX = mapManager.getSites().stream().mapToDouble(h -> h.getX()).max().orElse(750);
+            maxY = mapManager.getSites().stream().mapToDouble(h -> h.getY()).max().orElse(700);
+        }
+
+        // 2. Définir une très grande marge pour que la découpe soit repoussée loin hors champ
+        double margin = 3000;
+        Rectangle boundingBox = new Rectangle(
+                minX - margin,
+                minY - margin,
+                (maxX - minX) + margin * 2,
+                (maxY - minY) + margin * 2
+        );
 
         for (VoronoiCell cell : cells) {
             List<Point> vertices = cell.getVertices();
@@ -471,10 +521,10 @@ public class MapController {
 
             Polygon polygon = new Polygon(coords);
 
-            // 2. Geometric intersection: clip the polygon to the map boundaries
+            // 3. Geometric intersection avec la boîte dynamique
             Shape clippedCell = Shape.intersect(polygon, boundingBox);
 
-            // 3. Apply styles and visual properties on the clipped shape
+            // 4. Apply styles and visual properties on the clipped shape
             clippedCell.setFill(Color.rgb(147, 112, 219, 0.05));
             clippedCell.setStroke(Color.MEDIUMPURPLE);
             clippedCell.setStrokeWidth(1.5);
@@ -551,6 +601,45 @@ public class MapController {
             ca.setStroke(Color.GRAY);
 
             mapPane.getChildren().addAll(ab, bc, ca);
+        }
+    }
+
+    /**
+     * Dessine les routes du réseau (RoadNetwork).
+     * La couleur de la route change en fonction de son facteur de trafic (Traffic Factor).
+     */
+    private void drawRoads() {
+        if (mapManager == null || mapManager.getRoadNetwork() == null) {
+            return;
+        }
+
+        for (RoadEdge edge : mapManager.getRoadNetwork().getRoads()) {
+            Line roadLine = new Line(
+                    edge.getStart().getX(), edge.getStart().getY(),
+                    edge.getEnd().getX(), edge.getEnd().getY()
+            );
+
+            // Épaisseur de la route
+            roadLine.setStrokeWidth(3.5);
+            roadLine.setOpacity(0.8);
+
+            // Code couleur dynamique basé sur le trafic
+            double traffic = edge.getTrafficFactor();
+            if (traffic >= 2.0) {
+                roadLine.setStroke(Color.FIREBRICK); // Rouge sombre (Bouchon sévère)
+            } else if (traffic > 1.2) {
+                roadLine.setStroke(Color.DARKORANGE); // Orange (Trafic ralenti)
+            } else {
+                roadLine.setStroke(Color.DARKGRAY); // Gris (Route fluide)
+            }
+
+            // On ajoute un événement au clic (optionnel) pour voir les détails de la route dans le futur
+            roadLine.setOnMouseClicked(event -> {
+                System.out.println("Route sélectionnée : " + edge.toString());
+                event.consume();
+            });
+
+            mapPane.getChildren().add(roadLine);
         }
     }
     

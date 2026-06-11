@@ -20,6 +20,8 @@ import javafx.stage.FileChooser;
 import pgl.app.io.CsvSiteImporter;
 import pgl.app.io.CsvIncidentImporter;
 import java.util.List;
+import pgl.app.io.MapImporterOSM;
+import pgl.app.io.MapBinarySerializer;
 
 public class SidebarController {
 
@@ -325,6 +327,56 @@ public class SidebarController {
     }
 
     @FXML
+    private void handleImportMap() {
+        if (mapManager == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Map Topology");
+        // On autorise à la fois le JSON (OSM) et le PGLM (Binaire)
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Map Files", "*.json", "*.pglm"),
+                new FileChooser.ExtensionFilter("OSM JSON Files", "*.json"),
+                new FileChooser.ExtensionFilter("Binary Map Files", "*.pglm")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        try {
+            // 1. On nettoie la carte actuelle pour éviter de fusionner deux topologies
+            mapManager.clear();
+            mapController.clearSelection();
+
+            String fileName = selectedFile.getName();
+            Path filePath = Path.of(selectedFile.getAbsolutePath());
+
+            // 2. On délègue au bon importateur selon l'extension
+            if (fileName.endsWith(".json")) {
+                MapImporterOSM.importFromOSM(mapManager, filePath);
+                infoLabel.setText("OSM Map successfully imported.");
+            } else if (fileName.endsWith(".pglm")) {
+                MapBinarySerializer.importFromFile(mapManager, filePath);
+                infoLabel.setText("Binary Map successfully imported.");
+            }
+
+            // 3. On met à jour l'interface graphique
+            mapController.refreshMap();
+            updateStats();
+            updateLastAssignment();
+            clearSelectionDetails();
+
+        } catch (Exception e) {
+            infoLabel.setText("Critical error during map import.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void handleAddUserPoint() {
         if (mapManager == null) {
             return;
@@ -420,6 +472,22 @@ public class SidebarController {
             updateStats();
             updateLastAssignment();
             infoLabel.setText("Selected element deleted.");
+        }
+    }
+
+    @FXML
+    private void handleToggleTriangles() {
+        if (mapController != null) {
+            mapController.toggleTrianglesVisibility();
+            infoLabel.setText("Affichage des triangles modifié.");
+        }
+    }
+
+    @FXML
+    private void handleToggleVoronoi() {
+        if (mapController != null) {
+            mapController.toggleVoronoiVisibility();
+            infoLabel.setText("Affichage de Voronoï modifié.");
         }
     }
 

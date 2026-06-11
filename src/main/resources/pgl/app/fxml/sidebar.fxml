@@ -41,6 +41,15 @@
 
                         <Separator />
 
+                        <Button text="Hide Triangles"
+                                maxWidth="Infinity"
+                                onAction="#handleToggleTriangles" />
+
+                        <Button text="Hide Diagram"
+                                maxWidth="Infinity"
+                                onAction="#handleToggleVoronoi" />
+
+
                         <Button text="Add Site"
                                 maxWidth="Infinity"
                                 onAction="#handleAddSite" />
@@ -48,6 +57,10 @@
                         <Button text="Import Hospitals CSV"
         						maxWidth="Infinity"
         						onAction="#handleImportHospitalsCsv" />
+
+                        <Button text="Import Map (OSM / Binary)"
+                                maxWidth="Infinity"
+                                onAction="#handleImportMap" />
 
                         <Button text="Add User Point"
                                 maxWidth="Infinity"
