@@ -20,6 +20,7 @@ import javafx.scene.shape.Polygon;
 import pgl.app.model.VoronoiCell;
 import java.util.List;
 
+
 public class MapController {
 	
 	private double zoomFactor = 1.0;
@@ -55,6 +56,7 @@ public class MapController {
         System.out.println("MapController initialisé avec succès !");
         setupZoom();
         setupPan();
+
     }
     
     private void setupZoom() {
@@ -445,6 +447,12 @@ public class MapController {
         for (VoronoiCell cell : cells) {
             List<Point> vertices = cell.getVertices();
 
+            // Skip cell if any vertex is outside the map bounds
+            boolean allInBounds = vertices.stream()
+                    .allMatch(p -> p.getX() >= 0 && p.getX() <= 750
+                            && p.getY() >= 0 && p.getY() <= 700);
+            if (!allInBounds) continue;
+
             double[] coords = new double[vertices.size() * 2];
             for (int i = 0; i < vertices.size(); i++) {
                 coords[i * 2]     = vertices.get(i).getX();
@@ -467,6 +475,10 @@ public class MapController {
         for (VoronoiCell cell : cells) {
             for (Point vertex : cell.getVertices()) {
 
+
+
+
+                    if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue ;
                 if (!drawnVertices.add(vertex)) {
                     continue;
                 }
