@@ -150,13 +150,6 @@ public class MapManager {
         return this.roadNetwork.addRoad(start, end, trafficFactor);
     }
 
-
-
-    public RoadEdge addRoad(int startIdx, int endIdx) {
-        this.cachedRoutingEngine = null;
-        return this.roadNetwork.addRoad(startIdx, endIdx);
-    }
-
     public RoadEdge addRoad(int startIdx, int endIdx, double trafficFactor) {
         this.cachedRoutingEngine = null;
         return this.roadNetwork.addRoad(startIdx, endIdx, trafficFactor);
