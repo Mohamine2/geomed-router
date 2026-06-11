@@ -2,6 +2,7 @@ package pgl.app.controller;
 
 import java.util.Random;
 
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.algo.exception.HospitalCollisionException;
@@ -11,7 +12,13 @@ import pgl.app.model.VictimIncident;
 import pgl.app.model.MedicalSpecialty;
 import pgl.app.model.Triangle;
 import javafx.scene.control.TextArea;
-
+import javafx.scene.control.TextField;
+import java.io.File;
+import java.nio.file.Path;
+import javafx.stage.FileChooser;
+import pgl.app.io.CsvSiteImporter;
+import pgl.app.io.CsvIncidentImporter;
+import java.util.List;
 
 public class SidebarController {
 
@@ -41,12 +48,24 @@ public class SidebarController {
 
     @FXML
     private TextArea selectedDetailsArea;
+    
+    @FXML
+    private TextField randomUserCountField;
 
     private final Random random = new Random();
 
     private MapManager mapManager;
     
     private MapController mapController;
+    
+    private int parsePositiveInteger(String text, int defaultValue) {
+        try {
+            int value = Integer.parseInt(text.trim());
+            return value > 0 ? value : defaultValue;
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
     
     private void updateStats() {
         if (mapManager == null) {
@@ -262,6 +281,47 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
     }
+    
+    @FXML
+    private void handleImportHospitalsCsv() {
+        if (mapManager == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Hospitals CSV");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        try {
+            int startId = mapManager.getSites().size() + 1;
+
+            List<Hospital> importedHospitals = CsvSiteImporter.importFromCsv(
+                    Path.of(selectedFile.getAbsolutePath()),
+                    startId
+            );
+
+            for (Hospital hospital : importedHospitals) {
+                mapManager.addHospital(hospital);
+            }
+
+            mapController.refreshMap();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText(importedHospitals.size() + " hospitals imported.");
+
+        } catch (Exception e) {
+            infoLabel.setText("Import failed.");
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleAddUserPoint() {
@@ -282,6 +342,47 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
     }
+    
+    @FXML
+    private void handleImportIncidentsCsv() {
+        if (mapManager == null) {
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Incidents CSV");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        try {
+            int startCount = mapManager.getIncidents().size() + 1;
+
+            List<VictimIncident> importedIncidents = CsvIncidentImporter.importFromCsv(
+                    Path.of(selectedFile.getAbsolutePath()),
+                    startCount
+            );
+
+            for (VictimIncident incident : importedIncidents) {
+                mapManager.addIncident(incident);
+            }
+
+            mapController.refreshMap();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText(importedIncidents.size() + " incidents imported.");
+
+        } catch (Exception e) {
+            infoLabel.setText("Incident import failed.");
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleRecompute() {
@@ -295,6 +396,16 @@ public class SidebarController {
         
         updateStats();
         updateLastAssignment();
+    }
+    
+    @FXML
+    private void handleDeleteSelected() {
+        if (mapController != null) {
+            mapController.deleteSelectedElement();
+            updateStats();
+            updateLastAssignment();
+            infoLabel.setText("Selected element deleted.");
+        }
     }
 
     @FXML
@@ -311,5 +422,35 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
         clearSelectionDetails();
+    }
+    
+    @FXML
+    private void handleAddRandomUsers() {
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = parsePositiveInteger(randomUserCountField.getText(), 5);
+
+        for (int i = 0; i < count; i++) {
+            int incidentNumber = mapManager.getIncidents().size() + 1;
+
+            double x = 80 + random.nextDouble() * 500;
+            double y = 80 + random.nextDouble() * 400;
+
+            String incidentId = "INC-" + incidentNumber;
+
+            mapManager.addIncident(new VictimIncident(
+                    x,
+                    y,
+                    incidentId,
+                    MedicalSpecialty.GENERAL
+            ));
+        }
+
+        mapController.refreshMap();
+        updateStats();
+        updateLastAssignment();
+        infoLabel.setText(count + " random incidents added.");
     }
 }

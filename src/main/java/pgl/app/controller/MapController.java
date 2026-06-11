@@ -32,6 +32,12 @@ public class MapController {
 	
 	private final Set<Integer> highlightedHospitalIds = new HashSet<>();
 	
+	private final Set<String> highlightedIncidentIds = new HashSet<>();
+	
+	private Hospital selectedHospital;
+	
+	private Triangle selectedTriangle;
+	
     @FXML
     private Pane mapPane;
 
@@ -94,6 +100,16 @@ public class MapController {
         });
     }
     
+    public void selectTriangle(Triangle triangle) {
+        selectedTriangle = triangle;
+        selectedHospital = null;
+        selectedIncident = null;
+        selectedAssignedHospitalId = null;
+        highlightedHospitalIds.clear();
+        highlightedIncidentIds.clear();
+        refreshMap();
+    }
+    
     private void selectIncident(VictimIncident incident) {
         if (selectedIncident != null
                 && selectedIncident.getIncidentId().equals(incident.getIncidentId())) {
@@ -110,6 +126,8 @@ public class MapController {
         }
 
         selectedIncident = incident;
+        selectedHospital = null;
+        selectedTriangle = null;
         highlightedHospitalIds.clear();
         selectedAssignedHospitalId = null;
 
@@ -229,6 +247,13 @@ public class MapController {
             if (sidebarController != null) {
                 sidebarController.showHospitalDetails(hospital);
             }
+            
+            selectedHospital = hospital;
+            selectedIncident = null;
+            selectedTriangle = null;
+            selectedAssignedHospitalId = null;
+            highlightedIncidentIds.clear();
+            highlightedHospitalIds.clear();
 
             event.consume();
         });
@@ -318,21 +343,23 @@ public class MapController {
     
     private void makeIncidentDraggable(VictimIncident incident, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
+        final boolean[] wasDragged = {false};
 
         circle.setOnMousePressed((MouseEvent event) -> {
             dragOffset[0] = incident.getX() - event.getX();
             dragOffset[1] = incident.getY() - event.getY();
+            wasDragged[0] = false;
 
             if (sidebarController != null) {
                 sidebarController.showIncidentDetails(incident);
             }
 
-            selectIncident(incident);
-
             event.consume();
         });
 
         circle.setOnMouseDragged((MouseEvent event) -> {
+            wasDragged[0] = true;
+
             double newX = event.getX() + dragOffset[0];
             double newY = event.getY() + dragOffset[1];
 
@@ -345,14 +372,18 @@ public class MapController {
         });
 
         circle.setOnMouseReleased((MouseEvent event) -> {
-            double finalX = circle.getCenterX();
-            double finalY = circle.getCenterY();
+            if (wasDragged[0]) {
+                double finalX = circle.getCenterX();
+                double finalY = circle.getCenterY();
 
-            incident.setX(finalX);
-            incident.setY(finalY);
+                incident.setX(finalX);
+                incident.setY(finalY);
 
-            mapManager.updateAll();
-            refreshMap();
+                mapManager.updateAll();
+                refreshMap();
+            } else {
+                selectIncident(incident);
+            }
 
             event.consume();
         });
@@ -467,6 +498,7 @@ public class MapController {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
+                selectTriangle(triangle);
                 event.consume();
             });
 
@@ -474,6 +506,7 @@ public class MapController {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
+                selectTriangle(triangle);
                 event.consume();
             });
 
@@ -481,6 +514,7 @@ public class MapController {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
+                selectTriangle(triangle);
                 event.consume();
             });
 
@@ -492,10 +526,35 @@ public class MapController {
         }
     }
     
+    public void deleteSelectedElement() {
+        if (mapManager == null) {
+            return;
+        }
+
+        if (selectedHospital != null) {
+            mapManager.removeHospital(selectedHospital);
+        } else if (selectedIncident != null) {
+            mapManager.removeIncident(selectedIncident);
+        } else {
+            return;
+        }
+
+        clearSelection();
+
+        if (sidebarController != null) {
+            sidebarController.clearSelectionDetails();
+        }
+
+        refreshMap();
+    }
+    
     public void clearSelection() {
     	selectedIncident = null;
+    	selectedHospital = null;
+    	selectedTriangle = null;
     	selectedAssignedHospitalId = null;
     	highlightedHospitalIds.clear();
+    	highlightedIncidentIds.clear();
     }
 
     /**

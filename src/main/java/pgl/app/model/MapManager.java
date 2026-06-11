@@ -129,6 +129,7 @@ public class MapManager {
      */
     public void removeIncident(VictimIncident incident) {
         this.incidents.remove(incident);
+        this.updateAll();
     }
 
     public VictimIncident findIncidentById(String id) {
