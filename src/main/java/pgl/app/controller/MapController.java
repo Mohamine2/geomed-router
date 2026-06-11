@@ -275,7 +275,7 @@ public class MapController {
                 roadLine, roadText
         );
     }
-    
+
     private void makeHospitalDraggable(Hospital hospital, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
 
@@ -286,7 +286,7 @@ public class MapController {
             if (sidebarController != null) {
                 sidebarController.showHospitalDetails(hospital);
             }
-            
+
             selectedHospital = hospital;
             selectedIncident = null;
             selectedTriangle = null;
@@ -313,8 +313,27 @@ public class MapController {
             double finalX = circle.getCenterX();
             double finalY = circle.getCenterY();
 
-            hospital.setX(finalX);
-            hospital.setY(finalY);
+            // --- NOUVEAU : Logique de Snap pour l'Hôpital ---
+            Point snappedPoint = null;
+            if (!mapManager.getRoadNetwork().getRoads().isEmpty()) {
+                snappedPoint = mapManager.getRoadNetwork().findNearestIntersection(new Point(finalX, finalY));
+            }
+
+            if (snappedPoint != null) {
+                // Application au Modèle
+                hospital.setX(snappedPoint.getX());
+                hospital.setY(snappedPoint.getY());
+
+                // Alignement direct de la Vue pour éviter un saut visuel
+                circle.setCenterX(snappedPoint.getX());
+                circle.setCenterY(snappedPoint.getY());
+                label.setX(snappedPoint.getX() + 8);
+                label.setY(snappedPoint.getY() - 8);
+            } else {
+                // Cas par défaut si aucune route n'existe
+                hospital.setX(finalX);
+                hospital.setY(finalY);
+            }
 
             mapManager.updateAll();
             refreshMap();
@@ -379,7 +398,7 @@ public class MapController {
             mapPane.getChildren().addAll(hospitalCircle, label);
         }
     }
-    
+
     private void makeIncidentDraggable(VictimIncident incident, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
         final boolean[] wasDragged = {false};
@@ -415,8 +434,20 @@ public class MapController {
                 double finalX = circle.getCenterX();
                 double finalY = circle.getCenterY();
 
-                incident.setX(finalX);
-                incident.setY(finalY);
+                Point snappedPoint = null;
+                if (!mapManager.getRoadNetwork().getRoads().isEmpty()) {
+                    snappedPoint = mapManager.getRoadNetwork().findNearestIntersection(new Point(finalX, finalY));
+                }
+
+                if (snappedPoint != null) {
+                    incident.setX(snappedPoint.getX());
+                    incident.setY(snappedPoint.getY());
+                } else {
+                    incident.setX(finalX);
+                    incident.setY(finalY);
+                }
+
+                incident.setClosestHospital(null);
 
                 mapManager.updateAll();
                 refreshMap();
