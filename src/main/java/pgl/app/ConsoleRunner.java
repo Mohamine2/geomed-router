@@ -62,7 +62,7 @@ public class ConsoleRunner {
                 switch (mode) {
                     case 1: manageHospitalsMenu(sc); break;
                     case 2: manageIncidentsMenu(sc); break;
-                    case 3: importCsvMenu(sc); displayResults(); break;
+                    case 3: importCsvMenu(sc); break;
                     case 4: inspectionMenu(sc); break;
                     case 5: binaryIoMenu(sc); break;
                     case 6:
@@ -99,46 +99,59 @@ public class ConsoleRunner {
         System.out.println("1. Add a single Hospital");
         System.out.println("2. Remove a Hospital (by ID)");
         System.out.println("3. Move an existing Hospital");
+        System.out.println("0. Return to Main Menu");
         int choice = askInt(sc, "Choice: ");
 
-        if (choice == 1) {
-            int id = mapManager.getSites().size() + 1;
-            double x = askInt(sc, "  Enter X: ");
-            double y = askInt(sc, "  Enter Y: ");
-            int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
-            Hospital h = new Hospital(x, y, id, cap);
-            h.addSpecialty(askMedicalSpecialty(sc, "  Select primary specialty:"));
-            try {
-                mapManager.addHospital(h);
-                System.out.println("Hospital added successfully.");
-            } catch (HospitalCollisionException e) {
-                System.err.println("ALERT: " + e.getMessage());
-            }
-            System.out.println("Hospital H" + id + " successfully added.");
-        }
+        switch (choice) {
+            case 0:
+                return; // Retour direct à la boucle principale
 
-        else if (choice == 2) {
-            int id = askInt(sc, "  Enter Hospital ID to remove: ");
-            Hospital h = mapManager.findHospitalById(id);
-            if (h != null) {
-                mapManager.removeHospital(h);
-                System.out.println("Hospital H" + id + " removed.");
-            } else {
-                System.out.println("Hospital not found.");
+            case 1: {
+                int id = mapManager.getSites().size() + 1;
+                double x = askInt(sc, "  Enter X: ");
+                double y = askInt(sc, "  Enter Y: ");
+                int cap = askNaturalNumber(sc, "  Enter Max Capacity: ");
+                Hospital h = new Hospital(x, y, id, cap);
+                h.addSpecialty(askMedicalSpecialty(sc, "  Select primary specialty:"));
+                try {
+                    mapManager.addHospital(h);
+                    System.out.println("Hospital added successfully.");
+                } catch (HospitalCollisionException e) {
+                    System.err.println("ALERT: " + e.getMessage());
+                }
+                System.out.println("Hospital H" + id + " successfully added.");
+                break;
             }
-        }
 
-        else if (choice == 3) {
-            int id = askInt(sc, "  Enter Hospital ID to move: ");
-            Hospital h = mapManager.findHospitalById(id);
-            if (h != null) {
-                h.setX(askInt(sc, "  Enter New X: "));
-                h.setY(askInt(sc, "  Enter New Y: "));
-                mapManager.updateAll();
-                System.out.println("Hospital H" + id + " moved successfully.");
-            } else {
-                System.out.println("Hospital not found.");
+            case 2: {
+                int id = askInt(sc, "  Enter Hospital ID to remove: ");
+                Hospital h = mapManager.findHospitalById(id);
+                if (h != null) {
+                    mapManager.removeHospital(h);
+                    System.out.println("Hospital H" + id + " removed.");
+                } else {
+                    System.out.println("Hospital not found.");
+                }
+                break;
             }
+
+            case 3: {
+                int id = askInt(sc, "  Enter Hospital ID to move: ");
+                Hospital h = mapManager.findHospitalById(id);
+                if (h != null) {
+                    h.setX(askInt(sc, "  Enter New X: "));
+                    h.setY(askInt(sc, "  Enter New Y: "));
+                    mapManager.updateAll();
+                    System.out.println("Hospital H" + id + " moved successfully.");
+                } else {
+                    System.out.println("Hospital not found.");
+                }
+                break;
+            }
+
+            default:
+                System.out.println("Invalid option. Returning to main menu...");
+                break;
         }
     }
 
@@ -157,9 +170,12 @@ public class ConsoleRunner {
         System.out.println("2. Remove an Incident (by ID)");
         System.out.println("3. Move an existing Incident");
         System.out.println("4. Add Mass Random Incidents (Random Positions)");
+        System.out.println("0. Return to Main Menu");
         int choice = askInt(sc, "Choice: ");
 
         switch(choice) {
+            case 0:
+                return;
             case 1: {
                 double ux = askInt(sc, "  Enter Incident X: ");
                 double uy = askInt(sc, "  Enter Incident Y: ");
@@ -231,6 +247,8 @@ public class ConsoleRunner {
                 System.out.println(count + " random incidents generated and linked.");
                 break;
             }
+            default:
+                System.out.println("Invalid option. Returning to main menu...");
         }
     }
 
@@ -245,9 +263,12 @@ public class ConsoleRunner {
         System.out.println("2. Inspect a specific Victim Incident (View Zone Neighbors)");
         System.out.println("3. Inspect a specific Delaunay Triangle (Workload Disparity)");
         System.out.println("4. Display Global Dashboard (All summary stats)");
+        System.out.println("0. Return to Main Menu");
         int choice = askInt(sc, "Choice: ");
 
         switch (choice) {
+            case 0:
+                return;
             case 1:
                 int hId = askInt(sc, "Enter Hospital ID: ");
                 Hospital h = mapManager.findHospitalById(hId);
@@ -362,6 +383,8 @@ public class ConsoleRunner {
             case 4:
                 displayResults();
                 break;
+            default:
+                System.out.println("Invalid option. Returning to main menu...");
         }
     }
 
@@ -584,46 +607,59 @@ public class ConsoleRunner {
         System.out.println("\n--- Mass Import (CSV) ---");
         System.out.println("1. Import Hospitals (Sites)");
         System.out.println("2. Import Victim Incidents");
+        System.out.println("0. Return to Main Menu");
+
         int choice = askInt(sc, "Choice: ");
 
-        System.out.print("Enter the relative or absolute CSV file path (ex: test_incidents.csv): ");
-        String filePath = sc.next();
-        Path path = Path.of(filePath);
+        switch (choice) {
+            case 0:
+                return;
 
-        if (!java.nio.file.Files.exists(path)) {
-            System.out.println("Error: File not found at " + path.toAbsolutePath());
-            return;
-        }
+            case 1:
+            case 2: {
+                // On ne demande le fichier que si le choix est valide
+                System.out.print("Enter the relative or absolute CSV file path (ex: test_incidents.csv): ");
+                String filePath = sc.next();
+                Path path = Path.of(filePath);
 
-        try {
-            if (choice == 1) {
-                int startId = mapManager.getSites().size() + 1;
-                List<Hospital> hospitals = pgl.app.io.CsvSiteImporter.importFromCsv(path, startId);
-
-                if (!hospitals.isEmpty()) {
-                    mapManager.addHospitals(hospitals);
-                    System.out.println(hospitals.size() + " hospitals successfully imported!");
-                } else {
-                    System.out.println("No valid data found in the CSV.");
+                if (!java.nio.file.Files.exists(path)) {
+                    System.out.println("Error: File not found at " + path.toAbsolutePath());
+                    return;
                 }
 
-            } else if (choice == 2) {
-                int startCount = mapManager.getIncidents().size() + 1;
-                List<VictimIncident> incidents = pgl.app.io.CsvIncidentImporter.importFromCsv(path, startCount);
+                try {
+                    if (choice == 1) {
+                        int startId = mapManager.getSites().size() + 1;
+                        List<Hospital> hospitals = pgl.app.io.CsvSiteImporter.importFromCsv(path, startId);
 
-                if (!incidents.isEmpty()) {
-                    mapManager.addIncidents(incidents);
-                    System.out.println(incidents.size() + " incidents successfully imported!");
-                } else {
-                    System.out.println("No valid data found in the CSV.");
+                        if (!hospitals.isEmpty()) {
+                            mapManager.addHospitals(hospitals);
+                            System.out.println(hospitals.size() + " hospitals successfully imported!");
+                        } else {
+                            System.out.println("No valid data found in the CSV.");
+                        }
+                    } else {
+                        int startCount = mapManager.getIncidents().size() + 1;
+                        List<VictimIncident> incidents = pgl.app.io.CsvIncidentImporter.importFromCsv(path, startCount);
+
+                        if (!incidents.isEmpty()) {
+                            mapManager.addIncidents(incidents);
+                            System.out.println(incidents.size() + " incidents successfully imported!");
+                        } else {
+                            System.out.println("No valid data found in the CSV.");
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error during CSV import: " + e.getMessage());
                 }
-
-            } else {
-                System.out.println("Invalid choice.");
+                break;
             }
-        } catch (Exception e) {
-            System.err.println("Error during CSV import: " + e.getMessage());
+
+            default:
+                System.out.println("Invalid choice.");
+                break;
         }
+        displayResults();
     }
 
     /**
@@ -649,11 +685,17 @@ public class ConsoleRunner {
         System.out.println("\n--- Map Serialization (Binary File Format) ---");
         System.out.println("1. Load / Import entire Map Topology (" + currentMapFile + ")");
         System.out.println("2. Save / Export current Map State (" + currentMapFile + ")");
+        System.out.println("0. Return to Main Menu");
         int choice = askInt(sc, "Choice: ");
-        if (choice == 1) {
+
+        if (choice == 0) {
+            return;
+        } else if (choice == 1) {
             loadFromFile();
         } else if (choice == 2) {
             saveToFile();
+        } else {
+            System.out.println("Invalid option. Returning to main menu...");
         }
     }
 
@@ -729,6 +771,7 @@ public class ConsoleRunner {
 
         System.out.println("\n--- Road Network Management ---");
         System.out.println("1. Add a manual Road (Custom Traffic)");
+        System.out.println("0. Return to Main Menu");
         int choice = askInt(sc, "Choice: ");
 
         if (choice == 1) {
@@ -746,6 +789,12 @@ public class ConsoleRunner {
             mapManager.addRoad(new Point(sx, sy), new Point(ex, ey), traffic);
 
             System.out.println("Road added successfully between (" + sx + "," + sy + ") and (" + ex + "," + ey + ") with traffic factor " + traffic);
+        }
+        else if(choice == 0){
+            return;
+        }
+        else{
+            System.out.println("Invalid option. Returning to main menu...");
         }
     }
 
