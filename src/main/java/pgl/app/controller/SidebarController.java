@@ -55,6 +55,10 @@ public class SidebarController {
     @FXML
     private TextField randomUserCountField;
 
+    @FXML
+    private TextField randomHospitalCountField;
+
+
     private final Random random = new Random();
 
     private MapManager mapManager;
@@ -545,5 +549,38 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
         infoLabel.setText(count + " random incidents added.");
+    }
+
+
+    @FXML
+    private void handleAddRandomHospitals() {
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = parsePositiveInteger(randomHospitalCountField.getText(), 5);
+
+        int startId = mapManager.getSites().size() + 1;
+
+        for (int i = 0; i < count; i++) {
+            int hospitalId = startId + i;
+
+            double x = 80 + random.nextDouble() * 500;
+            double y = 80 + random.nextDouble() * 400;
+
+            Hospital hospital = new Hospital(x, y, hospitalId, 100);
+            hospital.addSpecialty(MedicalSpecialty.GENERAL);
+
+            try {
+                mapManager.addHospital(hospital);
+            } catch (Exception e) {
+                infoLabel.setText("Collision detected, some hospitals were skipped.");
+            }
+        }
+
+        mapController.refreshMap();
+        updateStats();
+        updateLastAssignment();
+        infoLabel.setText(count + " random hospitals added.");
     }
 }

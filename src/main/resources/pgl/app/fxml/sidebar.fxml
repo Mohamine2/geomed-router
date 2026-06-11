@@ -58,6 +58,16 @@
         						maxWidth="Infinity"
         						onAction="#handleImportHospitalsCsv" />
 
+                        <Label text="Bulk hospital generation"
+                               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+
+                        <TextField fx:id="randomHospitalCountField"
+                                   promptText="Number of random hospitals" />
+
+                        <Button text="Add Random Hospitals"
+                                maxWidth="Infinity"
+                                onAction="#handleAddRandomHospitals" />
+
                         <Button text="Import Map (OSM / Binary)"
                                 maxWidth="Infinity"
                                 onAction="#handleImportMap" />
