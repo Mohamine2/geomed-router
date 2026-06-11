@@ -48,6 +48,14 @@ public class RoadNetwork {
         return road;
     }
 
+    public RoadEdge addRoad(int startIdx, int endIdx, double trafficFactor) {
+        Point start = this.intersections.get(startIdx);
+        Point end = this.intersections.get(endIdx);
+        RoadEdge road = new RoadEdge(start, end, trafficFactor);
+        this.roads.add(road);
+        return road;
+    }
+
     /**
      * Connects two points with a road, ensuring the points are tracked as intersections.
      * @param start The starting point

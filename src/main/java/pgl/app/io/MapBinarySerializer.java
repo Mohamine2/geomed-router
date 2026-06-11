@@ -125,8 +125,8 @@ public final class MapBinarySerializer {
             double traffic = data.readDouble();
             validateIndex(startIdx, intersectionCount, "road start");
             validateIndex(endIdx, intersectionCount, "road end");
-            RoadEdge road = manager.addRoad(startIdx, endIdx);
-            road.setTrafficFactor(traffic);
+
+            manager.addRoad(startIdx, endIdx, traffic);
         }
 
         int hospitalCount = data.readInt();
@@ -157,10 +157,13 @@ public final class MapBinarySerializer {
             byte specialtyOrdinal = data.readByte();
             MedicalSpecialty type = readSpecialty(specialtyOrdinal);
 
-            int preferredId = data.readInt();
-            VictimIncident incident = preferredId < 0
-                    ? new VictimIncident(x, y, incidentId, type)
-                    : new VictimIncident(x, y, incidentId, type, preferredId);
+            int rawPrefId = data.readInt();
+
+            // On traduit directement le -1 du fichier binaire en 'null' Java
+            Integer preferredId = (rawPrefId < 0) ? null : rawPrefId;
+
+            VictimIncident incident = new VictimIncident(x, y, incidentId, type, preferredId);
+
             manager.addIncident(incident);
         }
 
@@ -169,7 +172,7 @@ public final class MapBinarySerializer {
 
     private static int indexOf(List<Point> intersections, Point target) {
         for (int i = 0; i < intersections.size(); i++) {
-            if (intersections.get(i) == target) {
+            if (intersections.get(i).equals(target)) {
                 return i;
             }
         }

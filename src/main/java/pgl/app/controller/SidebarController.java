@@ -1,5 +1,6 @@
 package pgl.app.controller;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -335,10 +336,24 @@ public class SidebarController {
         double y = 80 + random.nextDouble() * 400;
 
         String incidentId = "INC-" + count;
-        mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL));
+
+        Integer prefId = null;
+        List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
+        if (!currentHospitals.isEmpty() && random.nextDouble() < 0.20) {
+            Hospital randomHosp = currentHospitals.get(random.nextInt(currentHospitals.size()));
+            prefId = randomHosp.getId();
+        }
+
+        mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL, prefId));
+
         mapController.refreshMap();
-        infoLabel.setText("Incident added.");
-        
+
+        if (prefId != null) {
+            infoLabel.setText("Incident added (Prefers H" + prefId + ").");
+        } else {
+            infoLabel.setText("Incident added.");
+        }
+
         updateStats();
         updateLastAssignment();
     }
@@ -423,7 +438,7 @@ public class SidebarController {
         updateLastAssignment();
         clearSelectionDetails();
     }
-    
+
     @FXML
     private void handleAddRandomUsers() {
         if (mapManager == null) {
@@ -431,6 +446,9 @@ public class SidebarController {
         }
 
         int count = parsePositiveInteger(randomUserCountField.getText(), 5);
+
+        List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
+        int nbHospitals = currentHospitals.size();
 
         for (int i = 0; i < count; i++) {
             int incidentNumber = mapManager.getIncidents().size() + 1;
@@ -440,11 +458,18 @@ public class SidebarController {
 
             String incidentId = "INC-" + incidentNumber;
 
+            Integer prefId = null;
+            if (nbHospitals > 0 && random.nextDouble() < 0.20) {
+                Hospital randomHosp = currentHospitals.get(random.nextInt(nbHospitals));
+                prefId = randomHosp.getId();
+            }
+
             mapManager.addIncident(new VictimIncident(
                     x,
                     y,
                     incidentId,
-                    MedicalSpecialty.GENERAL
+                    MedicalSpecialty.GENERAL,
+                    prefId
             ));
         }
 

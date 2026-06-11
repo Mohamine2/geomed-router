@@ -51,9 +51,10 @@ public class ConsoleRunner {
             System.out.println("5. Global Map Binary IO (Load/Save)");
             System.out.println("6. Full Automated Random Test Simulation");
             System.out.println("7. Import OSM Map");
-            System.out.println("8. Clear Data");
-            System.out.println("9. Change User Role (RBAC)");
-            System.out.println("10. Exit Application");
+            System.out.println("8. Manage Road Network (Add Roads)");
+            System.out.println("9. Clear Data");
+            System.out.println("10. Change User Role (RBAC)");
+            System.out.println("11. Exit Application");
             System.out.print("Choice: ");
 
             if (sc.hasNextInt()) {
@@ -70,10 +71,11 @@ public class ConsoleRunner {
                         displayResults();
                         break;
                     case 7: importOsmMenu(sc); break;
-                    case 8: clearAllDataMenu(); break;
-                    case 9: roleChangeMenu(sc); break; // Ta méthode pour switch les rôles en démo
-                    case 10: running = false; System.out.println("Exiting..."); break;
-                    default: System.out.println("Invalid option! Please enter a number between 1 and 10.");
+                    case 8: manageRoadsMenu(sc); break;
+                    case 9: clearAllDataMenu(); break;
+                    case 10: roleChangeMenu(sc); break;
+                    case 11: running = false; System.out.println("Exiting..."); break;
+                    default: System.out.println("Invalid option! Please enter a number between 1 and 11.");
                 }
             } else {
                 System.out.println("Error: Please enter a valid number.");
@@ -714,6 +716,39 @@ public class ConsoleRunner {
         }
     }
 
+    /**
+     * Sub-menu handling manual road network creation and traffic injection.
+     *
+     * @param sc The Scanner object for user input.
+     */
+    private static void manageRoadsMenu(Scanner sc) {
+        if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
+            System.out.println(" Access denied : Road network management is reserved to ADMIN Role (RBAC).");
+            return;
+        }
+
+        System.out.println("\n--- Road Network Management ---");
+        System.out.println("1. Add a manual Road (Custom Traffic)");
+        int choice = askInt(sc, "Choice: ");
+
+        if (choice == 1) {
+            System.out.println("  [Tip: Nodes will be automatically created if they don't exist]");
+            double sx = askDouble(sc, "  Enter Start Node X: ");
+            double sy = askDouble(sc, "  Enter Start Node Y: ");
+            double ex = askDouble(sc, "  Enter End Node X: ");
+            double ey = askDouble(sc, "  Enter End Node Y: ");
+            double traffic = askDouble(sc, "  Enter Traffic Factor (1.0 = clear, >1.0 = heavy traffic): ");
+
+            // Sécurité algorithmique : on force le trafic à être >= 1.0 pour garantir l'heuristique de A*
+            traffic = Math.max(1.0, traffic);
+
+            // Création de la route via MapManager (qui va gérer l'ajout dans RoadNetwork et invalider le cache)
+            mapManager.addRoad(new Point(sx, sy), new Point(ex, ey), traffic);
+
+            System.out.println("Road added successfully between (" + sx + "," + sy + ") and (" + ex + "," + ey + ") with traffic factor " + traffic);
+        }
+    }
+
     private static void roleChangeMenu(Scanner sc){
         System.out.println("\n--- Current Role: " + SecurityContext.getCurrentRole() + " ---");
         System.out.println("Select new Role:\n1. AMBULANCIER\n2. MEDECIN_REGULATEUR\n3. ADMIN");
@@ -793,6 +828,25 @@ public class ConsoleRunner {
                 return sc.nextInt();
             } else {
                 System.out.println("Error: Please enter a valid integer.");
+                sc.next(); // Clear the invalid input
+            }
+        }
+    }
+
+    /**
+     * Helper method to robustly request a decimal (double) from the user.
+     *
+     * @param sc      The Scanner object for user input.
+     * @param message The contextual prompt message.
+     * @return A valid double parsed from the console.
+     */
+    private static double askDouble(Scanner sc, String message) {
+        while (true) {
+            System.out.print(message);
+            if (sc.hasNextDouble()) {
+                return sc.nextDouble();
+            } else {
+                System.out.println("Error: Please enter a valid decimal number.");
                 sc.next(); // Clear the invalid input
             }
         }

@@ -16,19 +16,20 @@ public class CsvIncidentImporter {
 
     /**
      * Parses a CSV file containing incident (victim) data and converts it into a list of {@link VictimIncident}.
-     * * <p>The expected format for each row (with or without a header) is:
-     * {@code X; Y; EmergencyType} or {@code X, Y, EmergencyType}.</p>
-     * * <p><b>Parsing rules:</b></p>
+     * <p>The expected format for each row (with or without a header) is:
+     * {@code X; Y; EmergencyType; PreferredHospitalId} or {@code X, Y, EmergencyType, PreferredHospitalId}.</p>
+     * <p><b>Parsing rules:</b></p>
      * <ul>
      * <li>Empty lines are ignored.</li>
      * <li>The separator can be a comma (,) or a semicolon (;).</li>
-     * <li>The first line is automatically skipped if it is identified as a header (i.e., contains alphabetical characters in the first column).</li>
+     * <li>The first line is automatically skipped if it is identified as a header.</li>
      * <li>If the emergency type is missing or invalid, it defaults to {@link MedicalSpecialty#GENERAL}.</li>
-     * <li>Rows with invalid coordinates are skipped and an error is logged to the standard error stream.</li>
+     * <li>If the preferred hospital ID is missing, invalid (e.g. "N/A"), or <= 0, it defaults to null.</li>
+     * <li>Rows with invalid coordinates are skipped and an error is logged.</li>
      * </ul>
      *
      * @param filePath   the {@link Path} to the CSV file to be read
-     * @param startCount the starting number used to generate unique incident IDs (format: INC-CSV-XXX)
+     * @param startCount the starting number used to generate unique incident IDs
      * @return a {@link List} of parsed {@link VictimIncident} objects
      * @throws IOException if an I/O error occurs while reading the file
      */
@@ -61,12 +62,27 @@ public class CsvIncidentImporter {
                     } catch (IllegalArgumentException ignored) {}
                 }
 
+                // --- NOUVEAU : Lecture du Preferred Hospital ID (Colonne 4) ---
+                Integer prefId = null;
+                if (parts.length > 3 && !parts[3].trim().isEmpty()) {
+                    try {
+                        int parsedId = Integer.parseInt(parts[3].trim());
+                        if (parsedId > 0) {
+                            prefId = parsedId;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // Tolérance aux erreurs : Si le CSV contient "N/A" ou du texte,
+                        // on ignore silencieusement et prefId reste null.
+                    }
+                }
+
                 // Generate a unique ID for the CSV import
                 String incidentId = "INC-CSV-" + String.format("%03d", currentCount++);
 
-                incidents.add(new VictimIncident(x, y, incidentId, emergencyType));
+                incidents.add(new VictimIncident(x, y, incidentId, emergencyType, prefId));
+
             } catch (NumberFormatException e) {
-                System.err.println("Skipped CSV line (invalid numerical data): " + line);
+                System.err.println("Skipped CSV line (invalid numerical coordinates): " + line);
             }
         }
         return incidents;
