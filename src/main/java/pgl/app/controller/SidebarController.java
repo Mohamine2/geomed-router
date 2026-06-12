@@ -30,6 +30,7 @@ import pgl.app.security.UserRole;
 import pgl.app.algo.DispatchEngine;
 import pgl.app.explainability.DispatchDecision;
 import pgl.app.explainability.GDPRReportingService;
+import pgl.app.test.SimulationDataGenerator;
 
 
 public class SidebarController {
@@ -623,75 +624,64 @@ public class SidebarController {
     }
 
     @FXML
-    private void handleAddRandomUsers() {
-        if (mapManager == null) {
-            return;
-        }
-
-        int count = parsePositiveInteger(randomUserCountField.getText(), 5);
-
+    private void handleGenerateRandomIncidents() {
+        // Exemple : 10 incidents (ou Integer.parseInt(txtIncidentCount.getText()) si vous avez un champ)
+        int count = 10;
+        int startCount = mapManager.getIncidents().size() + 1;
         List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
-        int nbHospitals = currentHospitals.size();
 
-        for (int i = 0; i < count; i++) {
-            int incidentNumber = mapManager.getIncidents().size() + 1;
+        // 1. Génération via la classe utilitaire commune
+        List<VictimIncident> newIncidents = SimulationDataGenerator.generateRandomIncidents(
+                count,
+                startCount,
+                currentHospitals
+        );
 
-            double x = 80 + random.nextDouble() * 500;
-            double y = 80 + random.nextDouble() * 400;
+        // 2. Ajout en masse dans le modèle
+        mapManager.addIncidents(newIncidents);
 
-            String incidentId = "INC-" + incidentNumber;
-
-            Integer prefId = null;
-            if (nbHospitals > 0 && random.nextDouble() < 0.20) {
-                Hospital randomHosp = currentHospitals.get(random.nextInt(nbHospitals));
-                prefId = randomHosp.getId();
-            }
-
-            mapManager.addIncident(new VictimIncident(
-                    x,
-                    y,
-                    incidentId,
-                    MedicalSpecialty.GENERAL,
-                    prefId
-            ));
+        // 3. Rafraîchissement de la vue JavaFX
+        if (mapController != null) {
+            mapController.refreshMap();
         }
-
-        mapController.refreshMap();
-        updateStats();
-        updateLastAssignment();
-        infoLabel.setText(count + " random incidents added.");
     }
 
 
     @FXML
-    private void handleAddRandomHospitals() {
-        if (mapManager == null) {
-            return;
-        }
-
-        int count = parsePositiveInteger(randomHospitalCountField.getText(), 5);
-
+    private void handleGenerateRandomHospitals() {
+        // Exemple : génération de 5 hôpitaux (vous pouvez aussi récupérer cette valeur depuis un TextField)
+        int count = 5;
         int startId = mapManager.getSites().size() + 1;
 
-        for (int i = 0; i < count; i++) {
-            int hospitalId = startId + i;
+        // 1. Génération via la classe utilitaire commune
+        List<Hospital> newHospitals = SimulationDataGenerator.generateRandomHospitals(count, startId);
 
-            double x = 80 + random.nextDouble() * 500;
-            double y = 80 + random.nextDouble() * 400;
-
-            Hospital hospital = new Hospital(x, y, hospitalId, 100);
-            hospital.addSpecialty(MedicalSpecialty.GENERAL);
-
+        // 2. Ajout au gestionnaire avec gestion des collisions
+        for (Hospital h : newHospitals) {
             try {
-                mapManager.addHospital(hospital);
-            } catch (Exception e) {
-                infoLabel.setText("Collision detected, some hospitals were skipped.");
+                mapManager.addHospital(h);
+            } catch (HospitalCollisionException e) {
+                // En JavaFX, on privilégie un log ou une alerte discrète plutôt qu'un plantage
+                System.err.println("Collision ignorée en mode graphique : " + e.getMessage());
             }
         }
 
-        mapController.refreshMap();
-        updateStats();
-        updateLastAssignment();
-        infoLabel.setText(count + " random hospitals added.");
+        // 3. Rafraîchissement crucial de la vue JavaFX
+        if (mapController != null) {
+            mapController.refreshMap();
+        }
+    }
+
+    @FXML
+    private void handleGenerateRandomRoads() {
+        int nbRoads = mapManager.getSites().size() * 2;
+
+        // 1. Génération et injection directe dans le RoadNetwork du MapManager
+        SimulationDataGenerator.generateRandomRoads(mapManager, nbRoads);
+
+        // 2. Rafraîchissement de la vue JavaFX (pour tracer les lignes de trafic gris/orange/rouge)
+        if (mapController != null) {
+            mapController.refreshMap();
+        }
     }
 }

@@ -8,6 +8,7 @@ import pgl.app.io.MapBinarySerializer;
 import pgl.app.model.*;
 import pgl.app.security.SecurityContext;
 import pgl.app.security.UserRole;
+import pgl.app.test.SimulationDataGenerator;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -223,26 +224,15 @@ public class ConsoleRunner {
 
             case 4: {
                 int count = askNaturalNumber(sc, "  How many random incidents to generate? ");
-                Random rand = new Random();
-                MedicalSpecialty[] specialties = MedicalSpecialty.values();
                 int startCount = mapManager.getIncidents().size() + 1;
-                List<VictimIncident> newIncidents = new ArrayList<>();
-
                 List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
-                int nbHospitals = currentHospitals.size();
 
-                for (int i = 0; i < count; i++) {
-                    String incidentId = "INC-RAND-" + String.format("%03d", startCount++);
-                    MedicalSpecialty type = specialties[rand.nextInt(specialties.length)];
+                List<VictimIncident> newIncidents = SimulationDataGenerator.generateRandomIncidents(
+                        count,
+                        startCount,
+                        currentHospitals
+                );
 
-                    Integer prefId = null;
-                    if (nbHospitals > 0 && rand.nextDouble() < 0.20) {
-                        Hospital randomHosp = currentHospitals.get(rand.nextInt(nbHospitals));
-                        prefId = randomHosp.getId();
-                    }
-
-                    newIncidents.add(new VictimIncident(rand.nextInt(201) - 100, rand.nextInt(201) - 100, incidentId, type, prefId));
-                }
                 mapManager.addIncidents(newIncidents);
                 System.out.println(count + " random incidents generated and linked.");
                 break;
@@ -400,51 +390,30 @@ public class ConsoleRunner {
             return;
         }
 
-        Random rand = new Random();
+        List<Hospital> newHospitals = SimulationDataGenerator.generateRandomHospitals(nbHospitals, 1);
 
-        MedicalSpecialty[] specialties = MedicalSpecialty.values();
-
-        System.out.println("\n--- Generating " + nbHospitals + " random hospitals ---");
-        for (int i = 0; i < nbHospitals; i++) {
-            // Capacity between 10 and 100 to avoid zero/negative capacity exceptions
-            int capacity = rand.nextInt(91) + 10;
-            Hospital h = new Hospital(rand.nextInt(201) - 100, rand.nextInt(201) - 100, i + 1, capacity);
-
-            // Give each hospital 2 random specialties
-            MedicalSpecialty randSpec = specialties[rand.nextInt(specialties.length)];
-            h.addSpecialty(randSpec);
-            h.addSpecialty(MedicalSpecialty.GENERAL);
-
+        for (Hospital h : newHospitals) {
             try {
                 mapManager.addHospital(h);
-                System.out.println("Hospital added successfully.");
             } catch (HospitalCollisionException e) {
                 System.err.println("ALERT: " + e.getMessage());
             }
         }
 
-        generateRandomRoads(nbHospitals * 2);
+        System.out.println(newHospitals.size() + " hospitals added successfully.");
+
+        SimulationDataGenerator.generateRandomRoads(mapManager, nbHospitals * 2);
 
         int nbIncidents = askNaturalNumber(sc, "How many victim incidents? ");
         System.out.println("\n--- Generating " + nbIncidents + " random incidents ---");
 
-        for (int i = 0; i < nbIncidents; i++) {
-            String incidentId = "INC-R-" + String.format("%03d", i + 1);
-            MedicalSpecialty emergencyType = specialties[rand.nextInt(specialties.length)];
+        int startIncidentId = mapManager.getIncidents().size() + 1;
+        List<VictimIncident> newIncidents = SimulationDataGenerator.generateRandomIncidents(
+                nbIncidents, startIncidentId, new ArrayList<>(mapManager.getSites())
+        );
 
-            Integer prefHospitalId = null;
-            if (rand.nextDouble() < 0.20 && nbHospitals > 0) {
-                prefHospitalId = rand.nextInt(nbHospitals) + 1;
-            }
-
-            mapManager.addIncident(new VictimIncident(
-                    rand.nextInt(201) - 100,
-                    rand.nextInt(201) - 100,
-                    incidentId,
-                    emergencyType,
-                    prefHospitalId
-            ));
-        }
+        mapManager.addIncidents(newIncidents);
+        System.out.println(newIncidents.size() + " incidents generated and linked.");
     }
 
     /**
@@ -536,35 +505,6 @@ public class ConsoleRunner {
             }
         }
         System.out.println("----------------------------------------");
-    }
-
-    /**
-     * Generates random road connections between existing hospitals.
-     *
-     * @param nbRoads The number of road connections to randomly generate.
-     */
-    public static void generateRandomRoads(int nbRoads) {
-        Set<Hospital> hospitalSet = mapManager.getSites();
-        if (hospitalSet.size() < 2) return;
-
-        Hospital[] hospitals = hospitalSet.toArray(new Hospital[0]);
-
-        Random rand = new Random();
-        System.out.println("\n--- Generating " + nbRoads + " random roads ---");
-
-        for (int i = 0; i < nbRoads; i++) {
-            Hospital h1 = hospitals[rand.nextInt(hospitals.length)];
-            Hospital h2 = hospitals[rand.nextInt(hospitals.length)];
-
-            // Prevent self-loop roads
-            if (h1 != h2) {
-                // Traffic jam probability of 30%
-                // (slowdown from 1.5x to 4.0x)
-                double traffic = (rand.nextDouble() < 0.30) ? (1.5 + rand.nextDouble() * 2.5) : 1.0;
-
-                mapManager.addRoad(new Point(h1.getX(), h1.getY()), new Point(h2.getX(), h2.getY()), traffic);
-            }
-        }
     }
 
     /**

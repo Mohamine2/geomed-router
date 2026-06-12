@@ -81,7 +81,7 @@
 
                         <Button text="Add Random Hospitals"
                                 maxWidth="Infinity"
-                                onAction="#handleAddRandomHospitals" />
+                                onAction="#handleGenerateRandomHospitals" />
 
                         <Button fx:id="importMapButton"
                                 text="Import Map (OSM / Binary)"
@@ -115,7 +115,7 @@
                         <Button fx:id="addRandomUsersButton"
                                 text="Add Random Users"
                                 maxWidth="Infinity"
-                                onAction="#handleAddRandomUsers" />
+                                onAction="#handleGenerateRandomIncidents" />
 
                         <Button fx:id="importIncidentsCsvButton"
                                 text="Import Incidents CSV"
