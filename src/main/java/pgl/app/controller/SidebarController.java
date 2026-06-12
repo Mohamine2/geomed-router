@@ -253,42 +253,66 @@ public class SidebarController {
         selectedIdLabel.setText("Id: " + incident.getIncidentId());
 
         String assignedHospital = "none";
-
         if (incident.getClosestHospital() != null) {
             assignedHospital = "H" + incident.getClosestHospital().getId();
         }
 
+        // On utilise un StringBuilder pour construire le texte complet
         StringBuilder details = new StringBuilder();
+        details.append("Position: (").append((int) incident.getX()).append(", ").append((int) incident.getY()).append(")\n");
+        details.append("Emergency type: ").append(incident.getEmergencyType()).append("\n");
+        details.append("Assigned hospital: ").append(assignedHospital).append("\n");
 
-        details.append("Position: (")
-               .append((int) incident.getX())
-               .append(", ")
-               .append((int) incident.getY())
-               .append(")\n");
-
-        details.append("Emergency type: ")
-               .append(incident.getEmergencyType())
-               .append("\n");
-
-        details.append("Assigned hospital: ")
-               .append(assignedHospital);
-
+        // --- BLOC 1 : Historique médical brut (Réservé strictement au MEDECIN) ---
         /*
-         * L'historique médical est réservé au médecin.
-         * L'administrateur et l'ambulancier ne voient pas cette donnée sensible.
+         * L'historique médical est une donnée ultra-sensible.
+         * L'administrateur et l'ambulancier ne voient pas cette ligne.
          */
         if (SecurityContext.hasAccess(UserRole.DOCTOR)) {
-            details.append("\n");
-
             if (incident.hasMedicalHistory()) {
-                details.append("Patient history: known at hospital H")
-                       .append(incident.getPreferredHospitalId());
+                details.append("Patient history: known at hospital H").append(incident.getPreferredHospitalId()).append("\n");
             } else {
-                details.append("Patient history: none");
+                details.append("Patient history: none\n");
+            }
+        }
+        details.append("\n"); // Ligne vide pour aérer l'affichage
+
+        // --- BLOC 2 : Intégration du rapport d'explicabilité RGPD (MEDECIN & ADMIN) ---
+        if (incident.getClosestHospital() != null) {
+
+            if (SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
+                try {
+                    // 1. On demande au moteur de recréer l'évaluation complète
+                    DispatchEngine engine = new DispatchEngine();
+                    DispatchDecision decision = engine.evaluateBestDispatch(
+                            incident,
+                            mapManager.getSites(),
+                            mapManager.getRoutingEngine(),
+                            mapManager.getTriangles()
+                    );
+
+                    // 2. On confie la décision au service de reporting
+                    GDPRReportingService reporter = new GDPRReportingService();
+                    String gdprReport = reporter.generateGDPRSummary(incident, decision);
+
+                    details.append("--- GDPR TRANSPARENCY REPORT ---\n");
+                    details.append(gdprReport);
+
+                } catch (Exception e) {
+                    details.append("[Error generating GDPR report: ").append(e.getMessage()).append("]\n");
+                }
+            } else {
+                // Rôle Ambulancier (ou autre) sans accès
+                details.append("--- GDPR TRANSPARENCY REPORT ---\n");
+                details.append("[RESTRICTED] ADMIN or DOCTOR Role required to view algorithmic dispatch logic and medical data.");
             }
         }
 
+        // On affiche tout le texte dans la zone de droite
         selectedDetailsArea.setText(details.toString());
+
+        // Petite astuce JavaFX pour s'assurer que le curseur remonte en haut du texte long
+        selectedDetailsArea.positionCaret(0);
     }
     
     public void showTriangleDetails(Triangle triangle) {
