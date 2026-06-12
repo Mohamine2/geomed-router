@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -18,6 +19,7 @@
             style="-fx-background-color: #f1f5f9;">
 
     <children>
+
         <ScrollPane fitToWidth="true"
                     hbarPolicy="NEVER"
                     vbarPolicy="AS_NEEDED"
@@ -27,17 +29,26 @@
                     AnchorPane.rightAnchor="0.0">
 
             <content>
+
                 <VBox spacing="12.0"
                       prefWidth="250.0"
                       fillWidth="true"
-                      style="-fx-background-color: #f1f5f9; -fx-border-color: #cbd5e1; -fx-border-width: 0 0 0 1;">
+                      style="-fx-background-color: #f1f5f9;
+                             -fx-border-color: #cbd5e1;
+                             -fx-border-width: 0 0 0 1;">
+
                     <padding>
-                        <Insets top="20.0" right="16.0" bottom="20.0" left="16.0"/>
+                        <Insets top="20.0"
+                                right="16.0"
+                                bottom="20.0"
+                                left="16.0" />
                     </padding>
 
                     <children>
+
                         <Label text="Controls"
-                               style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                               style="-fx-font-size: 20px;
+                                      -fx-font-weight: bold;" />
 
                         <Separator />
 
@@ -49,54 +60,73 @@
                                 maxWidth="Infinity"
                                 onAction="#handleToggleVoronoi" />
 
-
-                        <Button text="Add Site"
+                        <Button fx:id="addSiteButton"
+                                text="Add Site"
                                 maxWidth="Infinity"
                                 onAction="#handleAddSite" />
-                        
-                        <Button text="Import Hospitals CSV"
-        						maxWidth="Infinity"
-        						onAction="#handleImportHospitalsCsv" />
 
-                        <Button text="Import Map (OSM / Binary)"
+                        <Button fx:id="importHospitalsCsvButton"
+                                text="Import Hospitals CSV"
+                                maxWidth="Infinity"
+                                onAction="#handleImportHospitalsCsv" />
+
+                        <Button fx:id="importMapButton"
+                                text="Import Map (OSM / Binary)"
                                 maxWidth="Infinity"
                                 onAction="#handleImportMap" />
 
-                        <Button text="Add User Point"
+                        <Separator />
+
+                        <Label text="User role"
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;" />
+
+                        <ComboBox fx:id="roleComboBox"
+                                  promptText="Select role"
+                                  maxWidth="Infinity" />
+
+                        <Button fx:id="addUserPointButton"
+                                text="Add User Point"
                                 maxWidth="Infinity"
                                 onAction="#handleAddUserPoint" />
 
                         <Label text="Bulk user generation"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;" />
 
                         <TextField fx:id="randomUserCountField"
                                    promptText="Number of random users" />
 
-                        <Button text="Add Random Users"
+                        <Button fx:id="addRandomUsersButton"
+                                text="Add Random Users"
                                 maxWidth="Infinity"
                                 onAction="#handleAddRandomUsers" />
-                                
-                        <Button text="Import Incidents CSV"
-        						maxWidth="Infinity"
-        						onAction="#handleImportIncidentsCsv" />
 
-                        <Button text="Recompute Delaunay"
+                        <Button fx:id="importIncidentsCsvButton"
+                                text="Import Incidents CSV"
+                                maxWidth="Infinity"
+                                onAction="#handleImportIncidentsCsv" />
+
+                        <Button fx:id="recomputeButton"
+                                text="Recompute Delaunay"
                                 maxWidth="Infinity"
                                 onAction="#handleRecompute" />
 
-                        <Button text="Clear"
+                        <Button fx:id="clearButton"
+                                text="Clear"
                                 maxWidth="Infinity"
                                 onAction="#handleClear" />
 
-                        <Button text="Delete Selected"
+                        <Button fx:id="deleteSelectedButton"
+                                text="Delete Selected"
                                 maxWidth="Infinity"
                                 onAction="#handleDeleteSelected" />
 
                         <Separator />
-                        <Separator />
 
                         <Label text="Map statistics"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;" />
 
                         <Label fx:id="hospitalCountLabel"
                                text="Hospitals: 0" />
@@ -107,8 +137,11 @@
                         <Label fx:id="triangleCountLabel"
                                text="Triangles: 0" />
 
+                        <Separator />
+
                         <Label text="Selected element"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;" />
 
                         <Label fx:id="selectedTypeLabel"
                                text="Type: none" />
@@ -132,8 +165,11 @@
                                prefWidth="220.0"
                                style="-fx-font-size: 13px;" />
 
+                        <Separator />
+
                         <Label text="Last assignment"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;" />
 
                         <Label fx:id="lastIncidentLabel"
                                text="Last incident: none"
@@ -146,9 +182,15 @@
                                wrapText="true"
                                prefWidth="220.0"
                                maxWidth="Infinity" />
+
                     </children>
+
                 </VBox>
+
             </content>
+
         </ScrollPane>
+
     </children>
+
 </AnchorPane>

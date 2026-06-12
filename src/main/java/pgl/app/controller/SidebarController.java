@@ -22,6 +22,12 @@ import pgl.app.io.CsvIncidentImporter;
 import java.util.List;
 import pgl.app.io.MapImporterOSM;
 import pgl.app.io.MapBinarySerializer;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import pgl.app.security.SecurityContext;
+import pgl.app.security.UserRole;
+
 
 public class SidebarController {
 
@@ -54,6 +60,36 @@ public class SidebarController {
     
     @FXML
     private TextField randomUserCountField;
+    
+    @FXML
+    private ComboBox<UserRole> roleComboBox;
+
+    @FXML
+    private Button addSiteButton;
+
+    @FXML
+    private Button importHospitalsCsvButton;
+
+    @FXML
+    private Button importMapButton;
+
+    @FXML
+    private Button addUserPointButton;
+
+    @FXML
+    private Button addRandomUsersButton;
+
+    @FXML
+    private Button importIncidentsCsvButton;
+
+    @FXML
+    private Button recomputeButton;
+
+    @FXML
+    private Button clearButton;
+
+    @FXML
+    private Button deleteSelectedButton;
 
     private final Random random = new Random();
 
@@ -97,6 +133,35 @@ public class SidebarController {
         } else {
             assignedHospitalLabel.setText("Assigned hospital: none");
         }
+    }
+    
+    private void updateRoleView() {
+        boolean admin = SecurityContext.hasAccess(UserRole.ADMIN);
+
+        boolean doctorOrAdmin = SecurityContext.hasAccess(
+                UserRole.ADMIN,
+                UserRole.DOCTOR
+        );
+
+        boolean paramedicOrAbove = SecurityContext.hasAccess(
+                UserRole.ADMIN,
+                UserRole.DOCTOR,
+                UserRole.PARAMEDIC
+        );
+
+        addSiteButton.setDisable(!admin);
+        importHospitalsCsvButton.setDisable(!admin);
+        importMapButton.setDisable(!admin);
+        clearButton.setDisable(!admin);
+        deleteSelectedButton.setDisable(!admin);
+
+        importIncidentsCsvButton.setDisable(!doctorOrAdmin);
+        recomputeButton.setDisable(!doctorOrAdmin);
+        addRandomUsersButton.setDisable(!doctorOrAdmin);
+
+        addUserPointButton.setDisable(!paramedicOrAbove);
+
+        infoLabel.setText("Current role: " + SecurityContext.getCurrentRole());
     }
 
     public void setMapManager(MapManager mapManager) {
@@ -174,15 +239,42 @@ public class SidebarController {
         selectedIdLabel.setText("Id: " + incident.getIncidentId());
 
         String assignedHospital = "none";
+
         if (incident.getClosestHospital() != null) {
             assignedHospital = "H" + incident.getClosestHospital().getId();
         }
 
-        selectedDetailsArea.setText(
-                "Position: (" + (int) incident.getX() + ", " + (int) incident.getY() + ")\n" +
-                "Emergency type: " + incident.getEmergencyType() + "\n" +
-                "Assigned hospital: " + assignedHospital
-        );
+        StringBuilder details = new StringBuilder();
+
+        details.append("Position: (")
+               .append((int) incident.getX())
+               .append(", ")
+               .append((int) incident.getY())
+               .append(")\n");
+
+        details.append("Emergency type: ")
+               .append(incident.getEmergencyType())
+               .append("\n");
+
+        details.append("Assigned hospital: ")
+               .append(assignedHospital);
+
+        /*
+         * L'historique médical est réservé au médecin.
+         * L'administrateur et l'ambulancier ne voient pas cette donnée sensible.
+         */
+        if (SecurityContext.hasAccess(UserRole.DOCTOR)) {
+            details.append("\n");
+
+            if (incident.hasMedicalHistory()) {
+                details.append("Patient history: known at hospital H")
+                       .append(incident.getPreferredHospitalId());
+            } else {
+                details.append("Patient history: none");
+            }
+        }
+
+        selectedDetailsArea.setText(details.toString());
     }
     
     public void showTriangleDetails(Triangle triangle) {
@@ -250,7 +342,18 @@ public class SidebarController {
     @FXML
     public void initialize() {
         System.out.println("SidebarController initialized.");
+
+        roleComboBox.setItems(FXCollections.observableArrayList(UserRole.values()));
+        roleComboBox.getSelectionModel().select(SecurityContext.getCurrentRole());
+
+        roleComboBox.setOnAction(event -> {
+            UserRole selectedRole = roleComboBox.getSelectionModel().getSelectedItem();
+            SecurityContext.setCurrentRole(selectedRole);
+            updateRoleView();
+        });
+
         updateStats();
+        updateRoleView();
     }
 
     @FXML
