@@ -258,6 +258,7 @@ public class SidebarController {
                 "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n"
                         + "Capacity: " + hospital.getCapacityMax() + "\n"
                         + "Assigned incidents: " + assignedIncidents + "\n"
+                        + "Specialities: " + hospital.getSpecialties() + "\n"
                         + "Min distance: " + String.format("%.2f", minDistance) + "\n"
                         + "Max distance: " + String.format("%.2f", maxDistance) + "\n"
                         + "Avg distance: " + String.format("%.2f", averageDistance) + "\n"
