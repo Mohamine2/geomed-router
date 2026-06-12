@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Utility class responsible for importing and parsing OpenStreetMap (OSM) data
@@ -86,6 +87,8 @@ public class MapImporterOSM {
             }
         }
 
+        Random rand = new Random();
+
         // ---- PASSE 2 : Liaison des segments de routes ----
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
@@ -98,7 +101,8 @@ public class MapImporterOSM {
                     Point p2 = osmNodeMap.get(nodes.getLong(j + 1));
 
                     if (p1 != null && p2 != null) {
-                        manager.addRoad(p1, p2);
+                        double traffic = (rand.nextDouble() < 0.30) ? (1.5 + rand.nextDouble() * 2.5) : 1.0;
+                        manager.addRoad(p1, p2, traffic);
                     }
                 }
             }
