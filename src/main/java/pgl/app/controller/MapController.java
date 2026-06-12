@@ -25,33 +25,33 @@ import pgl.app.model.RoadEdge;
 
 
 public class MapController {
-	
-	private double zoomFactor = 1.0;
-	
-	private double lastMouseX;
-	
-	private double lastMouseY;
-	
-	private VictimIncident selectedIncident;
-	
-	private final Set<Integer> highlightedHospitalIds = new HashSet<>();
-	
-	private final Set<String> highlightedIncidentIds = new HashSet<>();
-	
-	private Hospital selectedHospital;
-	
-	private Triangle selectedTriangle;
+
+    private double zoomFactor = 1.0;
+
+    private double lastMouseX;
+
+    private double lastMouseY;
+
+    private VictimIncident selectedIncident;
+
+    private final Set<Integer> highlightedHospitalIds = new HashSet<>();
+
+    private final Set<String> highlightedIncidentIds = new HashSet<>();
+
+    private Hospital selectedHospital;
+
+    private Triangle selectedTriangle;
 
     private boolean showTriangles = true;
     private boolean showVoronoi = true;
-	
+
     @FXML
     private Pane mapPane;
 
     private MapManager mapManager;
-    
+
     private SidebarController sidebarController;
-    
+
     private Integer selectedAssignedHospitalId;
 
     /**
@@ -89,7 +89,7 @@ public class MapController {
             event.consume();
         });
     }
-    
+
     private void setupPan() {
         mapPane.setOnMousePressed(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
@@ -113,7 +113,7 @@ public class MapController {
             }
         });
     }
-    
+
     public void selectTriangle(Triangle triangle) {
         selectedTriangle = triangle;
         selectedHospital = null;
@@ -123,7 +123,7 @@ public class MapController {
         highlightedIncidentIds.clear();
         refreshMap();
     }
-    
+
     private void selectIncident(VictimIncident incident) {
         if (selectedIncident != null
                 && selectedIncident.getIncidentId().equals(incident.getIncidentId())) {
@@ -157,34 +157,63 @@ public class MapController {
 
         refreshMap();
     }
-    
+
     private void drawAssignments() {
         for (VictimIncident incident : mapManager.getIncidents()) {
             if (incident.getClosestHospital() != null) {
                 boolean isSelected = selectedIncident != null
                         && selectedIncident.getIncidentId().equals(incident.getIncidentId());
 
-                Line assignmentLine = new Line(
-                        incident.getX(), incident.getY(),
-                        incident.getClosestHospital().getX(), incident.getClosestHospital().getY()
-                );
+                if (isSelected) {
+                    // Si l'incident est sélectionné, on demande la vraie route
+                    List<Point> path = mapManager.computeRoadForIncident(incident);
 
-                assignmentLine.setStroke(isSelected ? Color.RED : Color.INDIANRED);
-                assignmentLine.setStrokeWidth(isSelected ? 2.5 : 1.2);
-                assignmentLine.setOpacity(isSelected ? 1.0 : 0.7);
-                assignmentLine.getStrokeDashArray().addAll(6.0, 4.0);
+                    if (path != null && path.size() > 1) {
+                        // Dessiner segment par segment
+                        for (int i = 0; i < path.size() - 1; i++) {
+                            Point p1 = path.get(i);
+                            Point p2 = path.get(i + 1);
 
-                mapPane.getChildren().add(assignmentLine);
+                            Line routeLine = new Line(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+                            routeLine.setStroke(Color.MAGENTA); // Trait violet pour bien le voir
+                            routeLine.setStrokeWidth(4.5);
+                            routeLine.setOpacity(0.85);
+
+                            mapPane.getChildren().add(routeLine);
+                        }
+                    } else {
+                        // Sécurité (fallback) si aucune route n'est trouvée
+                        drawStraightAssignmentLine(incident, true);
+                    }
+                } else {
+                    // Pour les autres incidents non sélectionnés
+                    drawStraightAssignmentLine(incident, false);
+                }
             }
         }
+    }
+
+    // Méthode utilitaire ajoutée pour tracer la ligne droite en pointillés
+    private void drawStraightAssignmentLine(VictimIncident incident, boolean isSelected) {
+        Line assignmentLine = new Line(
+                incident.getX(), incident.getY(),
+                incident.getClosestHospital().getX(), incident.getClosestHospital().getY()
+        );
+
+        assignmentLine.setStroke(isSelected ? Color.RED : Color.INDIANRED);
+        assignmentLine.setStrokeWidth(isSelected ? 2.5 : 1.2);
+        assignmentLine.setOpacity(isSelected ? 1.0 : 0.7);
+        assignmentLine.getStrokeDashArray().addAll(6.0, 4.0);
+
+        mapPane.getChildren().add(assignmentLine);
     }
 
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
     }
-    
+
     public void setSidebarController(SidebarController sidebarController) {
-    	this.sidebarController = sidebarController;
+        this.sidebarController = sidebarController;
     }
 
     public void toggleTrianglesVisibility() {
@@ -575,7 +604,7 @@ public class MapController {
 
 
 
-                    if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue ;
+                if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue ;
                 if (!drawnVertices.add(vertex)) {
                     continue;
                 }
@@ -602,7 +631,7 @@ public class MapController {
             Line ab = new Line(a.getX(), a.getY(), b.getX(), b.getY());
             Line bc = new Line(b.getX(), b.getY(), c.getX(), c.getY());
             Line ca = new Line(c.getX(), c.getY(), a.getX(), a.getY());
-            
+
             ab.setOnMouseClicked(event -> {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
@@ -673,7 +702,7 @@ public class MapController {
             mapPane.getChildren().add(roadLine);
         }
     }
-    
+
     public void deleteSelectedElement() {
         if (mapManager == null) {
             return;
@@ -695,14 +724,14 @@ public class MapController {
 
         refreshMap();
     }
-    
+
     public void clearSelection() {
-    	selectedIncident = null;
-    	selectedHospital = null;
-    	selectedTriangle = null;
-    	selectedAssignedHospitalId = null;
-    	highlightedHospitalIds.clear();
-    	highlightedIncidentIds.clear();
+        selectedIncident = null;
+        selectedHospital = null;
+        selectedTriangle = null;
+        selectedAssignedHospitalId = null;
+        highlightedHospitalIds.clear();
+        highlightedIncidentIds.clear();
     }
 
     /**

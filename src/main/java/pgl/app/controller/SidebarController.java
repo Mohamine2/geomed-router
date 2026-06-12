@@ -27,6 +27,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import pgl.app.security.SecurityContext;
 import pgl.app.security.UserRole;
+import pgl.app.algo.DispatchEngine;
+import pgl.app.explainability.DispatchDecision;
+import pgl.app.explainability.GDPRReportingService;
 
 
 public class SidebarController {
@@ -90,6 +93,10 @@ public class SidebarController {
 
     @FXML
     private Button deleteSelectedButton;
+
+    @FXML
+    private TextField randomHospitalCountField;
+
 
     private final Random random = new Random();
 
@@ -200,6 +207,7 @@ public class SidebarController {
                 if (distance < minDistance) {
                     minDistance = distance;
                 }
+
                 if (distance > maxDistance) {
                     maxDistance = distance;
                 }
@@ -212,21 +220,25 @@ public class SidebarController {
             minDistance = 0.0;
         }
 
-        double averageDistance = assignedIncidents > 0 ? totalDistance / assignedIncidents : 0.0;
+        double averageDistance =
+                assignedIncidents > 0
+                        ? totalDistance / assignedIncidents
+                        : 0.0;
 
         selectedTypeLabel.setText("Type: Hospital");
         selectedIdLabel.setText("Id: H" + hospital.getId());
+
         selectedDetailsArea.setText(
-                "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n" +
-                "Capacity: " + hospital.getCapacityMax() + "\n" +
-                "Assigned incidents: " + assignedIncidents + "\n" +
-                "Min distance: " + String.format("%.2f", minDistance) + "\n" +
-                "Max distance: " + String.format("%.2f", maxDistance) + "\n" +
-                "Avg distance: " + String.format("%.2f", averageDistance)
+                "Position: (" + (int) hospital.getX()
+                        + ", " + (int) hospital.getY() + ")\n"
+                        + "Capacity: " + hospital.getCapacityMax() + "\n"
+                        + "Assigned incidents: " + assignedIncidents + "\n"
+                        + "Min distance: " + String.format("%.2f", minDistance) + "\n"
+                        + "Max distance: " + String.format("%.2f", maxDistance) + "\n"
+                        + "Avg distance: " + String.format("%.2f", averageDistance)
         );
-        System.out.println(selectedDetailsArea.getText());
     }
-    
+
     public void showIncidentDetails(VictimIncident incident) {
         if (incident == null) {
             selectedTypeLabel.setText("Type: none");
@@ -648,5 +660,38 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
         infoLabel.setText(count + " random incidents added.");
+    }
+
+
+    @FXML
+    private void handleAddRandomHospitals() {
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = parsePositiveInteger(randomHospitalCountField.getText(), 5);
+
+        int startId = mapManager.getSites().size() + 1;
+
+        for (int i = 0; i < count; i++) {
+            int hospitalId = startId + i;
+
+            double x = 80 + random.nextDouble() * 500;
+            double y = 80 + random.nextDouble() * 400;
+
+            Hospital hospital = new Hospital(x, y, hospitalId, 100);
+            hospital.addSpecialty(MedicalSpecialty.GENERAL);
+
+            try {
+                mapManager.addHospital(hospital);
+            } catch (Exception e) {
+                infoLabel.setText("Collision detected, some hospitals were skipped.");
+            }
+        }
+
+        mapController.refreshMap();
+        updateStats();
+        updateLastAssignment();
+        infoLabel.setText(count + " random hospitals added.");
     }
 }
