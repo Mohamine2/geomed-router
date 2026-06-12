@@ -9,13 +9,13 @@
             fx:controller="pgl.app.controller.MapController"
             prefHeight="700.0"
             prefWidth="750.0"
-            style="-fx-background-color: white;">
+            style="-fx-background-color: #f8fafc;">
 
     <children>
         <Pane fx:id="mapPane"
               prefHeight="700.0"
               prefWidth="750.0"
-              style="-fx-background-color: #f8fafc; -fx-border-color: #cbd5e1; -fx-border-width: 1;" />
+              style="-fx-background-color: #f8fafc; -fx-border-color: #f8fafc; -fx-border-width: 1;" />
 
         <Label layoutX="14.0" layoutY="10.0"
                text="Map view"
