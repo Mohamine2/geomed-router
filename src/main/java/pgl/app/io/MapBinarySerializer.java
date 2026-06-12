@@ -78,7 +78,7 @@ public final class MapBinarySerializer {
             MedicalSpecialty[] specialties = hospital.getSpecialties().toArray(new MedicalSpecialty[0]);
             data.writeInt(specialties.length);
             for (MedicalSpecialty specialty : specialties) {
-                data.writeUTF(specialty.name());
+                data.writeByte((byte) specialty.ordinal());
             }
         }
 

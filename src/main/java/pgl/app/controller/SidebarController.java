@@ -31,6 +31,10 @@ import pgl.app.algo.DispatchEngine;
 import pgl.app.explainability.DispatchDecision;
 import pgl.app.explainability.GDPRReportingService;
 import pgl.app.test.SimulationDataGenerator;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.stage.Stage;
+import java.io.IOException;
 
 
 public class SidebarController {
@@ -515,6 +519,31 @@ public class SidebarController {
         } catch (Exception e) {
             infoLabel.setText("Critical error during map import.");
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleSaveBinary(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sauvegarder l'infrastructure (.pglm)");
+        fileChooser.setInitialFileName("map.pglm");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichiers de carte PGLM (*.pglm)", "*.pglm")
+        );
+
+        // Récupération de la fenêtre parente pour centrer la boîte de dialogue
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try {
+                // Utilisation exacte de votre sérialiseur binaire issu de ConsoleRunner
+                MapBinarySerializer.exportToFile(mapManager, file.toPath());
+                System.out.println("Carte sauvegardée avec succès : " + file.getName());
+            } catch (IOException e) {
+                System.err.println("Erreur lors de l'export binaire : " + e.getMessage());
+                // Optionnel : Ajouter une boîte de dialogue contextuelle Alert pour notifier l'échec
+            }
         }
     }
 

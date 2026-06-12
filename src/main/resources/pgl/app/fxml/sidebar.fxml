@@ -88,6 +88,10 @@
                                 maxWidth="Infinity"
                                 onAction="#handleImportMap" />
 
+                        <Button text="Export map context (.pglm)"
+                                onAction="#handleSaveBinary"
+                                styleClass="sidebar-button" />
+
                         <Separator />
 
                         <Label text="User role"
