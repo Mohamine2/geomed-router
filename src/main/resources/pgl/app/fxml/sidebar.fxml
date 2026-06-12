@@ -35,14 +35,8 @@
                 <VBox spacing="12.0"
                       prefWidth="250.0"
                       fillWidth="true"
-<<<<<<< HEAD
-                      style="-fx-background-color: #f1f5f9;
-                             -fx-border-color: #cbd5e1;
-                             -fx-border-width: 0 0 0 1;">
-
-=======
                       styleClass="vbox-sidebar">
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+
                     <padding>
                         <Insets top="20.0"
                                 right="16.0"
@@ -53,12 +47,9 @@
                     <children>
 
                         <Label text="Controls"
-<<<<<<< HEAD
                                style="-fx-font-size: 20px;
-                                      -fx-font-weight: bold;" />
-=======
-                               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <Separator />
 
@@ -75,17 +66,15 @@
                                 maxWidth="Infinity"
                                 onAction="#handleAddSite" />
 
-<<<<<<< HEAD
                         <Button fx:id="importHospitalsCsvButton"
                                 text="Import Hospitals CSV"
                                 maxWidth="Infinity"
                                 onAction="#handleImportHospitalsCsv" />
 
-                        <Button fx:id="importMapButton"
-                                text="Import Map (OSM / Binary)"
-=======
                         <Label text="Bulk hospital generation"
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                               style="-fx-font-size: 16px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <TextField fx:id="randomHospitalCountField"
                                    promptText="Number of random hospitals" />
@@ -94,8 +83,8 @@
                                 maxWidth="Infinity"
                                 onAction="#handleAddRandomHospitals" />
 
-                        <Button text="Import Map (OSM / Binary)"
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                        <Button fx:id="importMapButton"
+                                text="Import Map (OSM / Binary)"
                                 maxWidth="Infinity"
                                 onAction="#handleImportMap" />
 
@@ -103,7 +92,8 @@
 
                         <Label text="User role"
                                style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;" />
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <ComboBox fx:id="roleComboBox"
                                   promptText="Select role"
@@ -115,12 +105,9 @@
                                 onAction="#handleAddUserPoint" />
 
                         <Label text="Bulk user generation"
-<<<<<<< HEAD
                                style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;" />
-=======
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <TextField fx:id="randomUserCountField"
                                    promptText="Number of random users" />
@@ -130,7 +117,6 @@
                                 maxWidth="Infinity"
                                 onAction="#handleAddRandomUsers" />
 
-<<<<<<< HEAD
                         <Button fx:id="importIncidentsCsvButton"
                                 text="Import Incidents CSV"
                                 maxWidth="Infinity"
@@ -143,9 +129,6 @@
 
                         <Button fx:id="clearButton"
                                 text="Clear"
-=======
-                        <Button text="Clear"
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
                                 maxWidth="Infinity"
                                 onAction="#handleClear" />
 
@@ -157,12 +140,9 @@
                         <Separator />
 
                         <Label text="Map statistics"
-<<<<<<< HEAD
                                style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;" />
-=======
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <Label fx:id="hospitalCountLabel"
                                text="Hospitals: 0" />
@@ -176,12 +156,9 @@
                         <Separator />
 
                         <Label text="Selected element"
-<<<<<<< HEAD
                                style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;" />
-=======
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <Label fx:id="selectedTypeLabel"
                                text="Type: none" />
@@ -203,17 +180,15 @@
                                wrapText="true"
                                maxWidth="Infinity"
                                prefWidth="220.0"
-                               style="-fx-font-size: 13px; -fx-text-fill: white;" />
+                               style="-fx-font-size: 13px;
+                                      -fx-text-fill: white;" />
 
                         <Separator />
 
                         <Label text="Last assignment"
-<<<<<<< HEAD
                                style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;" />
-=======
-                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
->>>>>>> branch 'main' of git@github.com:Mohamine2/Projet-Genie-Logiciel.git
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: white;" />
 
                         <Label fx:id="lastIncidentLabel"
                                text="Last incident: none"
