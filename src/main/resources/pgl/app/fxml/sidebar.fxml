@@ -19,211 +19,84 @@
             styleClass="sidebar-root"
             stylesheets="@css/sidebar.css">
 
-    <children>
+    <ScrollPane fitToWidth="true"
+                hbarPolicy="NEVER"
+                vbarPolicy="AS_NEEDED"
+                styleClass="scroll-pane"
+                AnchorPane.topAnchor="0.0"
+                AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0">
 
-        <ScrollPane fitToWidth="true"
-                    hbarPolicy="NEVER"
-                    vbarPolicy="AS_NEEDED"
-                    styleClass="scroll-pane"
-                    AnchorPane.topAnchor="0.0"
-                    AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0">
+        <content>
+            <VBox spacing="12.0"
+                  prefWidth="250.0"
+                  fillWidth="true"
+                  styleClass="vbox-sidebar">
 
-            <content>
+                <padding>
+                    <Insets top="20.0" right="16.0" bottom="20.0" left="16.0" />
+                </padding>
 
-                <VBox spacing="12.0"
-                      prefWidth="250.0"
-                      fillWidth="true"
-                      styleClass="vbox-sidebar">
+                <Label text="Controls" styleClass="sidebar-title" />
+                <Separator />
 
-                    <padding>
-                        <Insets top="20.0"
-                                right="16.0"
-                                bottom="20.0"
-                                left="16.0" />
-                    </padding>
+                <Button text="Show/Hide Triangles" maxWidth="Infinity" onAction="#handleToggleTriangles" />
+                <Button text="Show/Hide Diagram" maxWidth="Infinity" onAction="#handleToggleVoronoi" />
+                <Button text="Show/Hide Assignments" maxWidth="Infinity" onAction="#handleToggleAssignments"/>
 
-                    <children>
+                <Button fx:id="addSiteButton" text="Add Site" maxWidth="Infinity" onAction="#handleAddSite" />
+                <Button fx:id="importHospitalsCsvButton" text="Import Hospitals CSV" maxWidth="Infinity" onAction="#handleImportHospitalsCsv" />
 
-                        <Label text="Controls"
-                               style="-fx-font-size: 20px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                <Label text="Bulk hospital generation" styleClass="sidebar-subtitle" />
+                <TextField fx:id="randomHospitalCountField" promptText="Number of random hospitals" />
+                <Button text="Add Random Hospitals" maxWidth="Infinity" onAction="#handleGenerateRandomHospitals" />
 
-                        <Separator />
+                <Button fx:id="importMapButton" text="Import Map (OSM / Binary)" maxWidth="Infinity" onAction="#handleImportMap" />
+                <Button fx:id="saveBinaryButton" text="Export map context (.pglm)" maxWidth="Infinity" onAction="#handleSaveBinary" />
 
-                        <Button text="Show/Hide Triangles"
-                                maxWidth="Infinity"
-                                onAction="#handleToggleTriangles" />
+                <Separator />
 
-                        <Button text="Show/Hide Diagram"
-                                maxWidth="Infinity"
-                                onAction="#handleToggleVoronoi" />
+                <Label text="User role" styleClass="sidebar-subtitle" />
+                <ComboBox fx:id="roleComboBox" promptText="Select role" maxWidth="Infinity" />
 
-                        <Button text="Show/Hide Assignments"
-                                maxWidth="Infinity"
-                                onAction="#handleToggleAssignments"/>
+                <Button fx:id="addUserPointButton" text="Add User Point" maxWidth="Infinity" onAction="#handleAddUserPoint" />
 
-                        <Button fx:id="addSiteButton"
-                                text="Add Site"
-                                maxWidth="Infinity"
-                                onAction="#handleAddSite" />
+                <Label text="Bulk user generation" styleClass="sidebar-subtitle" />
+                <TextField fx:id="randomUserCountField" promptText="Number of random users" />
+                <Button fx:id="addRandomUsersButton" text="Add Random Users" maxWidth="Infinity" onAction="#handleGenerateRandomIncidents" />
+                <Button fx:id="importIncidentsCsvButton" text="Import Incidents CSV" maxWidth="Infinity" onAction="#handleImportIncidentsCsv" />
 
-                        <Button fx:id="importHospitalsCsvButton"
-                                text="Import Hospitals CSV"
-                                maxWidth="Infinity"
-                                onAction="#handleImportHospitalsCsv" />
+                <Button text="Add Random Roads" maxWidth="Infinity" onAction="#handleGenerateRandomRoads" />
+                <Button fx:id="recomputeButton" text="Recompute Delaunay" maxWidth="Infinity" onAction="#handleRecompute" />
+                <Button fx:id="clearButton" text="Clear" maxWidth="Infinity" onAction="#handleClear" />
+                <Button fx:id="deleteSelectedButton" text="Delete Selected" maxWidth="Infinity" onAction="#handleDeleteSelected" />
 
-                        <Label text="Bulk hospital generation"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                <Separator />
 
-                        <TextField fx:id="randomHospitalCountField"
-                                   promptText="Number of random hospitals" />
+                <Label text="Map statistics" styleClass="sidebar-subtitle" />
+                <Label fx:id="hospitalCountLabel" text="Hospitals: 0" />
+                <Label fx:id="incidentCountLabel" text="Incidents: 0" />
+                <Label fx:id="triangleCountLabel" text="Triangles: 0" />
 
-                        <Button text="Add Random Hospitals"
-                                maxWidth="Infinity"
-                                onAction="#handleGenerateRandomHospitals" />
+                <Separator />
 
-                        <Button fx:id="importMapButton"
-                                text="Import Map (OSM / Binary)"
-                                maxWidth="Infinity"
-                                onAction="#handleImportMap" />
+                <Label text="Selected element" styleClass="sidebar-subtitle" />
+                <Label fx:id="selectedTypeLabel" text="Type: none" />
+                <Label fx:id="selectedIdLabel" text="Id: none" />
+                <TextArea fx:id="selectedDetailsArea" editable="false" wrapText="true" focusTraversable="false" prefRowCount="5" prefWidth="220.0" />
 
-                        <Button fx:id="saveBinaryButton"
-                                text="Export map context (.pglm)"
-                                onAction="#handleSaveBinary"
-                                styleClass="sidebar-button" />
+                <Separator />
 
-                        <Separator />
+                <Label fx:id="infoLabel" text="No action yet." wrapText="true" maxWidth="Infinity" prefWidth="220.0" styleClass="info-label" />
 
-                        <Label text="User role"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
+                <Separator />
 
-                        <ComboBox fx:id="roleComboBox"
-                                  promptText="Select role"
-                                  maxWidth="Infinity" />
+                <Label text="Last assignment" styleClass="sidebar-subtitle" />
+                <Label fx:id="lastIncidentLabel" text="Last incident: none" wrapText="true" prefWidth="220.0" maxWidth="Infinity" />
+                <Label fx:id="assignedHospitalLabel" text="Assigned hospital: none" wrapText="true" prefWidth="220.0" maxWidth="Infinity" />
 
-                        <Button fx:id="addUserPointButton"
-                                text="Add User Point"
-                                maxWidth="Infinity"
-                                onAction="#handleAddUserPoint" />
-
-                        <Label text="Bulk user generation"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
-
-                        <TextField fx:id="randomUserCountField"
-                                   promptText="Number of random users" />
-
-                        <Button fx:id="addRandomUsersButton"
-                                text="Add Random Users"
-                                maxWidth="Infinity"
-                                onAction="#handleGenerateRandomIncidents" />
-
-                        <Button fx:id="importIncidentsCsvButton"
-                                text="Import Incidents CSV"
-                                maxWidth="Infinity"
-                                onAction="#handleImportIncidentsCsv" />
-
-                        <Button fx:id="handleGenerateRandomRoadsButton"
-                                text="Add Random Roads"
-                                maxWidth="Infinity"
-                                onAction="#handleGenerateRandomRoads" />
-
-                        <Button fx:id="recomputeButton"
-                                text="Recompute Delaunay"
-                                maxWidth="Infinity"
-                                onAction="#handleRecompute" />
-
-                        <Button fx:id="clearButton"
-                                text="Clear"
-                                maxWidth="Infinity"
-                                onAction="#handleClear" />
-
-                        <Button fx:id="deleteSelectedButton"
-                                text="Delete Selected"
-                                maxWidth="Infinity"
-                                onAction="#handleDeleteSelected" />
-
-                        <Separator />
-
-                        <Label text="Map statistics"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
-
-                        <Label fx:id="hospitalCountLabel"
-                               text="Hospitals: 0" />
-
-                        <Label fx:id="incidentCountLabel"
-                               text="Incidents: 0" />
-
-                        <Label fx:id="triangleCountLabel"
-                               text="Triangles: 0" />
-
-                        <Separator />
-
-                        <Label text="Selected element"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
-
-                        <Label fx:id="selectedTypeLabel"
-                               text="Type: none" />
-
-                        <Label fx:id="selectedIdLabel"
-                               text="Id: none" />
-
-                        <TextArea fx:id="selectedDetailsArea"
-                                  editable="false"
-                                  wrapText="true"
-                                  focusTraversable="false"
-                                  prefRowCount="5"
-                                  prefWidth="220.0" />
-
-                        <Separator />
-
-                        <Label fx:id="infoLabel"
-                               text="No action yet."
-                               wrapText="true"
-                               maxWidth="Infinity"
-                               prefWidth="220.0"
-                               style="-fx-font-size: 13px;
-                                      -fx-text-fill: white;" />
-
-                        <Separator />
-
-                        <Label text="Last assignment"
-                               style="-fx-font-size: 16px;
-                                      -fx-font-weight: bold;
-                                      -fx-text-fill: white;" />
-
-                        <Label fx:id="lastIncidentLabel"
-                               text="Last incident: none"
-                               wrapText="true"
-                               prefWidth="220.0"
-                               maxWidth="Infinity" />
-
-                        <Label fx:id="assignedHospitalLabel"
-                               text="Assigned hospital: none"
-                               wrapText="true"
-                               prefWidth="220.0"
-                               maxWidth="Infinity" />
-
-                    </children>
-
-                </VBox>
-
-            </content>
-
-        </ScrollPane>
-
-    </children>
-
+            </VBox>
+        </content>
+    </ScrollPane>
 </AnchorPane>
