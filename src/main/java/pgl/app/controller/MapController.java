@@ -243,8 +243,6 @@ public class MapController {
             drawAssignments();
         }
 
-
-        drawAssignments();
         drawHospitals();
         drawIncidents();
         drawLegend();

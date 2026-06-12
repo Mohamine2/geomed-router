@@ -9,7 +9,6 @@ import javafx.scene.control.Label;
 import pgl.app.algo.exception.HospitalCollisionException;
 import pgl.app.model.*;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import java.io.File;
 import java.nio.file.Path;
 import javafx.stage.FileChooser;
@@ -35,7 +34,6 @@ import java.io.IOException;
 
 public class SidebarController {
 
-    public Button handleGenerateRandomRoadsButton;
     @FXML
     private Label infoLabel;
     
@@ -62,9 +60,6 @@ public class SidebarController {
 
     @FXML
     private TextArea selectedDetailsArea;
-    
-    @FXML
-    private TextField randomUserCountField;
     
     @FXML
     private ComboBox<UserRole> roleComboBox;
@@ -96,27 +91,11 @@ public class SidebarController {
     @FXML
     private Button deleteSelectedButton;
 
-    @FXML
-    private TextField randomHospitalCountField;
-
-    @FXML
-    private Button saveBinaryButton;
-
-
     private final Random random = new Random();
 
     private MapManager mapManager;
     
     private MapController mapController;
-    
-    private int parsePositiveInteger(String text, int defaultValue) {
-        try {
-            int value = Integer.parseInt(text.trim());
-            return value > 0 ? value : defaultValue;
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
     
     private void updateStats() {
         if (mapManager == null) {

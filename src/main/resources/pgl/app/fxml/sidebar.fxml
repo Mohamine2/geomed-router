@@ -53,13 +53,17 @@
 
                         <Separator />
 
-                        <Button text="Hide Triangles"
+                        <Button text="Show/Hide Triangles"
                                 maxWidth="Infinity"
                                 onAction="#handleToggleTriangles" />
 
-                        <Button text="Hide Diagram"
+                        <Button text="Show/Hide Diagram"
                                 maxWidth="Infinity"
                                 onAction="#handleToggleVoronoi" />
+
+                        <Button text="Show/Hide Assignments"
+                                maxWidth="Infinity"
+                                onAction="#handleToggleAssignments"/>
 
                         <Button fx:id="addSiteButton"
                                 text="Add Site"
