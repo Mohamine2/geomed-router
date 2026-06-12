@@ -271,6 +271,7 @@ public class SidebarController {
         if (SecurityContext.hasAccess(UserRole.DOCTOR)) {
             if (incident.hasMedicalHistory()) {
                 details.append("Patient history: known at hospital H").append(incident.getPreferredHospitalId()).append("\n");
+                details.append(incident.getMedicalNotes());
             } else {
                 details.append("Patient history: none\n");
             }
