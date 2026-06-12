@@ -177,9 +177,9 @@ public class MapController {
                         // Sécurité (fallback) si aucune route n'est trouvée
                         drawStraightAssignmentLine(incident, true);
                     }
-                } else {
-                    // Pour les autres incidents non sélectionnés
-                    drawStraightAssignmentLine(incident, false);
+                }
+                if (showAssignments) {
+                    drawStraightAssignmentLine(incident, isSelected);
                 }
             }
         }
@@ -239,10 +239,8 @@ public class MapController {
             drawVoronoiVertices();
         }
 
-        if (showAssignments) {
-            drawAssignments();
-        }
 
+        drawAssignments();
         drawHospitals();
         drawIncidents();
         drawLegend();
