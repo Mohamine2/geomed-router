@@ -83,6 +83,15 @@ public class SidebarController {
     private Button importIncidentsCsvButton;
 
     @FXML
+    private Button addRandomHospitalsButton;
+
+    @FXML
+    private Button addRandomRoadsButton;
+
+    @FXML
+    private Button saveBinaryButton;
+
+    @FXML
     private Button recomputeButton;
 
     @FXML
@@ -148,9 +157,15 @@ public class SidebarController {
 
         importIncidentsCsvButton.setDisable(!doctorOrAdmin);
         recomputeButton.setDisable(!doctorOrAdmin);
-        addRandomUsersButton.setDisable(!doctorOrAdmin);
+        addRandomUsersButton.setDisable(!admin);
 
-        addUserPointButton.setDisable(!paramedicOrAbove);
+        addRandomHospitalsButton.setDisable(!admin);
+        addRandomRoadsButton.setDisable(!admin);
+
+        importIncidentsCsvButton.setDisable(!admin);
+        saveBinaryButton.setDisable(!admin);
+
+        addUserPointButton.setDisable(!admin);
 
         infoLabel.setText("Current role: " + SecurityContext.getCurrentRole());
     }
