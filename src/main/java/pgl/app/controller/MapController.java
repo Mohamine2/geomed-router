@@ -36,14 +36,12 @@ public class MapController {
 
     private final Set<Integer> highlightedHospitalIds = new HashSet<>();
 
-    private final Set<String> highlightedIncidentIds = new HashSet<>();
-
     private Hospital selectedHospital;
-
-    private Triangle selectedTriangle;
 
     private boolean showTriangles = true;
     private boolean showVoronoi = true;
+
+    private boolean showAssignments = true;
 
     @FXML
     private Pane mapPane;
@@ -63,6 +61,11 @@ public class MapController {
         setupZoom();
         setupPan();
 
+    }
+
+    public void toggleAssignmentsVisibility() {
+        showAssignments = !showAssignments;
+        refreshMap();
     }
 
     private void setupZoom() {
@@ -114,16 +117,6 @@ public class MapController {
         });
     }
 
-    public void selectTriangle(Triangle triangle) {
-        selectedTriangle = triangle;
-        selectedHospital = null;
-        selectedIncident = null;
-        selectedAssignedHospitalId = null;
-        highlightedHospitalIds.clear();
-        highlightedIncidentIds.clear();
-        refreshMap();
-    }
-
     private void selectIncident(VictimIncident incident) {
         if (selectedIncident != null
                 && selectedIncident.getIncidentId().equals(incident.getIncidentId())) {
@@ -141,7 +134,6 @@ public class MapController {
 
         selectedIncident = incident;
         selectedHospital = null;
-        selectedTriangle = null;
         highlightedHospitalIds.clear();
         selectedAssignedHospitalId = null;
 
@@ -244,7 +236,13 @@ public class MapController {
 
         if (showVoronoi) {
             drawVoronoiCells();
+            drawVoronoiVertices();
         }
+
+        if (showAssignments) {
+            drawAssignments();
+        }
+
 
         drawAssignments();
         drawHospitals();
@@ -318,9 +316,7 @@ public class MapController {
 
             selectedHospital = hospital;
             selectedIncident = null;
-            selectedTriangle = null;
             selectedAssignedHospitalId = null;
-            highlightedIncidentIds.clear();
             highlightedHospitalIds.clear();
 
             event.consume();
@@ -590,6 +586,22 @@ public class MapController {
             clippedCell.setStrokeWidth(1.5);
             clippedCell.setOpacity(0.8);
 
+            // --- AJOUT : Interaction au clic sur la cellule ---
+            Hospital associatedHospital = cell.getHospital(); // Adaptez en cell.getSite() selon votre modèle
+            clippedCell.setOnMouseClicked(event -> {
+                if (sidebarController != null && associatedHospital != null) {
+                    sidebarController.showHospitalDetails(associatedHospital);
+
+                    // Mettre à jour la sélection visuelle globale
+                    selectedHospital = associatedHospital;
+                    selectedIncident = null;
+                    selectedAssignedHospitalId = null;
+                    highlightedHospitalIds.clear();
+                    refreshMap();
+                }
+                event.consume();
+            });
+
             mapPane.getChildren().add(clippedCell);
         }
     }
@@ -601,9 +613,6 @@ public class MapController {
         for (VoronoiCell cell : cells) {
             for (Point vertex : cell.getVertices()) {
 
-
-
-
                 if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue ;
                 if (!drawnVertices.add(vertex)) {
                     continue;
@@ -614,6 +623,25 @@ public class MapController {
                 vertexCircle.setStroke(Color.INDIGO);
                 vertexCircle.setStrokeWidth(0.8);
                 vertexCircle.setOpacity(0.85);
+
+                // --- AJOUT : Sélection du centre de cercle circonscrit (Triangle Delaunay) ---
+                vertexCircle.setOnMouseClicked(event -> {
+                    if (sidebarController != null && mapManager.getTriangles() != null) {
+                        for (Triangle triangle : mapManager.getTriangles()) {
+                            // Recherche du triangle associé au centre circonscrit actuel
+                            if (triangle.getCircumcenter() != null &&
+                                    Math.abs(triangle.getCircumcenter().getX() - vertex.getX()) < 0.5 &&
+                                    Math.abs(triangle.getCircumcenter().getY() - vertex.getY()) < 0.5) {
+
+                                sidebarController.showTriangleDetails(triangle);
+                                clearSelection();
+                                refreshMap();
+                                break;
+                            }
+                        }
+                    }
+                    event.consume();
+                });
 
                 mapPane.getChildren().add(vertexCircle);
             }
@@ -636,15 +664,17 @@ public class MapController {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
-                selectTriangle(triangle);
+                clearSelection();
+                refreshMap();
                 event.consume();
             });
 
             bc.setOnMouseClicked(event -> {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
+                    clearSelection();
+                    refreshMap();
                 }
-                selectTriangle(triangle);
                 event.consume();
             });
 
@@ -652,7 +682,8 @@ public class MapController {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
-                selectTriangle(triangle);
+                clearSelection();
+                refreshMap();
                 event.consume();
             });
 
@@ -695,7 +726,7 @@ public class MapController {
 
             // On ajoute un événement au clic (optionnel) pour voir les détails de la route dans le futur
             roadLine.setOnMouseClicked(event -> {
-                System.out.println("Route sélectionnée : " + edge.toString());
+                System.out.println("Route sélectionnée : " + edge);
                 event.consume();
             });
 
@@ -728,10 +759,8 @@ public class MapController {
     public void clearSelection() {
         selectedIncident = null;
         selectedHospital = null;
-        selectedTriangle = null;
         selectedAssignedHospitalId = null;
         highlightedHospitalIds.clear();
-        highlightedIncidentIds.clear();
     }
 
     /**

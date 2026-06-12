@@ -88,7 +88,8 @@
                                 maxWidth="Infinity"
                                 onAction="#handleImportMap" />
 
-                        <Button text="Export map context (.pglm)"
+                        <Button fx:id="saveBinaryButton"
+                                text="Export map context (.pglm)"
                                 onAction="#handleSaveBinary"
                                 styleClass="sidebar-button" />
 

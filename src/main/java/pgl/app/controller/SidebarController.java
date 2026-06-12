@@ -7,11 +7,7 @@ import java.util.Random;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.algo.exception.HospitalCollisionException;
-import pgl.app.model.Hospital;
-import pgl.app.model.MapManager;
-import pgl.app.model.VictimIncident;
-import pgl.app.model.MedicalSpecialty;
-import pgl.app.model.Triangle;
+import pgl.app.model.*;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import java.io.File;
@@ -103,6 +99,9 @@ public class SidebarController {
     @FXML
     private TextField randomHospitalCountField;
 
+    @FXML
+    private Button saveBinaryButton;
+
 
     private final Random random = new Random();
 
@@ -186,7 +185,7 @@ public class SidebarController {
     public void setMapController(MapController mapController) {
         this.mapController = mapController;
     }
-    
+
     public void showHospitalDetails(Hospital hospital) {
         if (hospital == null) {
             selectedTypeLabel.setText("Type: none");
@@ -226,22 +225,50 @@ public class SidebarController {
             minDistance = 0.0;
         }
 
-        double averageDistance =
-                assignedIncidents > 0
-                        ? totalDistance / assignedIncidents
-                        : 0.0;
+        double averageDistance = assignedIncidents > 0 ? totalDistance / assignedIncidents : 0.0;
+
+        // --- AJOUT : Calcul géométrique de la surface et de la densité ---
+        double cellArea = 0.0;
+        double density = 0.0;
+        VoronoiCell targetCell = null;
+
+        if (mapManager.getVoronoiCells() != null) {
+            for (VoronoiCell cell : mapManager.getVoronoiCells()) {
+                if (cell.getHospital() != null && cell.getHospital().getId() == hospital.getId()) {
+                    targetCell = cell;
+                    break;
+                }
+            }
+        }
+
+        if (targetCell != null && targetCell.getVertices() != null) {
+            List<Point> vertices = targetCell.getVertices();
+            int n = vertices.size();
+            if (n >= 3) {
+                double areaSum = 0.0;
+                for (int i = 0; i < n; i++) {
+                    Point current = vertices.get(i);
+                    Point next = vertices.get((i + 1) % n);
+                    areaSum += current.getX() * next.getY() - next.getX() * current.getY();
+                }
+                cellArea = Math.abs(areaSum) / 2.0;
+                // On multiplie par 10 000 pour avoir une métrique humainement lisible
+                density = cellArea > 0 ? ((double) assignedIncidents / cellArea) * 10000 : 0.0;
+            }
+        }
 
         selectedTypeLabel.setText("Type: Hospital");
         selectedIdLabel.setText("Id: H" + hospital.getId());
 
         selectedDetailsArea.setText(
-                "Position: (" + (int) hospital.getX()
-                        + ", " + (int) hospital.getY() + ")\n"
+                "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n"
                         + "Capacity: " + hospital.getCapacityMax() + "\n"
                         + "Assigned incidents: " + assignedIncidents + "\n"
                         + "Min distance: " + String.format("%.2f", minDistance) + "\n"
                         + "Max distance: " + String.format("%.2f", maxDistance) + "\n"
-                        + "Avg distance: " + String.format("%.2f", averageDistance)
+                        + "Avg distance: " + String.format("%.2f", averageDistance) + "\n"
+                        + "Cell Area: " + (cellArea > 0 ? String.format("%.2f px²", cellArea) : "Infinite/Unbounded") + "\n"
+                        + "Incident Density: " + (cellArea > 0 ? String.format("%.2f inc / 10k px²", density) : "N/A")
         );
     }
 
@@ -737,6 +764,14 @@ public class SidebarController {
         // 2. Rafraîchissement de la vue JavaFX (pour tracer les lignes de trafic gris/orange/rouge)
         if (mapController != null) {
             mapController.refreshMap();
+        }
+    }
+
+    @FXML
+    private void handleToggleAssignments() {
+        if (mapController != null) {
+            mapController.toggleAssignmentsVisibility();
+            infoLabel.setText("Affichage des liaisons d'incident modifié.");
         }
     }
 }
