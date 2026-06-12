@@ -122,6 +122,11 @@
                                 maxWidth="Infinity"
                                 onAction="#handleImportIncidentsCsv" />
 
+                        <Button fx:id="handleGenerateRandomRoadsButton"
+                                text="Add Random Roads"
+                                maxWidth="Infinity"
+                                onAction="#handleGenerateRandomRoads" />
+
                         <Button fx:id="recomputeButton"
                                 text="Recompute Delaunay"
                                 maxWidth="Infinity"

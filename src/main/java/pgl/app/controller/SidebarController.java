@@ -35,6 +35,7 @@ import pgl.app.test.SimulationDataGenerator;
 
 public class SidebarController {
 
+    public Button handleGenerateRandomRoadsButton;
     @FXML
     private Label infoLabel;
     
