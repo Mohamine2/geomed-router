@@ -26,7 +26,7 @@ public class ConsoleRunner {
     private static final MapManager mapManager = new MapManager();
 
     /** Default binary map file path used for serialization */
-    private static String currentMapFile = "map.pglm";
+    private static String currentMapFile = "data/map.pglm";
 
     /**
      * Main entry point for the console application. Handles the main menu loop.

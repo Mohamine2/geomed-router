@@ -102,9 +102,6 @@ public class SidebarController {
     private Button importMapButton;
 
     @FXML
-    private Button addUserPointButton;
-
-    @FXML
     private Button addRandomUsersButton;
 
     @FXML
@@ -220,7 +217,6 @@ public class SidebarController {
 
         saveBinaryButton.setDisable(!admin);
 
-        addUserPointButton.setDisable(!doctorOrAdmin);
         addManualIncidentButton.setDisable(!doctorOrAdmin);
 
         infoLabel.setText("Current role: " + SecurityContext.getCurrentRole());
@@ -602,43 +598,6 @@ public class SidebarController {
                 System.err.println("Erreur lors de l'export binaire : " + e.getMessage());
             }
         }
-    }
-
-    /**
-     * Injects an incident event into a randomized location on the canvas.
-     * Applies a 20% probability that the generated incident defaults to a preferred hospital setting.
-     */
-    @FXML
-    private void handleAddUserPoint() {
-        if (mapManager == null) {
-            return;
-        }
-
-        int count = mapManager.getIncidents().size() + 1;
-
-        double x = 80 + random.nextDouble() * 500;
-        double y = 80 + random.nextDouble() * 400;
-
-        String incidentId = "INC-" + count;
-
-        Integer prefId = null;
-        List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
-        if (!currentHospitals.isEmpty() && random.nextDouble() < 0.20) {
-            Hospital randomHosp = currentHospitals.get(random.nextInt(currentHospitals.size()));
-            prefId = randomHosp.getId();
-        }
-
-        mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL, prefId));
-        mapController.refreshMap();
-
-        if (prefId != null) {
-            infoLabel.setText("Incident added (Prefers H" + prefId + ").");
-        } else {
-            infoLabel.setText("Incident added.");
-        }
-
-        updateStats();
-        updateLastAssignment();
     }
     
     @FXML

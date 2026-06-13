@@ -80,9 +80,6 @@
 
             <Label text="Random incident creation" styleClass="sidebar-subtitle" />
 
-            <Button fx:id="addUserPointButton" text="Add Random Incident"
-                    maxWidth="Infinity" onAction="#handleAddUserPoint" />
-
             <Label text="Bulk incident generation" styleClass="sidebar-subtitle" />
             <TextField fx:id="randomIncidentCountField" promptText="Number of random incidents" />
 

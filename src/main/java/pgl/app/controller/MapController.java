@@ -674,19 +674,7 @@ public class MapController {
             clippedCell.setStrokeWidth(1.5);
             clippedCell.setOpacity(0.8);
 
-            Hospital associatedHospital = cell.getHospital();
-            clippedCell.setOnMouseClicked(event -> {
-                if (sidebarController != null && associatedHospital != null) {
-                    sidebarController.showHospitalDetails(associatedHospital);
-
-                    selectedHospital = associatedHospital;
-                    selectedIncident = null;
-                    selectedAssignedHospitalId = null;
-                    highlightedHospitalIds.clear();
-                    refreshMap();
-                }
-                event.consume();
-            });
+            clippedCell.setMouseTransparent(true);
 
             mapPane.getChildren().add(clippedCell);
         }
@@ -739,6 +727,11 @@ public class MapController {
 
     /**
      * Renders the triangulation meshes linking hospital nodes into adjacent planar Delaunay triangles.
+     * <p>
+     * This method constructs an interactive JavaFX {@link Polygon} for each geometric triangle mesh element.
+     * By applying a near-transparent background fill, it ensures that the entire interior surface area
+     * of the triangle intercepts mouse click sequences, providing a smooth user selection experience.
+     * </p>
      */
     private void drawTriangles() {
         for (Triangle triangle : mapManager.getTriangles()) {
@@ -746,42 +739,37 @@ public class MapController {
             Point b = triangle.getB();
             Point c = triangle.getC();
 
-            Line ab = new Line(a.getX(), a.getY(), b.getX(), b.getY());
-            Line bc = new Line(b.getX(), b.getY(), c.getX(), c.getY());
-            Line ca = new Line(c.getX(), c.getY(), a.getX(), a.getY());
+            // 1. Create a JavaFX Polygon representing the geometric triangle
+            Polygon fxTriangle = new Polygon();
+            fxTriangle.getPoints().addAll(
+                    a.getX(), a.getY(),
+                    b.getX(), b.getY(),
+                    c.getX(), c.getY()
+            );
 
-            ab.setOnMouseClicked(event -> {
+            // 2. Configure visual styling with a standard border stroke
+            fxTriangle.setStroke(Color.GRAY);
+            fxTriangle.setStrokeWidth(1.0);
+
+            // 3. Apply a near-transparent background fill (2% opacity)
+            // This remains invisible to the eye but enables the cursor to capture clicks anywhere inside
+            fxTriangle.setFill(Color.rgb(0, 150, 255, 0.02));
+
+            // 4. Attach mouse click event handlers to trigger sidebar updates
+            fxTriangle.setOnMouseClicked(event -> {
                 if (sidebarController != null) {
                     sidebarController.showTriangleDetails(triangle);
                 }
                 clearSelection();
-                refreshMap();
-                event.consume();
+
+                // Optional: Provide a slight visual highlight upon selection
+                fxTriangle.setFill(Color.rgb(0, 150, 255, 0.2));
+
+                event.consume(); // Prevent the click event from bubbling up to the map background
             });
 
-            bc.setOnMouseClicked(event -> {
-                if (sidebarController != null) {
-                    sidebarController.showTriangleDetails(triangle);
-                    clearSelection();
-                    refreshMap();
-                }
-                event.consume();
-            });
-
-            ca.setOnMouseClicked(event -> {
-                if (sidebarController != null) {
-                    sidebarController.showTriangleDetails(triangle);
-                }
-                clearSelection();
-                refreshMap();
-                event.consume();
-            });
-
-            ab.setStroke(Color.GRAY);
-            bc.setStroke(Color.GRAY);
-            ca.setStroke(Color.GRAY);
-
-            mapPane.getChildren().addAll(ab, bc, ca);
+            // 5. Inject the rendered shape vector into the main canvas layout layer
+            mapPane.getChildren().add(fxTriangle);
         }
     }
 
