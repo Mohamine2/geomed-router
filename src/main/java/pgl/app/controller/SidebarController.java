@@ -546,11 +546,12 @@ public class SidebarController {
         }
 
         try {
-            mapManager.clear();
             mapController.clearSelection();
 
-            String fileName = selectedFile.getName();
+            String fileName = selectedFile.getName().toLowerCase();
             Path filePath = Path.of(selectedFile.getAbsolutePath());
+
+            boolean importUnderstood = true;
 
             if (fileName.endsWith(".json")) {
                 MapImporterOSM.importFromOSM(mapManager, filePath);
@@ -559,11 +560,17 @@ public class SidebarController {
                 MapBinarySerializer.importFromFile(mapManager, filePath);
                 infoLabel.setText("Binary Map successfully imported.");
             }
+            else {
+                infoLabel.setText("Unsupported file format.");
+                importUnderstood = false;
+            }
 
-            mapController.refreshMap();
-            updateStats();
-            updateLastAssignment();
-            clearSelectionDetails();
+            if (importUnderstood) {
+                mapController.refreshMap();
+                updateStats();
+                updateLastAssignment();
+                clearSelectionDetails();
+            }
 
         } catch (Exception e) {
             infoLabel.setText("Critical error during map import.");
@@ -751,24 +758,6 @@ public class SidebarController {
             infoLabel.setText("Incident import failed.");
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Forces the data model system layers to re-evaluate Delaunay configurations,
-     * proximity lookups, and shortest paths.
-     */
-    @FXML
-    private void handleRecompute() {
-        if (mapManager == null) {
-            return;
-        }
-
-        mapManager.updateAll();
-        mapController.refreshMap();
-        infoLabel.setText("Triangulation recomputed.");
-
-        updateStats();
-        updateLastAssignment();
     }
 
     /**

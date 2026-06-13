@@ -338,6 +338,8 @@ public class MapController {
         background.setArcHeight(10);
         background.setOpacity(0.9);
 
+        background.setMouseTransparent(true);
+
         Text title = new Text(boxX + 10, boxY + 20, "Legend");
         title.setFill(Color.BLACK);
 

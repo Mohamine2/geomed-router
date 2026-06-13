@@ -199,7 +199,7 @@ public final class MapBinarySerializer {
 
             int rawPrefId = data.readInt();
 
-            // On traduit directement le -1 du fichier binaire en 'null' Java
+            // We directly translate the -1 from the binary file to 'null' Java
             Integer preferredId = (rawPrefId < 0) ? null : rawPrefId;
 
             VictimIncident incident = new VictimIncident(x, y, incidentId, type, preferredId);
