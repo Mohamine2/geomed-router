@@ -91,4 +91,15 @@ public class AnalyticsEngine {
         int min = Math.min(countA, Math.min(countB, countC));
         return max - min;
     }
+
+    /**
+     * Calculates the incident density for a given area (scaled to a readable 10k px² format).
+     *
+     * @param area The area of the zone (e.g., Voronoi cell)
+     * @param incidentCount The number of assigned incidents
+     * @return The density, or 0.0 if the area is zero or infinite.
+     */
+    public static double computeIncidentDensity(double area, int incidentCount) {
+        return area > 0 ? ((double) incidentCount / area) * 10000 : 0.0;
+    }
 }

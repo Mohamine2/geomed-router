@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import pgl.app.algo.AnalyticsEngine;
 import pgl.app.algo.exception.HospitalCollisionException;
 import pgl.app.model.*;
 import javafx.scene.control.TextArea;
@@ -242,74 +243,24 @@ public class SidebarController {
      */
     public void showHospitalDetails(Hospital hospital) {
         if (hospital == null) {
-            selectedTypeLabel.setText("Type: none");
-            selectedIdLabel.setText("Id: none");
-            selectedDetailsArea.setText("Details: none");
+            clearSelectionDetails();
             return;
         }
 
-        int assignedIncidents = 0;
-        double minDistance = Double.MAX_VALUE;
-        double maxDistance = 0.0;
-        double totalDistance = 0.0;
+        HospitalStats stats = AnalyticsEngine.computeHospitalStats(hospital, mapManager.getIncidents());
 
-        for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestHospital() != null
-                    && incident.getClosestHospital().getId() == hospital.getId()) {
-
-                assignedIncidents++;
-
-                double dx = incident.getX() - hospital.getX();
-                double dy = incident.getY() - hospital.getY();
-                double distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                }
-
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                }
-
-                totalDistance += distance;
-            }
-        }
-
-        if (assignedIncidents == 0) {
-            minDistance = 0.0;
-        }
-
-        double averageDistance = assignedIncidents > 0 ? totalDistance / assignedIncidents : 0.0;
-
-        // --- Geometric Calculation of Area and Density ---
+        // 2. Récupération de la cellule et de son aire (Orientation Objet)
         double cellArea = 0.0;
-        double density = 0.0;
-        VoronoiCell targetCell = null;
-
         if (mapManager.getVoronoiCells() != null) {
             for (VoronoiCell cell : mapManager.getVoronoiCells()) {
                 if (cell.getHospital() != null && cell.getHospital().getId() == hospital.getId()) {
-                    targetCell = cell;
+                    cellArea = cell.getArea(); // Appel de la nouvelle méthode !
                     break;
                 }
             }
         }
 
-        if (targetCell != null && targetCell.getVertices() != null) {
-            List<Point> vertices = targetCell.getVertices();
-            int n = vertices.size();
-            if (n >= 3) {
-                double areaSum = 0.0;
-                for (int i = 0; i < n; i++) {
-                    Point current = vertices.get(i);
-                    Point next = vertices.get((i + 1) % n);
-                    areaSum += current.getX() * next.getY() - next.getX() * current.getY();
-                }
-                cellArea = Math.abs(areaSum) / 2.0;
-                // Multiply by 10,000 for human-readable scales
-                density = cellArea > 0 ? ((double) assignedIncidents / cellArea) * 10000 : 0.0;
-            }
-        }
+        double density = AnalyticsEngine.computeIncidentDensity(cellArea, stats.getAssignedIncidentsCount());
 
         selectedTypeLabel.setText("Type: Hospital");
         selectedIdLabel.setText("Id: H" + hospital.getId());
@@ -317,11 +268,11 @@ public class SidebarController {
         selectedDetailsArea.setText(
                 "Position: (" + (int) hospital.getX() + ", " + (int) hospital.getY() + ")\n"
                         + "Capacity: " + hospital.getCapacityMax() + "\n"
-                        + "Assigned incidents: " + assignedIncidents + "\n"
+                        + "Assigned incidents: " + stats.getAssignedIncidentsCount() + "\n"
                         + "Specialities: " + hospital.getSpecialties() + "\n"
-                        + "Min distance: " + String.format("%.2f", minDistance) + "\n"
-                        + "Max distance: " + String.format("%.2f", maxDistance) + "\n"
-                        + "Avg distance: " + String.format("%.2f", averageDistance) + "\n"
+                        + "Min distance: " + String.format("%.2f", stats.getMinDistance()) + "\n"
+                        + "Max distance: " + String.format("%.2f", stats.getMaxDistance()) + "\n"
+                        + "Avg distance: " + String.format("%.2f", stats.getAverageDistance()) + "\n"
                         + "Cell Area: " + (cellArea > 0 ? String.format("%.2f px²", cellArea) : "Infinite/Unbounded") + "\n"
                         + "Incident Density: " + (cellArea > 0 ? String.format("%.2f inc / 10k px²", density) : "N/A")
         );
@@ -409,13 +360,11 @@ public class SidebarController {
      * Extracts and displays information about a clicked Delaunay Triangle.
      * Computes surface area, edge vector distances, and tracks traffic load disparities
      * across the structural network.
-     * * @param triangle the targeted mesh element layout node
+     * @param triangle the targeted mesh element layout node
      */
     public void showTriangleDetails(Triangle triangle) {
         if (triangle == null) {
-            selectedTypeLabel.setText("Type: none");
-            selectedIdLabel.setText("Id: none");
-            selectedDetailsArea.setText("Details: none");
+            clearSelectionDetails();
             return;
         }
 
@@ -423,42 +372,20 @@ public class SidebarController {
         Hospital h2 = (Hospital) triangle.getB();
         Hospital h3 = (Hospital) triangle.getC();
 
-        int countH1 = 0;
-        int countH2 = 0;
-        int countH3 = 0;
-
-        for (VictimIncident incident : mapManager.getIncidents()) {
-            if (incident.getClosestHospital() != null) {
-                int siteId = incident.getClosestHospital().getId();
-
-                if (siteId == h1.getId()) countH1++;
-                if (siteId == h2.getId()) countH2++;
-                if (siteId == h3.getId()) countH3++;
-            }
-        }
-
-        double area = Math.abs(
-                h1.getX() * (h2.getY() - h3.getY()) +
-                        h2.getX() * (h3.getY() - h1.getY()) +
-                        h3.getX() * (h1.getY() - h2.getY())
-        ) / 2.0;
-
-        double edge12 = Math.sqrt(Math.pow(h1.getX() - h2.getX(), 2) + Math.pow(h1.getY() - h2.getY(), 2));
-        double edge23 = Math.sqrt(Math.pow(h2.getX() - h3.getX(), 2) + Math.pow(h2.getY() - h3.getY(), 2));
-        double edge31 = Math.sqrt(Math.pow(h3.getX() - h1.getX(), 2) + Math.pow(h3.getY() - h1.getY(), 2));
-
-        int maxLoad = Math.max(countH1, Math.max(countH2, countH3));
-        int minLoad = Math.min(countH1, Math.min(countH2, countH3));
-        int workloadImbalance = maxLoad - minLoad;
+        int countH1 = AnalyticsEngine.getIncidentCountForHospital(h1, mapManager.getIncidents());
+        int countH2 = AnalyticsEngine.getIncidentCountForHospital(h2, mapManager.getIncidents());
+        int countH3 = AnalyticsEngine.getIncidentCountForHospital(h3, mapManager.getIncidents());
+        int workloadImbalance = AnalyticsEngine.getTriangleLoadImbalance(triangle, mapManager.getIncidents());
 
         selectedTypeLabel.setText("Type: Triangle");
         selectedIdLabel.setText("Id: H" + h1.getId() + "-H" + h2.getId() + "-H" + h3.getId());
+
         selectedDetailsArea.setText(
                 "Vertices: H" + h1.getId() + ", H" + h2.getId() + ", H" + h3.getId() + "\n" +
-                        "Area: " + String.format("%.2f", area) + "\n" +
-                        "Edge H" + h1.getId() + "-H" + h2.getId() + ": " + String.format("%.2f", edge12) + "\n" +
-                        "Edge H" + h2.getId() + "-H" + h3.getId() + ": " + String.format("%.2f", edge23) + "\n" +
-                        "Edge H" + h3.getId() + "-H" + h1.getId() + ": " + String.format("%.2f", edge31) + "\n" +
+                        "Area: " + String.format("%.2f", triangle.getArea()) + "\n" +
+                        "Edge H" + h1.getId() + "-H" + h2.getId() + ": " + String.format("%.2f", triangle.getEdgeABLength()) + "\n" +
+                        "Edge H" + h2.getId() + "-H" + h3.getId() + ": " + String.format("%.2f", triangle.getEdgeBCLength()) + "\n" +
+                        "Edge H" + h3.getId() + "-H" + h1.getId() + ": " + String.format("%.2f", triangle.getEdgeCALength()) + "\n" +
                         "Assigned incidents:\n" +
                         "H" + h1.getId() + ": " + countH1 + "\n" +
                         "H" + h2.getId() + ": " + countH2 + "\n" +

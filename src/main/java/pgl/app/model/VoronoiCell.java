@@ -48,4 +48,24 @@ public class VoronoiCell {
     public List<Point> getVertices() {
         return vertices;
     }
+
+    /**
+     * Calculates the area of the Voronoi cell.
+     *
+     * @return The area of the cell, or 0.0 if the cell is not closed or defined.
+     */
+    public double getArea() {
+        if (vertices == null || vertices.size() < 3) {
+            return 0.0;
+        }
+
+        double areaSum = 0.0;
+        int n = vertices.size();
+        for (int i = 0; i < n; i++) {
+            Point current = vertices.get(i);
+            Point next = vertices.get((i + 1) % n);
+            areaSum += current.getX() * next.getY() - next.getX() * current.getY();
+        }
+        return Math.abs(areaSum) / 2.0;
+    }
 }
