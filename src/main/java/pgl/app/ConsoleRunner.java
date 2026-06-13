@@ -1,7 +1,7 @@
 package pgl.app;
 
 import pgl.app.algo.DispatchEngine;
-import pgl.app.algo.exception.HospitalCollisionException;
+import pgl.app.exception.HospitalCollisionException;
 import pgl.app.explainability.DispatchDecision;
 import pgl.app.explainability.GDPRReportingService;
 import pgl.app.io.MapBinarySerializer;
@@ -673,12 +673,12 @@ public class ConsoleRunner {
         }
 
         System.out.println("\n--- OSM Import (JSON) ---");
-        System.out.print("Entrez le chemin du fichier JSON OSM : ");
+        System.out.print("EEnter the path to the OSM JSON file: ");
         String path = sc.next();
         Path filePath = Path.of(path);
 
         if (!java.nio.file.Files.exists(filePath)) {
-            System.out.println("Erreur : Fichier introuvable.");
+            System.out.println("Error: File not found");
             return;
         }
 
@@ -687,11 +687,11 @@ public class ConsoleRunner {
 
             pgl.app.io.MapImporterOSM.importFromOSM(mapManager, filePath);
 
-            System.out.println("Import réussi ! La carte est maintenant en mémoire.");
-            System.out.println("N'oubliez pas de faire 'Save' (Option 5) pour la convertir en .pglm binaire.");
+            System.out.println("Import successful! The map is now in memory.");
+            System.out.println("Don't forget to click 'Save' (Option 5) to convert it to binary .pglm.");
 
         } catch (Exception e) {
-            System.err.println("Erreur critique lors de l'import : " + e.getMessage());
+            System.err.println("Critical import error : " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -3,7 +3,7 @@ package pgl.app.model;
 import java.util.*;
 
 import pgl.app.algo.*;
-import pgl.app.algo.exception.HospitalCollisionException;
+import pgl.app.exception.HospitalCollisionException;
 import pgl.app.explainability.DispatchDecision;
 
 /**
@@ -138,11 +138,6 @@ public class MapManager {
             }
         }
         return null;
-    }
-
-    public RoadEdge addRoad(Point start, Point end) {
-        this.cachedRoutingEngine = null;
-        return this.roadNetwork.addRoad(start, end);
     }
 
     public RoadEdge addRoad(Point start, Point end, double trafficFactor) {

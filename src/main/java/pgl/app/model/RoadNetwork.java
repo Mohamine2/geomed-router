@@ -44,25 +44,6 @@ public class RoadNetwork {
     }
 
     /**
-     * Creates a road between two intersections identified by their indices in the list.
-     *
-     * @param startIdx Index of the starting intersection.
-     * @param endIdx   Index of the ending intersection.
-     * @return The created {@link RoadEdge} object.
-     */
-    public RoadEdge addRoad(int startIdx, int endIdx) {
-        // On récupère les objets Point correspondant aux index
-        Point start = this.intersections.get(startIdx);
-        Point end = this.intersections.get(endIdx);
-
-        RoadEdge road = new RoadEdge(start, end);
-        this.roads.add(road);
-
-        // On retourne l'objet pour permettre la suite (ex: setTrafficFactor)
-        return road;
-    }
-
-    /**
      * Creates a road with a specific traffic factor between two intersections identified by their indices.
      *
      * @param startIdx      Index of the starting intersection.

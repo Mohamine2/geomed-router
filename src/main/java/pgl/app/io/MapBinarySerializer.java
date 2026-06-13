@@ -1,6 +1,6 @@
 package pgl.app.io;
 
-import pgl.app.algo.exception.HospitalCollisionException;
+import pgl.app.exception.HospitalCollisionException;
 import pgl.app.model.Hospital;
 import pgl.app.model.MapManager;
 import pgl.app.model.MedicalSpecialty;

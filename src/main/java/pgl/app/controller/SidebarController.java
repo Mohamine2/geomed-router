@@ -5,7 +5,7 @@ import java.util.Random;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.algo.AnalyticsEngine;
-import pgl.app.algo.exception.HospitalCollisionException;
+import pgl.app.exception.HospitalCollisionException;
 import pgl.app.model.*;
 import javafx.scene.control.TextArea;
 import java.io.File;
