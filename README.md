@@ -1,10 +1,10 @@
 # Projet Génie Logiciel (PGL) - Système de Répartition et de Routage Médical
 ## Projet de fin d'année - Ing1 Cy Tech
 
-## 📝 Description
+## Description
 Ce projet est une application Java d'aide à la décision avec interface graphique JavaFX. Elle permet de coupler la triangulation de Delaunay et les diagrammes de Voronoï avec une implémentation Dijkstra pour optimiser la répartition et le routage de victimes d'incidents vers des structures hospitalières adaptées.
 
-## ✨ Fonctionnalités Principales
+## Fonctionnalités Principales
 * **Cartographie et Réseaux Routiers** : Chargement de cartes depuis OpenStreetMap (OSM) ou via des fichiers binaires optimisés (`RoadNetwork`, `Edge`).
 * **Moteurs Algorithmiques Avancés** : 
   * Calcul de trajets optimisés via l'algorithme de Dijkstra (`RoutingEngine`).
@@ -15,7 +15,7 @@ Ce projet est une application Java d'aide à la décision avec interface graphiq
 * **Explicabilité et Conformité RGPD** : Traçabilité des décisions de répartition (`DispatchDecision`) et génération de rapports conformes au RGPD (`GDPRReportingService`).
 * **Sécurité** : Contrôle des accès selon les rôles des utilisateurs (`UserRole`, `SecurityContext`).
 
-## 🏗️ Architecture du Projet
+## Architecture du Projet
 
 Le code source est organisé selon les packages suivants :
 * `pgl.app.model` : Entités du domaine (ex: `Hospital`, `VictimIncident`, `VoronoiCell`, `MedicalSpecialty`).
