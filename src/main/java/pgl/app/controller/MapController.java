@@ -24,92 +24,76 @@ import javafx.scene.shape.Rectangle;
 import pgl.app.model.RoadEdge;
 
 /**
- * Contrôleur responsable de l'affichage et des interactions de la carte (Map).
- * Il gère le rendu visuel (hôpitaux, incidents, réseau routier, Voronoï, Delaunay)
- * ainsi que les événements utilisateur (zoom, déplacement, glisser-déposer, clics).
+ * Controller class responsible for rendering the map visualization layer and managing its UI interactions.
+ * <p>
+ * This class handles the graphical canvas layers—rendering hospital nodes, victims' emergency incidents,
+ * underlying road infrastructure (color-coded by active traffic load coefficients), Delaunay triangulation
+ * meshes, and localized Voronoi cell territories.
+ * </p>
+ * <p>
+ * It intercepts user interactions such as multi-tiered mouse wheel zooming, continuous click-and-drag panning,
+ * interactive node selection with localized graph neighbor highlights, and a drag-and-drop mechanism
+ * for nodes that automatically snaps to the nearest road network intersections upon release.
+ * </p>
+ *
+ * @version 1.0
  */
 public class MapController {
 
-    /**
-     * Facteur de zoom actuel appliqué à la carte.
-     */
+    /** The current scale metric zoom multiplier applied to the map panel content workspace. */
     private double zoomFactor = 1.0;
 
-    /**
-     * Coordonnée X de la souris lors du dernier événement de déplacement (pan).
-     */
+    /** Absolute structural X-coordinate of the cursor layout recorded during the initial pan click interaction sequence. */
     private double lastMouseX;
 
-    /**
-     * Coordonnée Y de la souris lors du dernier événement de déplacement (pan).
-     */
+    /** Absolute structural Y-coordinate of the cursor layout recorded during the initial pan click interaction sequence. */
     private double lastMouseY;
 
-    /**
-     * L'incident actuellement sélectionné sur la carte par l'utilisateur.
-     */
+    /** The incident instance selected on the map display pane layout by the user. */
     private VictimIncident selectedIncident;
 
-    /**
-     * Ensemble des identifiants des hôpitaux actuellement mis en surbrillance.
-     */
+    /** Shared registry containing specific identifying integer keys of hospital nodes highlighted on the view layout canvas. */
     private final Set<Integer> highlightedHospitalIds = new HashSet<>();
 
-    /**
-     * L'hôpital actuellement sélectionné sur la carte par l'utilisateur.
-     */
+    /** The specific hospital center selected on the map viewport layout. */
     private Hospital selectedHospital;
 
-    /**
-     * Indicateur définissant si les triangles de Delaunay doivent être affichés.
-     */
+    /** Structural control flag toggling whether Delaunay network edge wireframes are drawn onto the map workspace canvas. */
     private boolean showTriangles = true;
 
-    /**
-     * Indicateur définissant si les cellules de Voronoï doivent être affichées.
-     */
+    /** Structural control flag toggling whether computed geometric Voronoi partition paths are drawn onto the map workspace canvas. */
     private boolean showVoronoi = true;
 
-    /**
-     * Indicateur définissant si les lignes d'affectation (incidents vers hôpitaux) doivent être affichées.
-     */
+    /** Structural control flag toggling whether linear closest-destination lines connecting victims to hospitals are drawn. */
     private boolean showAssignments = true;
 
-    /**
-     * Le panneau principal (conteneur JavaFX) sur lequel tous les éléments géométriques sont dessinés.
-     */
+    /** Primary layout container surface where geometric vector nodes and shapes are dynamically rendered. */
     @FXML
     private Pane mapPane;
 
-    /**
-     * Le gestionnaire central contenant la logique métier et les données du modèle géographique.
-     */
+    /** The core orchestrator managing business logic states, routing graph computations, and layout coordinate parameters. */
     private MapManager mapManager;
 
-    /**
-     * Le contrôleur de la barre latérale pour permettre la mise à jour des détails d'interface.
-     */
+    /** Linked controller handling complementary item information text changes inside the sidebar layout view. */
     private SidebarController sidebarController;
 
-    /**
-     * L'identifiant de l'hôpital assigné à l'incident actuellement sélectionné.
-     */
+    /** Key identifying index belonging to the emergency hospital instance bound to the highlighted target incident. */
     private Integer selectedAssignedHospitalId;
 
     /**
-     * Méthode appelée automatiquement par JavaFX après le chargement du fichier FXML.
+     * Post-initialization constructor hook automatically executed by structural FXML loader components.
+     * Hooks layout interaction boundaries to track and trigger zoom or displacement operations.
      */
     @FXML
     public void initialize() {
-        System.out.println("MapController initialisé avec succès !");
+        System.out.println("MapController initialized successfully!");
         setupZoom();
         setupPan();
-
     }
 
     /**
-     * Bascule la visibilité des lignes d'affectation (entre les incidents et leurs hôpitaux)
-     * et rafraîchit la carte pour appliquer le changement.
+     * Inverts the display visibility preference flag of target matching vectors linking incidents
+     * to their resolved destinations and updates the viewport.
      */
     public void toggleAssignmentsVisibility() {
         showAssignments = !showAssignments;
@@ -117,7 +101,8 @@ public class MapController {
     }
 
     /**
-     * Configure le comportement du zoom sur le panneau de la carte à l'aide de la molette de la souris.
+     * Links scrolling delta handlers to scale coordinates up or down inside the map workspace container panel bounds.
+     * Constrains scale adjustments within structural safety limits ($0.5\times$ to $3.0\times$).
      */
     private void setupZoom() {
         mapPane.setPickOnBounds(true);
@@ -125,13 +110,11 @@ public class MapController {
         mapPane.setOnScroll((ScrollEvent event) -> {
             double zoomDelta = 1.1;
 
-            // Correction : On cible explicitement les scrolls positifs et négatifs
             if (event.getDeltaY() > 0) {
                 zoomFactor *= zoomDelta;
             } else if (event.getDeltaY() < 0) {
                 zoomFactor /= zoomDelta;
             } else {
-                // Si le deltaY est 0 (ex: inertie trackpad), on ne fait rien
                 return;
             }
 
@@ -145,7 +128,7 @@ public class MapController {
     }
 
     /**
-     * Configure le comportement de déplacement (panoramique) de la carte par cliquer-glisser.
+     * Hooks drag action sequences onto primary canvas button clicks to execute translational panning adjustments.
      */
     private void setupPan() {
         mapPane.setOnMousePressed(event -> {
@@ -172,10 +155,11 @@ public class MapController {
     }
 
     /**
-     * Sélectionne un incident donné, met en surbrillance l'hôpital assigné ainsi que ses voisins,
-     * ou désélectionne si l'incident est déjà sélectionné.
+     * Marks a targeted emergency context node as selected, highlights the assigned destination hospital,
+     * and highlights adjacent neighboring cells using topology lookup queries.
+     * Reversing selection resets the canvas back to generic configurations.
      *
-     * @param incident L'incident victime sélectionné sur la carte.
+     * @param incident the target {@link VictimIncident} instance to highlight, or {@code null} to reset tracking state variables
      */
     private void selectIncident(VictimIncident incident) {
         if (selectedIncident != null
@@ -211,8 +195,9 @@ public class MapController {
     }
 
     /**
-     * Dessine les liaisons d'affectation entre les incidents et les hôpitaux.
-     * Pour l'incident sélectionné, le chemin routier réel est dessiné si disponible.
+     * Iterates over incidents to draw allocation links. If an incident is selected,
+     * computes and renders the true path along the road network using routing logic;
+     * otherwise, falls back to an absolute direct line connection.
      */
     private void drawAssignments() {
         for (VictimIncident incident : mapManager.getIncidents()) {
@@ -221,24 +206,21 @@ public class MapController {
                         && selectedIncident.getIncidentId().equals(incident.getIncidentId());
 
                 if (isSelected) {
-                    // Si l'incident est sélectionné, on demande la vraie route
                     List<Point> path = mapManager.computeRoadForIncident(incident);
 
                     if (path != null && path.size() > 1) {
-                        // Dessiner segment par segment
                         for (int i = 0; i < path.size() - 1; i++) {
                             Point p1 = path.get(i);
                             Point p2 = path.get(i + 1);
 
                             Line routeLine = new Line(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-                            routeLine.setStroke(Color.MAGENTA); // Trait violet pour bien le voir
+                            routeLine.setStroke(Color.MAGENTA);
                             routeLine.setStrokeWidth(4.5);
                             routeLine.setOpacity(0.85);
 
                             mapPane.getChildren().add(routeLine);
                         }
                     } else {
-                        // Sécurité (fallback) si aucune route n'est trouvée
                         drawStraightAssignmentLine(incident, true);
                     }
                 }
@@ -250,13 +232,12 @@ public class MapController {
     }
 
     /**
-     * Dessine une ligne droite en pointillés pour représenter l'affectation directe
-     * à vol d'oiseau entre un incident et son hôpital le plus proche.
+     * Renders a dashed straight-line vector overlay between an incident coordinate point
+     * and its mapped destination hospital site.
      *
-     * @param incident L'incident à relier à son hôpital.
-     * @param isSelected Indique si cet incident est actuellement sélectionné (modifie le style visuel).
+     * @param incident the source tracking element instance
+     * @param isSelected configures specific style weights if this link is currently selected
      */
-    // Méthode utilitaire ajoutée pour tracer la ligne droite en pointillés
     private void drawStraightAssignmentLine(VictimIncident incident, boolean isSelected) {
         Line assignmentLine = new Line(
                 incident.getX(), incident.getY(),
@@ -272,25 +253,26 @@ public class MapController {
     }
 
     /**
-     * Définit le modèle gestionnaire de la carte pour ce contrôleur.
+     * Injects the application's global core business engine context resource references.
      *
-     * @param mapManager L'instance de {@link MapManager} à lier à la vue.
+     * @param mapManager the foundational model context container instance
      */
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
     }
 
     /**
-     * Lie ce contrôleur au contrôleur de la barre latérale.
+     * Hooks complementary UI action layout components tracking sidebar configurations.
      *
-     * @param sidebarController L'instance de {@link SidebarController}.
+     * @param sidebarController the target component layout companion instance
      */
     public void setSidebarController(SidebarController sidebarController) {
         this.sidebarController = sidebarController;
     }
 
     /**
-     * Bascule la visibilité de la triangulation de Delaunay et rafraîchit la carte.
+     * Toggles whether Delaunay Triangulation grid lines are drawn on the panel,
+     * then refreshes the canvas view.
      */
     public void toggleTrianglesVisibility() {
         showTriangles = !showTriangles;
@@ -298,7 +280,8 @@ public class MapController {
     }
 
     /**
-     * Bascule la visibilité du diagramme de Voronoï et rafraîchit la carte.
+     * Toggles whether Voronoi boundary cell shapes are drawn on the panel,
+     * then refreshes the canvas view.
      */
     public void toggleVoronoiVisibility() {
         showVoronoi = !showVoronoi;
@@ -306,7 +289,8 @@ public class MapController {
     }
 
     /**
-     * Redessine entièrement la carte à partir des données du MapManager.
+     * Wipes all child objects drawn inside the primary panel layout area and sequentially
+     * triggers layered redraw passes for active data components.
      */
     public void refreshMap() {
         if (mapPane == null || mapManager == null) {
@@ -326,7 +310,6 @@ public class MapController {
             drawVoronoiVertices();
         }
 
-
         drawAssignments();
         drawHospitals();
         drawIncidents();
@@ -334,7 +317,7 @@ public class MapController {
     }
 
     /**
-     * Dessine la légende explicative sur la carte décrivant la signification des couleurs et des formes.
+     * Renders an explanatory color-coded map key legend panel onto the viewport area.
      */
     private void drawLegend() {
         double boxX = 20;
@@ -342,7 +325,7 @@ public class MapController {
         double boxWidth = 220;
         double boxHeight = 130;
 
-        javafx.scene.shape.Rectangle background = new javafx.scene.shape.Rectangle(boxX, boxY, boxWidth, boxHeight);
+        Rectangle background = new Rectangle(boxX, boxY, boxWidth, boxHeight);
         background.setFill(Color.WHITE);
         background.setStroke(Color.GRAY);
         background.setArcWidth(10);
@@ -372,7 +355,6 @@ public class MapController {
         assignLine.getStrokeDashArray().addAll(6.0, 4.0);
         Text assignText = new Text(boxX + 30, boxY + 104, "Incident assignment");
 
-        // <-- NOUVELLE LIGNE POUR LA LÉGENDE DES ROUTES
         Line roadLine = new Line(boxX + 8, boxY + 120, boxX + 22, boxY + 120);
         roadLine.setStroke(Color.DARKGRAY);
         roadLine.setStrokeWidth(3.0);
@@ -390,12 +372,13 @@ public class MapController {
     }
 
     /**
-     * Rend l'icône d'un hôpital déplaçable via glisser-déposer.
-     * Intègre également une logique d'attraction (snap) sur le réseau routier le plus proche.
+     * Attaches mouse drag event filters onto a targeted hospital node layout circle.
+     * Upon mouse release, it invokes graph lookups to automatically snap the node to the nearest
+     * road infrastructure intersection point.
      *
-     * @param hospital L'hôpital du modèle associé au cercle graphique.
-     * @param circle Le cercle graphique représentant l'hôpital.
-     * @param label Le texte d'étiquette accompagnant le cercle.
+     * @param hospital the data model reference to update
+     * @param circle the visual shape component representing the hospital on the canvas
+     * @param label descriptive structural text item grouped alongside the circle component
      */
     private void makeHospitalDraggable(Hospital hospital, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
@@ -432,24 +415,21 @@ public class MapController {
             double finalX = circle.getCenterX();
             double finalY = circle.getCenterY();
 
-            // --- NOUVEAU : Logique de Snap pour l'Hôpital ---
+            // --- Snap Logic via Closest Road Intersection Query ---
             Point snappedPoint = null;
             if (!mapManager.getRoadNetwork().getRoads().isEmpty()) {
                 snappedPoint = mapManager.getRoadNetwork().findNearestIntersection(new Point(finalX, finalY));
             }
 
             if (snappedPoint != null) {
-                // Application au Modèle
                 hospital.setX(snappedPoint.getX());
                 hospital.setY(snappedPoint.getY());
 
-                // Alignement direct de la Vue pour éviter un saut visuel
                 circle.setCenterX(snappedPoint.getX());
                 circle.setCenterY(snappedPoint.getY());
                 label.setX(snappedPoint.getX() + 8);
                 label.setY(snappedPoint.getY() - 8);
             } else {
-                // Cas par défaut si aucune route n'existe
                 hospital.setX(finalX);
                 hospital.setY(finalY);
             }
@@ -462,7 +442,8 @@ public class MapController {
     }
 
     /**
-     * Ajoute visuellement les hôpitaux sur la carte.
+     * Loops through available site instances to generate, style, and inject
+     * node nodes representing active hospital hubs.
      */
     private void drawHospitals() {
         for (Hospital hospital : mapManager.getSites()) {
@@ -519,12 +500,13 @@ public class MapController {
     }
 
     /**
-     * Rend l'icône d'un incident déplaçable via glisser-déposer.
-     * Intègre également une logique d'attraction (snap) sur le réseau routier le plus proche.
+     * Attaches drag filtering actions onto an incident node shape.
+     * If dragged, it snaps to the closest road network layout intersection; if clicked without movement,
+     * it toggles the incident selection context.
      *
-     * @param incident L'incident du modèle associé au cercle graphique.
-     * @param circle Le cercle graphique représentant l'incident.
-     * @param label Le texte d'étiquette accompagnant le cercle.
+     * @param incident the data model item tracking entity reference
+     * @param circle the vector circle layout shape representing the target incident
+     * @param label label text displayed adjacent to the incident circle
      */
     private void makeIncidentDraggable(VictimIncident incident, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
@@ -587,7 +569,7 @@ public class MapController {
     }
 
     /**
-     * Ajoute visuellement les incidents sur la carte.
+     * Iterates over incidents to draw and bind hover listeners onto tracking circles.
      */
     private void drawIncidents() {
         for (VictimIncident incident : mapManager.getIncidents()) {
@@ -642,22 +624,20 @@ public class MapController {
      * This method retrieves all computed Voronoi cells and clips them against a dynamic
      * bounding box using JavaFX {@link Shape#intersect(Shape, Shape)}.
      * This layout operation constrains unbounded, far-away outer cell vertices to the map's visible
-     * area, ensuring a clean, professional map border alignment without overlapping the sidebar controls.
+     * area, ensuring a clean, professional map border alignment without overlapping sidebar controls.
      * </p>
      */
     private void drawVoronoiCells() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
 
-        // 1. Calculer dynamiquement les limites de la carte
         double minX = 0, minY = 0, maxX = 750, maxY = 700;
         if (mapManager.getSites() != null && !mapManager.getSites().isEmpty()) {
-            minX = mapManager.getSites().stream().mapToDouble(h -> h.getX()).min().orElse(0);
-            minY = mapManager.getSites().stream().mapToDouble(h -> h.getY()).min().orElse(0);
-            maxX = mapManager.getSites().stream().mapToDouble(h -> h.getX()).max().orElse(750);
-            maxY = mapManager.getSites().stream().mapToDouble(h -> h.getY()).max().orElse(700);
+            minX = mapManager.getSites().stream().mapToDouble(Point::getX).min().orElse(0);
+            minY = mapManager.getSites().stream().mapToDouble(Point::getY).min().orElse(0);
+            maxX = mapManager.getSites().stream().mapToDouble(Point::getX).max().orElse(750);
+            maxY = mapManager.getSites().stream().mapToDouble(Point::getY).max().orElse(700);
         }
 
-        // 2. Définir une très grande marge pour que la découpe soit repoussée loin hors champ
         double margin = 3000;
         Rectangle boundingBox = new Rectangle(
                 minX - margin,
@@ -679,22 +659,18 @@ public class MapController {
 
             Polygon polygon = new Polygon(coords);
 
-            // 3. Geometric intersection avec la boîte dynamique
             Shape clippedCell = Shape.intersect(polygon, boundingBox);
 
-            // 4. Apply styles and visual properties on the clipped shape
             clippedCell.setFill(Color.rgb(147, 112, 219, 0.05));
             clippedCell.setStroke(Color.MEDIUMPURPLE);
             clippedCell.setStrokeWidth(1.5);
             clippedCell.setOpacity(0.8);
 
-            // --- AJOUT : Interaction au clic sur la cellule ---
-            Hospital associatedHospital = cell.getHospital(); // Adaptez en cell.getSite() selon votre modèle
+            Hospital associatedHospital = cell.getHospital();
             clippedCell.setOnMouseClicked(event -> {
                 if (sidebarController != null && associatedHospital != null) {
                     sidebarController.showHospitalDetails(associatedHospital);
 
-                    // Mettre à jour la sélection visuelle globale
                     selectedHospital = associatedHospital;
                     selectedIncident = null;
                     selectedAssignedHospitalId = null;
@@ -709,9 +685,9 @@ public class MapController {
     }
 
     /**
-     * Dessine les sommets uniques appartenant aux cellules de Voronoï.
-     * Gère également l'événement de clic pour faire la correspondance avec le centre
-     * circonscrit d'un triangle de Delaunay (utile pour le détail dans l'UI).
+     * Renders small vertex indicators representing the intersection points of Voronoi cell shapes.
+     * Clicking a vertex matches it to its corresponding Delaunay triangle circumcenter to update
+     * structural stats on the sidebar UI.
      */
     private void drawVoronoiVertices() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
@@ -720,7 +696,7 @@ public class MapController {
         for (VoronoiCell cell : cells) {
             for (Point vertex : cell.getVertices()) {
 
-                if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue ;
+                if (vertex.getX() < 0 || vertex.getX() > 750 || vertex.getY() < 0 || vertex.getY() > 700) continue;
                 if (!drawnVertices.add(vertex)) {
                     continue;
                 }
@@ -731,11 +707,9 @@ public class MapController {
                 vertexCircle.setStrokeWidth(0.8);
                 vertexCircle.setOpacity(0.85);
 
-                // --- AJOUT : Sélection du centre de cercle circonscrit (Triangle Delaunay) ---
                 vertexCircle.setOnMouseClicked(event -> {
                     if (sidebarController != null && mapManager.getTriangles() != null) {
                         for (Triangle triangle : mapManager.getTriangles()) {
-                            // Recherche du triangle associé au centre circonscrit actuel
                             if (triangle.getCircumcenter() != null &&
                                     Math.abs(triangle.getCircumcenter().getX() - vertex.getX()) < 0.5 &&
                                     Math.abs(triangle.getCircumcenter().getY() - vertex.getY()) < 0.5) {
@@ -756,7 +730,7 @@ public class MapController {
     }
 
     /**
-     * Dessine la triangulation de Delaunay.
+     * Renders the triangulation meshes linking hospital nodes into adjacent planar Delaunay triangles.
      */
     private void drawTriangles() {
         for (Triangle triangle : mapManager.getTriangles()) {
@@ -804,8 +778,13 @@ public class MapController {
     }
 
     /**
-     * Dessine les routes du réseau (RoadNetwork).
-     * La couleur de la route change en fonction de son facteur de trafic (Traffic Factor).
+     * Renders the road grid paths across active coordinates.
+     * The method applies color-coding variations based on the current edge's traffic factor coefficient:
+     * <ul>
+     * <li>$\text{Traffic} \ge 2.0$: Dark Red (Severe traffic jam)</li>
+     * <li>$1.2 < \text{Traffic} < 2.0$: Dark Orange (Heavy traffic)</li>
+     * <li>$\text{Traffic} \le 1.2$: Dark Gray (Fluid traffic flow)</li>
+     * </ul>
      */
     private void drawRoads() {
         if (mapManager == null || mapManager.getRoadNetwork() == null) {
@@ -818,23 +797,20 @@ public class MapController {
                     edge.getEnd().getX(), edge.getEnd().getY()
             );
 
-            // Épaisseur de la route
             roadLine.setStrokeWidth(3.5);
             roadLine.setOpacity(0.8);
 
-            // Code couleur dynamique basé sur le trafic
             double traffic = edge.getTrafficFactor();
             if (traffic >= 2.0) {
-                roadLine.setStroke(Color.FIREBRICK); // Rouge sombre (Bouchon sévère)
+                roadLine.setStroke(Color.FIREBRICK);
             } else if (traffic > 1.2) {
-                roadLine.setStroke(Color.DARKORANGE); // Orange (Trafic ralenti)
+                roadLine.setStroke(Color.DARKORANGE);
             } else {
-                roadLine.setStroke(Color.DARKGRAY); // Gris (Route fluide)
+                roadLine.setStroke(Color.DARKGRAY);
             }
 
-            // On ajoute un événement au clic (optionnel) pour voir les détails de la route dans le futur
             roadLine.setOnMouseClicked(event -> {
-                System.out.println("Route sélectionnée : " + edge);
+                System.out.println("Selected road edge context: " + edge);
                 event.consume();
             });
 
@@ -843,8 +819,8 @@ public class MapController {
     }
 
     /**
-     * Supprime de la carte et du modèle l'élément actuellement sélectionné
-     * (Hôpital ou Incident), puis rafraîchit l'affichage.
+     * Deletes the active selected element (either a Hospital node or VictimIncident instance)
+     * from both the model data layer and map display layout before forcing a viewport refresh.
      */
     public void deleteSelectedElement() {
         if (mapManager == null) {
@@ -869,7 +845,7 @@ public class MapController {
     }
 
     /**
-     * Réinitialise les sélections actives (hôpitaux et incidents) sur l'interface de la carte.
+     * Resets active selection states and clear highlight collections tracking entities.
      */
     public void clearSelection() {
         selectedIncident = null;
@@ -879,7 +855,7 @@ public class MapController {
     }
 
     /**
-     * Clears all visual elements from the map.
+     * Wipes all nodes and geometric shapes from the parent display container pane.
      */
     public void clearMap() {
         mapPane.getChildren().clear();

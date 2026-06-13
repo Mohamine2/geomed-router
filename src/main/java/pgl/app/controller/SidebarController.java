@@ -2,8 +2,6 @@ package pgl.app.controller;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import pgl.app.algo.exception.HospitalCollisionException;
@@ -31,12 +29,30 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import java.io.IOException;
 
-
+/**
+ * Controller class for the JavaFX sidebar user interface.
+ * <p>
+ * This class handles UI interactions, manages map stats visualization, renders detailed descriptions
+ * for selected objects (Hospitals, Incidents, Delaunay Triangles), and triggers operations such as
+ * importing maps or generating simulation data.
+ * </p>
+ * <p>
+ * It integrates Role-Based Access Control (RBAC) via {@link SecurityContext} to restrict UI buttons and
+ * sensitive data access (e.g., medical data or GDPR algorithmic explanation reports) based on whether
+ * the user is an Admin, Doctor, or Paramedic.
+ * </p>
+ *
+ * @version 1.0
+ */
 public class SidebarController {
+
+    // =========================================================================
+    // FXML Labels (Statistics & Status)
+    // =========================================================================
 
     @FXML
     private Label infoLabel;
-    
+
     @FXML
     private Label hospitalCountLabel;
 
@@ -45,24 +61,34 @@ public class SidebarController {
 
     @FXML
     private Label triangleCountLabel;
-    
+
     @FXML
     private Label lastIncidentLabel;
 
     @FXML
     private Label assignedHospitalLabel;
-    
+
     @FXML
     private Label selectedTypeLabel;
 
     @FXML
     private Label selectedIdLabel;
 
+    // =========================================================================
+    // FXML Text Areas & ComboBoxes
+    // =========================================================================
+
+    /** Text area used to show comprehensive, contextual data about the selected map entity. */
     @FXML
     private TextArea selectedDetailsArea;
-    
+
+    /** Dropdown choice box used to simulate or change the current user's security role. */
     @FXML
     private ComboBox<UserRole> roleComboBox;
+
+    // =========================================================================
+    // FXML Action Buttons
+    // =========================================================================
 
     @FXML
     private Button addSiteButton;
@@ -100,12 +126,27 @@ public class SidebarController {
     @FXML
     private Button deleteSelectedButton;
 
+    // =========================================================================
+    // Business Logic Fields
+    // =========================================================================
+
+    /** Random number generator for generating arbitrary geometric coordinates. */
     private final Random random = new Random();
 
+    /** The backend data model coordinator containing infrastructure lists and topology algorithms. */
     private MapManager mapManager;
-    
+
+    /** The main structural map view controller tasked with handling UI rendering updates. */
     private MapController mapController;
-    
+
+    // =========================================================================
+    // Private Helper Methods
+    // =========================================================================
+
+    /**
+     * Refreshes the structural metadata metrics on the sidebar UI.
+     * Updates counters for hospitals, registered incidents, and current Delaunay mesh triangles.
+     */
     private void updateStats() {
         if (mapManager == null) {
             return;
@@ -115,7 +156,11 @@ public class SidebarController {
         incidentCountLabel.setText("Incidents: " + mapManager.getIncidents().size());
         triangleCountLabel.setText("Triangles: " + mapManager.getTriangles().size());
     }
-    
+
+    /**
+     * Updates the status bar tracking the absolute latest incident created in the system
+     * alongside its algorithmic emergency hospital destination mapping.
+     */
     private void updateLastAssignment() {
         if (mapManager == null || mapManager.getIncidents().isEmpty()) {
             lastIncidentLabel.setText("Last incident: none");
@@ -134,19 +179,17 @@ public class SidebarController {
             assignedHospitalLabel.setText("Assigned hospital: none");
         }
     }
-    
+
+    /**
+     * Toggles the disabled/enabled states of the FXML interactive control items
+     * depending on the active security privileges evaluated through the {@link SecurityContext}.
+     */
     private void updateRoleView() {
         boolean admin = SecurityContext.hasAccess(UserRole.ADMIN);
 
         boolean doctorOrAdmin = SecurityContext.hasAccess(
                 UserRole.ADMIN,
                 UserRole.DOCTOR
-        );
-
-        boolean paramedicOrAbove = SecurityContext.hasAccess(
-                UserRole.ADMIN,
-                UserRole.DOCTOR,
-                UserRole.PARAMEDIC
         );
 
         addSiteButton.setDisable(!admin);
@@ -165,21 +208,38 @@ public class SidebarController {
         importIncidentsCsvButton.setDisable(!admin);
         saveBinaryButton.setDisable(!admin);
 
-        addUserPointButton.setDisable(!admin);
+        addUserPointButton.setDisable(!doctorOrAdmin);
 
         infoLabel.setText("Current role: " + SecurityContext.getCurrentRole());
     }
 
+    // =========================================================================
+    // Public API / Dependency Injection Controllers
+    // =========================================================================
+
+    /**
+     * Injects the shared application {@link MapManager} dependency model data context.
+     * * @param mapManager the application data layer context instance
+     */
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
         updateStats();
         updateLastAssignment();
     }
 
+    /**
+     * Injects the peer graphical rendering layout {@link MapController}.
+     * * @param mapController the drawing canvas controller instance
+     */
     public void setMapController(MapController mapController) {
         this.mapController = mapController;
     }
 
+    /**
+     * Evaluates and formats data regarding a selected hospital, including geospatial analysis
+     * metrics such as its bounding Voronoi cell area and historical incident clustering density.
+     * * @param hospital the target {@link Hospital} instance to inspect, or {@code null} to wipe details
+     */
     public void showHospitalDetails(Hospital hospital) {
         if (hospital == null) {
             selectedTypeLabel.setText("Type: none");
@@ -221,7 +281,7 @@ public class SidebarController {
 
         double averageDistance = assignedIncidents > 0 ? totalDistance / assignedIncidents : 0.0;
 
-        // --- AJOUT : Calcul géométrique de la surface et de la densité ---
+        // --- Geometric Calculation of Area and Density ---
         double cellArea = 0.0;
         double density = 0.0;
         VoronoiCell targetCell = null;
@@ -246,7 +306,7 @@ public class SidebarController {
                     areaSum += current.getX() * next.getY() - next.getX() * current.getY();
                 }
                 cellArea = Math.abs(areaSum) / 2.0;
-                // On multiplie par 10 000 pour avoir une métrique humainement lisible
+                // Multiply by 10,000 for human-readable scales
                 density = cellArea > 0 ? ((double) assignedIncidents / cellArea) * 10000 : 0.0;
             }
         }
@@ -267,6 +327,17 @@ public class SidebarController {
         );
     }
 
+    /**
+     * Builds and appends metadata outputs for a highlighted incident.
+     * <p>
+     * <b>Security Guardrails:</b>
+     * <ul>
+     * <li>Patient medical logs are restricted solely to the {@link UserRole#DOCTOR}.</li>
+     * <li>The GDPR Algorithmic Decision Report requires either an {@link UserRole#ADMIN} or {@link UserRole#DOCTOR} role.</li>
+     * </ul>
+     * </p>
+     * * @param incident the target {@link VictimIncident} instance to inspect, or {@code null} to wipe details
+     */
     public void showIncidentDetails(VictimIncident incident) {
         if (incident == null) {
             selectedTypeLabel.setText("Type: none");
@@ -283,17 +354,12 @@ public class SidebarController {
             assignedHospital = "H" + incident.getClosestHospital().getId();
         }
 
-        // On utilise un StringBuilder pour construire le texte complet
         StringBuilder details = new StringBuilder();
         details.append("Position: (").append((int) incident.getX()).append(", ").append((int) incident.getY()).append(")\n");
         details.append("Emergency type: ").append(incident.getEmergencyType()).append("\n");
         details.append("Assigned hospital: ").append(assignedHospital).append("\n");
 
-        // --- BLOC 1 : Historique médical brut (Réservé strictement au MEDECIN) ---
-        /*
-         * L'historique médical est une donnée ultra-sensible.
-         * L'administrateur et l'ambulancier ne voient pas cette ligne.
-         */
+        // --- BLOCK 1: Raw Medical History (Strictly DOCTOR access) ---
         if (SecurityContext.hasAccess(UserRole.DOCTOR)) {
             if (incident.hasMedicalHistory()) {
                 details.append("Patient history: known at hospital H").append(incident.getPreferredHospitalId()).append("\n");
@@ -302,14 +368,14 @@ public class SidebarController {
                 details.append("Patient history: none\n");
             }
         }
-        details.append("\n"); // Ligne vide pour aérer l'affichage
+        details.append("\n"); // Structural spacing line
 
-        // --- BLOC 2 : Intégration du rapport d'explicabilité RGPD (MEDECIN & ADMIN) ---
+        // --- BLOCK 2: GDPR Algorithmic Transparency Explainer (DOCTOR & ADMIN access) ---
         if (incident.getClosestHospital() != null) {
 
             if (SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
                 try {
-                    // 1. On demande au moteur de recréer l'évaluation complète
+                    // Re-instantiate routing engine processing checks to re-evaluate properties
                     DispatchEngine engine = new DispatchEngine();
                     DispatchDecision decision = engine.evaluateBestDispatch(
                             incident,
@@ -318,7 +384,6 @@ public class SidebarController {
                             mapManager.getTriangles()
                     );
 
-                    // 2. On confie la décision au service de reporting
                     GDPRReportingService reporter = new GDPRReportingService();
                     String gdprReport = reporter.generateGDPRSummary(incident, decision);
 
@@ -329,19 +394,22 @@ public class SidebarController {
                     details.append("[Error generating GDPR report: ").append(e.getMessage()).append("]\n");
                 }
             } else {
-                // Rôle Ambulancier (ou autre) sans accès
+                // Low privilege warning display configuration
                 details.append("--- GDPR TRANSPARENCY REPORT ---\n");
                 details.append("[RESTRICTED] ADMIN or DOCTOR Role required to view algorithmic dispatch logic and medical data.");
             }
         }
 
-        // On affiche tout le texte dans la zone de droite
         selectedDetailsArea.setText(details.toString());
-
-        // Petite astuce JavaFX pour s'assurer que le curseur remonte en haut du texte long
-        selectedDetailsArea.positionCaret(0);
+        selectedDetailsArea.positionCaret(0); // Scroll view back to top
     }
-    
+
+    /**
+     * Extracts and displays information about a clicked Delaunay Triangle.
+     * Computes surface area, edge vector distances, and tracks traffic load disparities
+     * across the structural network.
+     * * @param triangle the targeted mesh element layout node
+     */
     public void showTriangleDetails(Triangle triangle) {
         if (triangle == null) {
             selectedTypeLabel.setText("Type: none");
@@ -370,8 +438,8 @@ public class SidebarController {
 
         double area = Math.abs(
                 h1.getX() * (h2.getY() - h3.getY()) +
-                h2.getX() * (h3.getY() - h1.getY()) +
-                h3.getX() * (h1.getY() - h2.getY())
+                        h2.getX() * (h3.getY() - h1.getY()) +
+                        h3.getX() * (h1.getY() - h2.getY())
         ) / 2.0;
 
         double edge12 = Math.sqrt(Math.pow(h1.getX() - h2.getX(), 2) + Math.pow(h1.getY() - h2.getY(), 2));
@@ -386,24 +454,35 @@ public class SidebarController {
         selectedIdLabel.setText("Id: H" + h1.getId() + "-H" + h2.getId() + "-H" + h3.getId());
         selectedDetailsArea.setText(
                 "Vertices: H" + h1.getId() + ", H" + h2.getId() + ", H" + h3.getId() + "\n" +
-                "Area: " + String.format("%.2f", area) + "\n" +
-                "Edge H" + h1.getId() + "-H" + h2.getId() + ": " + String.format("%.2f", edge12) + "\n" +
-                "Edge H" + h2.getId() + "-H" + h3.getId() + ": " + String.format("%.2f", edge23) + "\n" +
-                "Edge H" + h3.getId() + "-H" + h1.getId() + ": " + String.format("%.2f", edge31) + "\n" +
-                "Assigned incidents:\n" +
-                "H" + h1.getId() + ": " + countH1 + "\n" +
-                "H" + h2.getId() + ": " + countH2 + "\n" +
-                "H" + h3.getId() + ": " + countH3 + "\n" +
-                "Workload imbalance: " + workloadImbalance
+                        "Area: " + String.format("%.2f", area) + "\n" +
+                        "Edge H" + h1.getId() + "-H" + h2.getId() + ": " + String.format("%.2f", edge12) + "\n" +
+                        "Edge H" + h2.getId() + "-H" + h3.getId() + ": " + String.format("%.2f", edge23) + "\n" +
+                        "Edge H" + h3.getId() + "-H" + h1.getId() + ": " + String.format("%.2f", edge31) + "\n" +
+                        "Assigned incidents:\n" +
+                        "H" + h1.getId() + ": " + countH1 + "\n" +
+                        "H" + h2.getId() + ": " + countH2 + "\n" +
+                        "H" + h3.getId() + ": " + countH3 + "\n" +
+                        "Workload imbalance: " + workloadImbalance
         );
     }
-    
+
+    /**
+     * Resets the structural details description components to their default states.
+     */
     public void clearSelectionDetails() {
         selectedTypeLabel.setText("Type: none");
         selectedIdLabel.setText("Id: none");
         selectedDetailsArea.setText("Details: none");
     }
 
+    // =========================================================================
+    // JavaFX Lifecycle Initialization
+    // =========================================================================
+
+    /**
+     * Automatically invoked by JavaFX loaders once FXML component mapping routines complete.
+     * Attaches structural listeners onto controls and runs startup validation routines.
+     */
     @FXML
     public void initialize() {
         System.out.println("SidebarController initialized.");
@@ -421,6 +500,14 @@ public class SidebarController {
         updateRoleView();
     }
 
+    // =========================================================================
+    // FXML Action Event Handlers
+    // =========================================================================
+
+    /**
+     * Spawns a single hospital node at random layout coordinates.
+     * Prevents operations if space overlaps are triggered.
+     */
     @FXML
     private void handleAddSite() {
         if (mapManager == null) {
@@ -433,14 +520,12 @@ public class SidebarController {
         double y = 80 + random.nextDouble() * 400;
 
         Hospital h = new Hospital(x, y, id, 100);
-        h.addSpecialty(MedicalSpecialty.GENERAL); // Optionnel: donne une spécialité par défaut
+        h.addSpecialty(MedicalSpecialty.GENERAL);
 
         try {
             mapManager.addHospital(h);
-
             mapController.refreshMap();
             infoLabel.setText("Hospital added: " + id);
-
             updateStats();
             updateLastAssignment();
 
@@ -448,11 +533,14 @@ public class SidebarController {
             infoLabel.setText("Error: Intersection already occupied!");
             System.err.println("UI Blocked: " + e.getMessage());
         }
-        
+
         updateStats();
         updateLastAssignment();
     }
-    
+
+    /**
+     * Spawns a FileChooser dialog to parse and add structured hospital records from external CSV sheets.
+     */
     @FXML
     private void handleImportHospitalsCsv() {
         if (mapManager == null) {
@@ -494,6 +582,10 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Clears existing state and imports map geometric topology structures from OpenStreetMap JSON
+     * extensions or proprietary compiled binary formats (.pglm).
+     */
     @FXML
     private void handleImportMap() {
         if (mapManager == null) {
@@ -502,7 +594,6 @@ public class SidebarController {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import Map Topology");
-        // On autorise à la fois le JSON (OSM) et le PGLM (Binaire)
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("All Map Files", "*.json", "*.pglm"),
                 new FileChooser.ExtensionFilter("OSM JSON Files", "*.json"),
@@ -516,14 +607,12 @@ public class SidebarController {
         }
 
         try {
-            // 1. On nettoie la carte actuelle pour éviter de fusionner deux topologies
             mapManager.clear();
             mapController.clearSelection();
 
             String fileName = selectedFile.getName();
             Path filePath = Path.of(selectedFile.getAbsolutePath());
 
-            // 2. On délègue au bon importateur selon l'extension
             if (fileName.endsWith(".json")) {
                 MapImporterOSM.importFromOSM(mapManager, filePath);
                 infoLabel.setText("OSM Map successfully imported.");
@@ -532,7 +621,6 @@ public class SidebarController {
                 infoLabel.setText("Binary Map successfully imported.");
             }
 
-            // 3. On met à jour l'interface graphique
             mapController.refreshMap();
             updateStats();
             updateLastAssignment();
@@ -544,6 +632,10 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Serializes the current hospital node infrastructures and road maps into a binary file format (.pglm).
+     * * @param event the triggered FXML UI action source event
+     */
     @FXML
     private void handleSaveBinary(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -553,22 +645,23 @@ public class SidebarController {
                 new FileChooser.ExtensionFilter("Fichiers de carte PGLM (*.pglm)", "*.pglm")
         );
 
-        // Récupération de la fenêtre parente pour centrer la boîte de dialogue
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         File file = fileChooser.showSaveDialog(stage);
 
         if (file != null) {
             try {
-                // Utilisation exacte de votre sérialiseur binaire issu de ConsoleRunner
                 MapBinarySerializer.exportToFile(mapManager, file.toPath());
                 System.out.println("Carte sauvegardée avec succès : " + file.getName());
             } catch (IOException e) {
                 System.err.println("Erreur lors de l'export binaire : " + e.getMessage());
-                // Optionnel : Ajouter une boîte de dialogue contextuelle Alert pour notifier l'échec
             }
         }
     }
 
+    /**
+     * Injects an incident event into a randomized location on the canvas.
+     * Applies a 20% probability that the generated incident defaults to a preferred hospital setting.
+     */
     @FXML
     private void handleAddUserPoint() {
         if (mapManager == null) {
@@ -590,7 +683,6 @@ public class SidebarController {
         }
 
         mapManager.addIncident(new VictimIncident(x, y, incidentId, MedicalSpecialty.GENERAL, prefId));
-
         mapController.refreshMap();
 
         if (prefId != null) {
@@ -602,7 +694,10 @@ public class SidebarController {
         updateStats();
         updateLastAssignment();
     }
-    
+
+    /**
+     * Parses and appends incoming incident tracking records from an external CSV data spreadsheet.
+     */
     @FXML
     private void handleImportIncidentsCsv() {
         if (mapManager == null) {
@@ -644,6 +739,10 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Forces the data model system layers to re-evaluate Delaunay configurations,
+     * proximity lookups, and shortest paths.
+     */
     @FXML
     private void handleRecompute() {
         if (mapManager == null) {
@@ -653,11 +752,14 @@ public class SidebarController {
         mapManager.updateAll();
         mapController.refreshMap();
         infoLabel.setText("Triangulation recomputed.");
-        
+
         updateStats();
         updateLastAssignment();
     }
-    
+
+    /**
+     * Instructs the peer map canvas to drop or delete the selected geometric node element.
+     */
     @FXML
     private void handleDeleteSelected() {
         if (mapController != null) {
@@ -668,6 +770,9 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Toggles whether Delaunay Triangulation wireframe lines are visible on the map canvas.
+     */
     @FXML
     private void handleToggleTriangles() {
         if (mapController != null) {
@@ -676,6 +781,9 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Toggles whether Voronoi cells and boundaries are visible on the map canvas.
+     */
     @FXML
     private void handleToggleVoronoi() {
         if (mapController != null) {
@@ -684,6 +792,9 @@ public class SidebarController {
         }
     }
 
+    /**
+     * Erases all items from the system model context, wiping canvas nodes and statistics tracking.
+     */
     @FXML
     private void handleClear() {
         if (mapManager == null) {
@@ -694,74 +805,74 @@ public class SidebarController {
         mapController.clearSelection();
         mapController.clearMap();
         infoLabel.setText("Map cleared.");
-        
+
         updateStats();
         updateLastAssignment();
         clearSelectionDetails();
     }
 
+    /**
+     * Generates a batch of 10 random simulated incidents across the structural tracking zones.
+     */
     @FXML
     private void handleGenerateRandomIncidents() {
-        // Exemple : 10 incidents (ou Integer.parseInt(txtIncidentCount.getText()) si vous avez un champ)
         int count = 10;
         int startCount = mapManager.getIncidents().size() + 1;
         List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
 
-        // 1. Génération via la classe utilitaire commune
         List<VictimIncident> newIncidents = SimulationDataGenerator.generateRandomIncidents(
                 count,
                 startCount,
                 currentHospitals
         );
 
-        // 2. Ajout en masse dans le modèle
         mapManager.addIncidents(newIncidents);
 
-        // 3. Rafraîchissement de la vue JavaFX
         if (mapController != null) {
             mapController.refreshMap();
         }
     }
 
-
+    /**
+     * Generates a batch of 5 random simulated hospitals across the canvas layout workspace.
+     */
     @FXML
     private void handleGenerateRandomHospitals() {
-        // Exemple : génération de 5 hôpitaux (vous pouvez aussi récupérer cette valeur depuis un TextField)
         int count = 5;
         int startId = mapManager.getSites().size() + 1;
 
-        // 1. Génération via la classe utilitaire commune
         List<Hospital> newHospitals = SimulationDataGenerator.generateRandomHospitals(count, startId);
 
-        // 2. Ajout au gestionnaire avec gestion des collisions
         for (Hospital h : newHospitals) {
             try {
                 mapManager.addHospital(h);
             } catch (HospitalCollisionException e) {
-                // En JavaFX, on privilégie un log ou une alerte discrète plutôt qu'un plantage
-                System.err.println("Collision ignorée en mode graphique : " + e.getMessage());
+                System.err.println("Collision ignored in graphical mode: " + e.getMessage());
             }
         }
 
-        // 3. Rafraîchissement crucial de la vue JavaFX
         if (mapController != null) {
             mapController.refreshMap();
         }
     }
 
+    /**
+     * Populates and injects a randomized network of roads connecting the registered active sites.
+     */
     @FXML
     private void handleGenerateRandomRoads() {
         int nbRoads = mapManager.getSites().size() * 2;
 
-        // 1. Génération et injection directe dans le RoadNetwork du MapManager
         SimulationDataGenerator.generateRandomRoads(mapManager, nbRoads);
 
-        // 2. Rafraîchissement de la vue JavaFX (pour tracer les lignes de trafic gris/orange/rouge)
         if (mapController != null) {
             mapController.refreshMap();
         }
     }
 
+    /**
+     * Toggles whether incident dispatch line assignments connecting victims to hospitals are visible.
+     */
     @FXML
     private void handleToggleAssignments() {
         if (mapController != null) {
