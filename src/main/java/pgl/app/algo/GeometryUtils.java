@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Utility class providing geometric algorithms for triangles and points.
- * @version 1.0
+ * @version 2.0
  */
 public class GeometryUtils {
 
@@ -37,17 +37,23 @@ public class GeometryUtils {
     /**
      * Checks if a point lies inside the circumcircle of a given triangle.
      * <p>
-     * This method uses a determinant-based approach. <b>Note:</b> This implementation
-     * assumes the triangle vertices are provided in counter-clockwise (CCW) order.
-     * Uses an epsilon value to handle floating-point precision errors.
+     * This method uses an adaptive matrix determinant approach that dynamically accounts
+     * for the vertex orientation (Clockwise vs. Counter-Clockwise) of the triangle.
+     * It uses an epsilon threshold to handle floating-point precision errors safely.
      * </p>
-     * * @param p The point to check.
-     * @param t The triangle whose circumcircle is being tested.
-     * @return true if the point is inside the circumcircle, false otherwise.
+     *
+     * @param p the {@link Point} to test
+     * @param t the {@link Triangle} whose circumcircle is being evaluated
+     * @return true if the point lies strictly inside the circumcircle, false otherwise
      */
     public static boolean isPointInCircumcircle(Point p, Triangle t) {
         Point a = t.getA(), b = t.getB(), c = t.getC();
 
+        // 1. Determine triangle orientation (2D cross product)
+        double orientation = (b.getX() - a.getX()) * (c.getY() - a.getY()) -
+                (b.getY() - a.getY()) * (c.getX() - a.getX());
+
+        // 2. Compute relative distances
         double adx = a.getX() - p.getX();
         double ady = a.getY() - p.getY();
         double bdx = b.getX() - p.getX();
@@ -55,13 +61,18 @@ public class GeometryUtils {
         double cdx = c.getX() - p.getX();
         double cdy = c.getY() - p.getY();
 
+        // 3. Compute the matrix determinant
         double det = adx * (bdy * (cdx * cdx + cdy * cdy) - cdy * (bdx * bdx + bdy * bdy)) -
                 ady * (bdx * (cdx * cdx + cdy * cdy) - cdx * (bdx * bdx + bdy * bdy)) +
                 (adx * adx + ady * ady) * (bdx * cdy - cdx * bdy);
 
-        // Si l'orientation des points est différente, il faut inverser le signe.
-        // Attention : ce code suppose que le triangle est orienté dans le sens trigonométrique (CCW).
-        return det > 1e-9; // Utilisation d'un epsilon pour éviter les erreurs de précision flottante
+        // 4. Adjust the sign threshold depending on vertex orientation
+        // If orientation < 0, the triangle is Clockwise (CW), inverting the determinant's sign.
+        if (orientation < 0) {
+            return det < -1e-9;
+        } else {
+            return det > 1e-9;
+        }
     }
 
     /**

@@ -1,7 +1,5 @@
 package pgl.app.model;
 
-import java.util.Objects;
-
 /**
  * Represents an undirected edge between two {@link Point} objects.
  * <p>
