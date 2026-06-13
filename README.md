@@ -1,34 +1,30 @@
-# Projet de fin d'année - Ing1 Cy Tech
+# Projet Génie Logiciel (PGL) - Système de Répartition et de Routage Médical
+## Projet de fin d'année - Ing1 Cy Tech
 
-Ce projet consiste en la création d'une application interactive développée en **JavaFX** dédiée à l'optimisation spatiale des services d'urgence. L'objectif est de modéliser la couverture territoriale de sites critiques (hôpitaux) pour minimiser les temps d'intervention via l'analyse de diagrammes de Voronoï et de triangulations de Delaunay.
+## 📝 Description
+Ce projet est une application Java d'aide à la décision avec interface graphique JavaFX. Elle permet de coupler la triangulation de Delaunay et les diagrammes de Voronoï avec une implémentation Dijkstra pour optimiser la répartition et le routage de victimes d'incidents vers des structures hospitalières adaptées.
 
-L'application est construite sans l'utilisation de bibliothèques mathématiques tierces, afin de garantir une maîtrise totale sur la logique algorithmique.
+## ✨ Fonctionnalités Principales
+* **Cartographie et Réseaux Routiers** : Chargement de cartes depuis OpenStreetMap (OSM) ou via des fichiers binaires optimisés (`RoadNetwork`, `Edge`).
+* **Moteurs Algorithmiques Avancés** : 
+  * Calcul de trajets optimisés via l'algorithme de Dijkstra (`RoutingEngine`).
+  * Triangulation de Delaunay (`DelaunayEngine`) et Diagrammes de Voronoï (`VoronoiEngine`) pour modéliser les zones de couverture des hôpitaux.
+  * Moteur de répartition automatique (`DispatchEngine`) selon les spécialités médicales et les capacités.
+* **Importation de Données (I/O)** : Chargement facile d'hôpitaux et d'incidents via des fichiers CSV (`CsvIncidentImporter`, `CsvSiteImporter`).
+* **Interface Utilisateur Interactive** : Visualisation dynamique de la carte et panneau de contrôle latéral (`MapController`, `SidebarController`).
+* **Explicabilité et Conformité RGPD** : Traçabilité des décisions de répartition (`DispatchDecision`) et génération de rapports conformes au RGPD (`GDPRReportingService`).
+* **Sécurité** : Contrôle des accès selon les rôles des utilisateurs (`UserRole`, `SecurityContext`).
 
-## Statut Actuel : MVP (Minimum Viable Product)
+## 🏗️ Architecture du Projet
 
-La version actuelle (MVP) se concentre sur les fondations de l'architecture et du moteur géométrique nécessaire à la prise de décision spatiale.
-
-**Fonctionnalités (MVP):**
-- [ ] Ajout manuel de sites de secours (Sites).
-- [ ] Ajout manuel de zones d'intervention (points utilisateurs).
-- [ ] Calcul de la Triangulation de Delaunay (maillage du territoire).
-- [ ] Algorithme de recherche du plus proche voisin (liaison sinistre -> centre de secours le plus proche).
-- [ ] Affichage terminal
-
-**Fonctionnalités à venir (Projet complet) :**
-- [ ] Interface JavaFX basée sur un modèle MVC hiérarchique.
-- [ ] Calcul du diagramme de Voronoï par dualité (délimitation précise des zones de couverture).
-- [ ] Drag & Drop des entités avec rafraîchissement en temps réel (simulation de déplacement des moyens).
-- [ ] Importation (CSV) et exportation binaire de la cartographie.
-- [ ] Panneau d'analyse statistique : évaluation des surfaces de couverture, détection des zones blanches et calcul du temps moyen d'intervention.
-
-## Architecture Technique
-
-Le projet utilise **Maven** pour la gestion des dépendances et du cycle de vie.
-- **Modèle :** Gestion des entités spatiales (`Site`, `UserPoint`, `Triangle`) avec propriétés observables.
-- **Vue :** Fichiers FXML séparés (`main.fxml`, `map.fxml`, `sidebar.fxml`) pour une collaboration sans conflit.
-- **Contrôleur :** Contrôleurs dédiés injectés via JavaFX pour séparer la logique de rendu et d'interaction.
-- **Algorithmique :** Implémentation de l'algorithme de Bowyer-Watson pour le maillage du territoire.
+Le code source est organisé selon les packages suivants :
+* `pgl.app.model` : Entités du domaine (ex: `Hospital`, `VictimIncident`, `VoronoiCell`, `MedicalSpecialty`).
+* `pgl.app.algo` : Logique algorithmique complexe et géométrie.
+* `pgl.app.controller` : Contrôleurs pour l'interface JavaFX.
+* `pgl.app.io` : Gestion des entrées/sorties, sérialisation de la carte et parsing CSV.
+* `pgl.app.explainability` : Modules de transparence algorithmique et RGPD.
+* `pgl.app.security` : Gestion des droits et des sessions.
+* `pgl.app.test` : Outils de génération de données de simulation.
 
 ## Prérequis et Lancement
 
@@ -46,4 +42,8 @@ Le projet utilise **Maven** pour la gestion des dépendances et du cycle de vie.
 2. Exécuter l'application JavaFX
     ```bash
     javafx:run
+    ```
+3. Générer Javadoc
+   ```bash
+    mvn javadoc:javadoc
     ```
