@@ -249,7 +249,6 @@ public class SidebarController {
 
         HospitalStats stats = AnalyticsEngine.computeHospitalStats(hospital, mapManager.getIncidents());
 
-        // 2. Récupération de la cellule et de son aire (Orientation Objet)
         double cellArea = 0.0;
         if (mapManager.getVoronoiCells() != null) {
             for (VoronoiCell cell : mapManager.getVoronoiCells()) {
