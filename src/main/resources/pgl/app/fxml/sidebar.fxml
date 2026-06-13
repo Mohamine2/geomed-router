@@ -45,7 +45,7 @@
                 <Button text="Show/Hide Diagram" maxWidth="Infinity" onAction="#handleToggleVoronoi" />
                 <Button text="Show/Hide Assignments" maxWidth="Infinity" onAction="#handleToggleAssignments"/>
 
-                <Button fx:id="addSiteButton" text="Add Site" maxWidth="Infinity" onAction="#handleAddSite" />
+                <Button fx:id="addSiteButton" text="Add Hospital" maxWidth="Infinity" onAction="#handleAddSite" />
                 <Button fx:id="importHospitalsCsvButton" text="Import Hospitals CSV" maxWidth="Infinity" onAction="#handleImportHospitalsCsv" />
 
                 <Label text="Bulk hospital generation" styleClass="sidebar-subtitle" />
@@ -64,11 +64,11 @@
                 <Label text="User role" styleClass="sidebar-subtitle" />
                 <ComboBox fx:id="roleComboBox" promptText="Select role" maxWidth="Infinity" />
 
-                <Button fx:id="addUserPointButton" text="Add User Point" maxWidth="Infinity" onAction="#handleAddUserPoint" />
+                <Button fx:id="addUserPointButton" text="Add Victim Incident" maxWidth="Infinity" onAction="#handleAddUserPoint" />
 
                 <Label text="Bulk user generation" styleClass="sidebar-subtitle" />
-                <TextField fx:id="randomUserCountField" promptText="Number of random users" />
-                <Button fx:id="addRandomUsersButton" text="Add Random Users" maxWidth="Infinity" onAction="#handleGenerateRandomIncidents" />
+                <TextField fx:id="randomIncidentCountField" promptText="Number of random users" />
+                <Button fx:id="addRandomUsersButton" text="Add Random Victim Incidents" maxWidth="Infinity" onAction="#handleGenerateRandomIncidents" />
                 <Button fx:id="importIncidentsCsvButton" text="Import Incidents CSV" maxWidth="Infinity" onAction="#handleImportIncidentsCsv" />
 
                 <Button fx:id="addRandomRoadsButton"

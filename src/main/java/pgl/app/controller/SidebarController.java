@@ -29,6 +29,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import java.io.IOException;
+import javafx.scene.control.TextField;
 
 /**
  * Controller class for the JavaFX sidebar user interface.
@@ -126,6 +127,12 @@ public class SidebarController {
 
     @FXML
     private Button deleteSelectedButton;
+
+    @FXML
+    private TextField randomHospitalCountField;
+
+    @FXML
+    private TextField randomIncidentCountField;
 
     // =========================================================================
     // Business Logic Fields
@@ -739,11 +746,32 @@ public class SidebarController {
     }
 
     /**
-     * Generates a batch of 10 random simulated incidents across the structural tracking zones.
+     * Generates a batch of random simulated incidents across the structural tracking zones.
+     * The number of incidents is determined by the randomIncidentCountField input.
+     * If the input is invalid or missing, a default batch of 10 incidents is generated.
      */
     @FXML
     private void handleGenerateRandomIncidents() {
-        int count = 10;
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = 10; // Default fallback value
+
+        // Retrieve and validate user input
+        if (randomIncidentCountField != null && !randomIncidentCountField.getText().trim().isEmpty()) {
+            try {
+                count = Integer.parseInt(randomIncidentCountField.getText().trim());
+                if (count <= 0) {
+                    count = 10; // Safety fallback for zero or negative values
+                    infoLabel.setText("Invalid incident count (<= 0), generating 10 defaults.");
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid input for incident count, using default value.");
+                infoLabel.setText("Error: Non-numeric input. Generating 10 incidents.");
+            }
+        }
+
         int startCount = mapManager.getIncidents().size() + 1;
         List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
 
@@ -758,6 +786,11 @@ public class SidebarController {
         if (mapController != null) {
             mapController.refreshMap();
         }
+
+        // Update UI feedback
+        infoLabel.setText(count + " random incidents generated.");
+        updateStats();
+        updateLastAssignment();
     }
 
     /**
@@ -765,7 +798,25 @@ public class SidebarController {
      */
     @FXML
     private void handleGenerateRandomHospitals() {
-        int count = 5;
+        if (mapManager == null) {
+            return;
+        }
+
+        int count = 5; // Default value
+
+        if (randomHospitalCountField != null && !randomHospitalCountField.getText().trim().isEmpty()) {
+            try {
+                count = Integer.parseInt(randomHospitalCountField.getText().trim());
+                if (count <= 0) {
+                    count = 5;
+                    infoLabel.setText("Invalid Number of hospitals (<= 0). Generating 5 hospitals");
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid entry for the number of hospitals, use the default value.");
+                infoLabel.setText("Error: Non-numeric input. Generating 5 hospitals.");
+            }
+        }
+
         int startId = mapManager.getSites().size() + 1;
 
         List<Hospital> newHospitals = SimulationDataGenerator.generateRandomHospitals(count, startId);
@@ -781,6 +832,10 @@ public class SidebarController {
         if (mapController != null) {
             mapController.refreshMap();
         }
+
+        infoLabel.setText(count + " random hospitals generated.");
+        updateStats();
+        updateLastAssignment();
     }
 
     /**
