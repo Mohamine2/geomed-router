@@ -830,9 +830,36 @@ public class SidebarController {
     }
 
     /**
+     * Parses and validates an integer from a TextField input.
+     * Handles format exceptions and logical errors (negative or zero values)
+     * by falling back to a provided default value.
+     *
+     * @param field The JavaFX TextField to read from
+     * @param defaultValue The fallback value if parsing fails
+     * @return A valid, strictly positive integer
+     */
+    private int getValidCountFromField(TextField field, int defaultValue) {
+        if (field == null || field.getText().trim().isEmpty()) {
+            return defaultValue;
+        }
+
+        try {
+            int count = Integer.parseInt(field.getText().trim());
+            if (count <= 0) {
+                infoLabel.setText("Invalid value (<= 0), defaulting to " + defaultValue + ".");
+                return defaultValue;
+            }
+            return count;
+
+        } catch (NumberFormatException e) {
+            System.err.println("Non-numeric input detected. Falling back to default: " + defaultValue);
+            infoLabel.setText("Format error. Defaulting to " + defaultValue + ".");
+            return defaultValue;
+        }
+    }
+
+    /**
      * Generates a batch of random simulated incidents across the structural tracking zones.
-     * The number of incidents is determined by the randomIncidentCountField input.
-     * If the input is invalid or missing, a default batch of 10 incidents is generated.
      */
     @FXML
     private void handleGenerateRandomIncidents() {
@@ -840,23 +867,9 @@ public class SidebarController {
             return;
         }
 
-        int count = 10; // Default fallback value
-
-        // Retrieve and validate user input
-        if (randomIncidentCountField != null && !randomIncidentCountField.getText().trim().isEmpty()) {
-            try {
-                count = Integer.parseInt(randomIncidentCountField.getText().trim());
-                if (count <= 0) {
-                    count = 10; // Safety fallback for zero or negative values
-                    infoLabel.setText("Invalid incident count (<= 0), generating 10 defaults.");
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid input for incident count, using default value.");
-                infoLabel.setText("Error: Non-numeric input. Generating 10 incidents.");
-            }
-        }
-
+        int count = getValidCountFromField(randomIncidentCountField, 10); // Default value
         int startCount = mapManager.getIncidents().size() + 1;
+
         List<Hospital> currentHospitals = new ArrayList<>(mapManager.getSites());
 
         List<VictimIncident> newIncidents = SimulationDataGenerator.generateRandomIncidents(
@@ -871,14 +884,13 @@ public class SidebarController {
             mapController.refreshMap();
         }
 
-        // Update UI feedback
         infoLabel.setText(count + " random incidents generated.");
         updateStats();
         updateLastAssignment();
     }
 
     /**
-     * Generates a batch of 5 random simulated hospitals across the canvas layout workspace.
+     * Generates a batch of random simulated hospitals across the canvas layout workspace.
      */
     @FXML
     private void handleGenerateRandomHospitals() {
@@ -886,21 +898,7 @@ public class SidebarController {
             return;
         }
 
-        int count = 5; // Default value
-
-        if (randomHospitalCountField != null && !randomHospitalCountField.getText().trim().isEmpty()) {
-            try {
-                count = Integer.parseInt(randomHospitalCountField.getText().trim());
-                if (count <= 0) {
-                    count = 5;
-                    infoLabel.setText("Invalid Number of hospitals (<= 0). Generating 5 hospitals");
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid entry for the number of hospitals, use the default value.");
-                infoLabel.setText("Error: Non-numeric input. Generating 5 hospitals.");
-            }
-        }
-
+        int count = getValidCountFromField(randomHospitalCountField, 5); // Default value
         int startId = mapManager.getSites().size() + 1;
 
         List<Hospital> newHospitals = SimulationDataGenerator.generateRandomHospitals(count, startId);
