@@ -14,11 +14,11 @@ import java.util.Objects;
  * @version 1.0
  */
 public class Point {
-    /** X-axis coordinate on the map. We use DoubleProperty to enable automatic UI binding and reactive updates. */
-    private final DoubleProperty x = new SimpleDoubleProperty();
+    /** The X-coordinate projected on the local map layout. */
+    private double x;
 
-    /** Y-axis coordinate on the map. We use DoubleProperty to enable automatic UI binding and reactive updates. */
-    private final DoubleProperty y = new SimpleDoubleProperty();
+    /** The Y-coordinate projected on the local map layout. */
+    private double y;
 
     /**
      * Base constructor for a point.
@@ -31,19 +31,19 @@ public class Point {
     }
 
     public double getX() {
-        return x.get();
+        return x;
     }
 
     public void setX(double x) {
-        this.x.set(x);
+        this.x = x;
     }
 
     public double getY() {
-        return y.get();
+        return y;
     }
 
     public void setY(double y) {
-        this.y.set(y);
+        this.y = y;
     }
 
     /**
