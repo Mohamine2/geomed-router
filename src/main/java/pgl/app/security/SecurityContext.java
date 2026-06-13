@@ -7,7 +7,6 @@ package pgl.app.security;
  * providing utility methods to query or modify the active authorization level across the application.
  * </p>
  *
- * @author YourName
  * @version 1.0
  */
 public final class SecurityContext {

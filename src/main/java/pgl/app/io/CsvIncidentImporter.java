@@ -62,7 +62,6 @@ public class CsvIncidentImporter {
                     } catch (IllegalArgumentException ignored) {}
                 }
 
-                // --- NOUVEAU : Lecture du Preferred Hospital ID (Colonne 4) ---
                 Integer prefId = null;
                 if (parts.length > 3 && !parts[3].trim().isEmpty()) {
                     try {
@@ -71,8 +70,8 @@ public class CsvIncidentImporter {
                             prefId = parsedId;
                         }
                     } catch (NumberFormatException ignored) {
-                        // Tolérance aux erreurs : Si le CSV contient "N/A" ou du texte,
-                        // on ignore silencieusement et prefId reste null.
+                        // Error tolerance: If the CSV contains "N/A" or text,
+                        // it is silently ignored and prefId remains null.
                     }
                 }
 

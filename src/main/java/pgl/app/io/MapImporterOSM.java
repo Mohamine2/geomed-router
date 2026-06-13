@@ -55,14 +55,13 @@ public class MapImporterOSM {
         String content = Files.readString(jsonFile);
         JSONObject root = new JSONObject(content);
 
-        // On cible UNIQUEMENT "elements". Le mot "features" est banni d'ici.
         JSONArray elements = root.getJSONArray("elements");
 
-        // Cache pour s'assurer de l'unicité des instances de Point
+        // Cache to ensure the uniqueness of Point instances
         Map<String, Point> intersectionCache = new HashMap<>();
         Map<Long, Point> osmNodeMap = new HashMap<>();
 
-        // ---- PASSE 1 : Extraction et enregistrement des nœuds ----
+        // ---- STEP 1: Extraction and recording of nodes ----
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             if (element.getString("type").equals("node")) {
@@ -80,7 +79,6 @@ public class MapImporterOSM {
                     point = new Point(x, y);
                     intersectionCache.put(coordKey, point);
 
-                    // Requis pour la sauvegarde binaire (.pglm)
                     manager.getRoadNetwork().addIntersection(point);
                 }
                 osmNodeMap.put(id, point);
@@ -89,7 +87,7 @@ public class MapImporterOSM {
 
         Random rand = new Random();
 
-        // ---- PASSE 2 : Liaison des segments de routes ----
+        // ---- STEP 2: Linking road segments ----
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             if (element.getString("type").equals("way")) {
@@ -107,6 +105,5 @@ public class MapImporterOSM {
                 }
             }
         }
-        System.out.println("[MapImporterOSM] Réseau routier chargé.");
     }
 }

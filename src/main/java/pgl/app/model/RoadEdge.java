@@ -3,6 +3,7 @@ package pgl.app.model;
 /**
  * Represents a physical road segment connecting two intersections.
  * Used exclusively for route calculation (Dijkstra's algorithm).
+ * @version 1.0
  */
 public class RoadEdge {
 

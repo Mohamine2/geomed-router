@@ -11,7 +11,6 @@ import java.util.List;
  * their associated Delaunay mesh triangles.
  * </p>
  *
- * @author YourName
  * @version 1.0
  */
 public class AnalyticsEngine {

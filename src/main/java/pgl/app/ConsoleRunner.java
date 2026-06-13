@@ -451,7 +451,7 @@ public class ConsoleRunner {
 
     /**
      * Displays the triangles with advanced geometric and operational metrics.
-     * * @param triangles The list of triangles provided by the Delaunay triangulation engine.
+     * @param triangles The list of triangles provided by the Delaunay triangulation engine.
      */
     public static void displayTriangles(List<Triangle> triangles) {
         System.out.println("\n--- Delaunay Triangulation & Inspection Results ---");
@@ -476,7 +476,7 @@ public class ConsoleRunner {
 
     /**
      * Displays the calculated Voronoi cells and their sorted vertices in the console.
-     * * @param cells The list of Voronoi cells provided by MapManager.
+     * @param cells The list of Voronoi cells provided by MapManager.
      */
     public static void displayVoronoiCells(List<VoronoiCell> cells) {
         System.out.println("\n--- Voronoi Diagram Results (Cells) ---");
@@ -683,10 +683,8 @@ public class ConsoleRunner {
         }
 
         try {
-            // 1. On nettoie la carte actuelle pour éviter les mélanges de données
             mapManager.clear();
 
-            // 2. On importe les données OSM en mémoire
             pgl.app.io.MapImporterOSM.importFromOSM(mapManager, filePath);
 
             System.out.println("Import réussi ! La carte est maintenant en mémoire.");
@@ -722,10 +720,9 @@ public class ConsoleRunner {
             double ey = askDouble(sc, "  Enter End Node Y: ");
             double traffic = askDouble(sc, "  Enter Traffic Factor (1.0 = clear, >1.0 = heavy traffic): ");
 
-            // Sécurité algorithmique : on force le trafic à être >= 1.0 pour garantir l'heuristique de A*
             traffic = Math.max(1.0, traffic);
 
-            // Création de la route via MapManager (qui va gérer l'ajout dans RoadNetwork et invalider le cache)
+            // Route creation via MapManager (which will handle adding it to RoadNetwork and invalidating the cache)
             mapManager.addRoad(new Point(sx, sy), new Point(ex, ey), traffic);
 
             System.out.println("Road added successfully between (" + sx + "," + sy + ") and (" + ex + "," + ey + ") with traffic factor " + traffic);

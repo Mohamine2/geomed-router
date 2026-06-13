@@ -4,6 +4,7 @@ import java.util.*;
 
 /**
  * Encapsulates the road network graph structure representing intersections (vertices) and roads (edges).
+ * @version 1.0
  */
 public class RoadNetwork {
     private final List<Point> intersections = new ArrayList<>();

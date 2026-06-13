@@ -7,24 +7,49 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Usine chargée de générer des données de test et de simulation (Hôpitaux, Incidents, Routes).
- * Cette classe est agnostique de l'UI (utilisable en Console et JavaFX).
+ * Utility data factory class responsible for provisioning randomized mock test structures.
+ * <p>
+ * This factory generates simulation instances of {@link Hospital} units, {@link VictimIncident}
+ * occurrences, and matching interconnected {@link RoadEdge} paths. By design, this class is entirely
+ * decoupled and agnostic of any visual toolkit or graphic interface subsystem, rendering it fully reusable
+ * across lightweight command-line Console runtimes and full JavaFX GUI layout dashboard components.
+ * </p>
+ *
+ * @author YourName
+ * @version 1.0
  */
 public class SimulationDataGenerator {
 
+    /** Centralized random number generator source used to seed coordinates and weights. */
     private static final Random rand = new Random();
+
+    /** Immutable local cache copy of all available standard medical qualification disciplines. */
     private static final MedicalSpecialty[] specialties = MedicalSpecialty.values();
 
     /**
-     * Génère une liste d'hôpitaux aléatoires.
+     * Generates an array list of randomized hospital structures.
+     * <p>
+     * Each simulated entity is configured with:
+     * <ul>
+     * <li>A random maximum intake capacity value constrained within the range $[10, 100]$.</li>
+     * <li>Planar geometric placement layout coordinates bound inside safe operational zones
+     * (X: $50\text{ to }700\text{ px}$, Y: $50\text{ to }600\text{ px}$).</li>
+     * <li>A default fallback {@link MedicalSpecialty#GENERAL} qualification combined with a secondary,
+     * randomly selected medical discipline priority assignment.</li>
+     * </ul>
+     * </p>
+     *
+     * @param count     the specific quantity of structural hospital instances to instantiate
+     * @param startId   the baseline auto-incrementing unique identifier index to start numbering from
+     * @return a compiled list filled with unique, randomly distributed {@link Hospital} data model nodes
      */
     public static List<Hospital> generateRandomHospitals(int count, int startId) {
         List<Hospital> hospitals = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             int capacity = rand.nextInt(91) + 10;
 
-            int x = rand.nextInt(650) + 50; // Position X aléatoire entre 50 et 700
-            int y = rand.nextInt(550) + 50; // Position Y aléatoire entre 50 et 600
+            int x = rand.nextInt(650) + 50;
+            int y = rand.nextInt(550) + 50;
             Hospital h = new Hospital(x, y, startId + i, capacity);
 
             MedicalSpecialty randSpec = specialties[rand.nextInt(specialties.length)];
@@ -37,7 +62,21 @@ public class SimulationDataGenerator {
     }
 
     /**
-     * Génère une liste d'incidents aléatoires.
+     * Generates a batch collection of randomized emergency victim incidents.
+     * <p>
+     * Every simulated incident event is seeded with:
+     * <ul>
+     * <li>A padded alphanumeric structural identifier format string (e.g., {@code INC-R-001}).</li>
+     * <li>A single specialized primary medical triage emergency requirement category type.</li>
+     * <li>A $20\%$ mathematical probability of configuring a fixed preferred destination hospital matching
+     * an item from the supplied available hubs list.</li>
+     * </ul>
+     * </p>
+     *
+     * @param count            the explicit quantity of mock victim emergency incidents to create
+     * @param startCount       the numerical tracking offset used to format ordered serial tracking identifier tags
+     * @param currentHospitals the active cluster of baseline hospital nodes currently registered in the topology map
+     * @return a collection array consisting of randomized, unmapped {@link VictimIncident} emergency contexts
      */
     public static List<VictimIncident> generateRandomIncidents(int count, int startCount, List<Hospital> currentHospitals) {
         List<VictimIncident> incidents = new ArrayList<>();
@@ -53,7 +92,6 @@ public class SimulationDataGenerator {
                 prefId = randomHosp.getId();
             }
 
-            // Pour la génération des Incidents :
             int incidentX = rand.nextInt(650) + 50;
             int incidentY = rand.nextInt(550) + 50;
             incidents.add(new VictimIncident(incidentX, incidentY, incidentId, type, prefId));
@@ -62,7 +100,19 @@ public class SimulationDataGenerator {
     }
 
     /**
-     * Génère un réseau routier aléatoire entre les hôpitaux existants.
+     * Injects a randomized, multi-weighted grid network of roads interconnecting registered active hospital nodes.
+     * <p>
+     * <b>Traffic Congestion Probability Distribution Model:</b>
+     * <ul>
+     * <li>There is a $30\%$ statistical probability that a path experiences congestion issues.
+     * The resulting traffic factor metric dynamically scales within the range $[1.5, 4.0[$.</li>
+     * <li>The remaining $70\%$ of connections map as standard fluid traffic links, carrying a baseline traffic factor value of exactly $1.0$.</li>
+     * </ul>
+     * Links connecting a single hospital node back onto itself are intercepted and discarded to prevent infinite routing self-loops.
+     * </p>
+     *
+     * @param mapManager the underlying target central core orchestrator system context instance to inject roads into
+     * @param nbRoads    the total target quantity of cross-grid connective road segments to generate
      */
     public static void generateRandomRoads(MapManager mapManager, int nbRoads) {
         List<Hospital> hospitals = new ArrayList<>(mapManager.getSites());
