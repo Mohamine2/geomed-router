@@ -120,9 +120,6 @@ public class SidebarController {
     private Button saveBinaryButton;
 
     @FXML
-    private Button recomputeButton;
-
-    @FXML
     private Button clearButton;
 
     @FXML
@@ -216,7 +213,6 @@ public class SidebarController {
         deleteSelectedButton.setDisable(!admin);
 
         importIncidentsCsvButton.setDisable(!doctorOrAdmin);
-        recomputeButton.setDisable(!doctorOrAdmin);
         addRandomUsersButton.setDisable(!admin);
 
         addRandomHospitalsButton.setDisable(!admin);
