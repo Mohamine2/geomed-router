@@ -9,4 +9,8 @@ module pgl.app {
 
     exports pgl.app;
     exports pgl.app.model;
+    exports pgl.app.algo;
+    exports pgl.app.io;
+    exports pgl.app.security;
+    exports pgl.app.explainability;
 }
