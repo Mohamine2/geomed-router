@@ -133,6 +133,15 @@ public class SidebarController {
 
     @FXML
     private TextField randomIncidentCountField;
+    
+    @FXML
+    private Button addManualIncidentButton;
+    
+    @FXML
+    private TextField incidentXField;
+
+    @FXML
+    private TextField incidentYField;
 
     // =========================================================================
     // Business Logic Fields
@@ -213,10 +222,10 @@ public class SidebarController {
         addRandomHospitalsButton.setDisable(!admin);
         addRandomRoadsButton.setDisable(!admin);
 
-        importIncidentsCsvButton.setDisable(!admin);
         saveBinaryButton.setDisable(!admin);
 
         addUserPointButton.setDisable(!doctorOrAdmin);
+        addManualIncidentButton.setDisable(!doctorOrAdmin);
 
         infoLabel.setText("Current role: " + SecurityContext.getCurrentRole());
     }
@@ -627,6 +636,81 @@ public class SidebarController {
 
         updateStats();
         updateLastAssignment();
+    }
+    
+    @FXML
+    private void handleAddManualIncident() {
+        if (!SecurityContext.hasAccess(UserRole.ADMIN, UserRole.DOCTOR)) {
+            infoLabel.setText("Access denied.");
+            return;
+        }
+
+        if (mapManager == null || mapController == null) {
+            infoLabel.setText("Application not initialized.");
+            return;
+        }
+
+        try {
+            String xText = incidentXField.getText().trim();
+            String yText = incidentYField.getText().trim();
+
+            if (xText.isEmpty() || yText.isEmpty()) {
+                infoLabel.setText("Please enter both X and Y coordinates.");
+                return;
+            }
+
+            double x = Double.parseDouble(xText);
+            double y = Double.parseDouble(yText);
+
+            if (!Double.isFinite(x) || !Double.isFinite(y)) {
+                infoLabel.setText("Coordinates must be finite numbers.");
+                return;
+            }
+
+            /*
+             * Limites correspondant approximativement à la zone utilisée
+             * pour dessiner les éléments de la carte.
+             */
+            if (x < 0 || x > 750 || y < 0 || y > 700) {
+                infoLabel.setText(
+                        "Coordinates must be inside the map: "
+                        + "X between 0 and 750, Y between 0 and 700."
+                );
+                return;
+            }
+
+            int incidentNumber = mapManager.getIncidents().size() + 1;
+            String incidentId = "INC-" + incidentNumber;
+
+            VictimIncident incident = new VictimIncident(
+                    x,
+                    y,
+                    incidentId,
+                    MedicalSpecialty.GENERAL,
+                    null
+            );
+
+            mapManager.addIncident(incident);
+
+            mapController.refreshMap();
+
+            updateStats();
+            updateLastAssignment();
+            showIncidentDetails(incident);
+
+            incidentXField.clear();
+            incidentYField.clear();
+
+            infoLabel.setText(
+                    "Incident " + incidentId
+                    + " added at (" + x + ", " + y + ")."
+            );
+
+        } catch (NumberFormatException e) {
+            infoLabel.setText(
+                    "Invalid coordinates. X and Y must be valid numbers."
+            );
+        }
     }
 
     /**

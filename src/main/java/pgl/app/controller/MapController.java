@@ -1,6 +1,7 @@
 package pgl.app.controller;
 
 import javafx.fxml.FXML;
+
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -143,8 +144,13 @@ public class MapController {
                 double deltaX = event.getSceneX() - lastMouseX;
                 double deltaY = event.getSceneY() - lastMouseY;
 
-                mapPane.setTranslateX(mapPane.getTranslateX() + deltaX);
-                mapPane.setTranslateY(mapPane.getTranslateY() + deltaY);
+                mapPane.setTranslateX(
+                        mapPane.getTranslateX() + deltaX
+                );
+
+                mapPane.setTranslateY(
+                        mapPane.getTranslateY() + deltaY
+                );
 
                 lastMouseX = event.getSceneX();
                 lastMouseY = event.getSceneY();
