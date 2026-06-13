@@ -29,24 +29,55 @@ public final class MapBinarySerializer {
 
     /** Magic number "PGLM". */
     public static final int MAGIC = 0x50474C4D;
+
+    /** * Current version of the binary file format.
+     */
     public static final short VERSION = 1;
+
+    /** * Standard file extension for the application's maps.
+     */
     public static final String FILE_EXTENSION = "pglm";
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private MapBinarySerializer() {
     }
 
+    /**
+     * Exports the current state of the map manager to a file on the disk.
+     *
+     * @param manager The map manager containing the data to save.
+     * @param file    The target file path where the data will be written.
+     * @throws IOException If an input/output error occurs during file creation or writing.
+     */
     public static void exportToFile(MapManager manager, Path file) throws IOException {
         try (OutputStream out = Files.newOutputStream(file)) {
             export(manager, out);
         }
     }
 
+    /**
+     * Imports map data from a binary file and loads it into the manager.
+     *
+     * @param manager The map manager that will receive the imported data.
+     * @param file    The path of the binary file to read.
+     * @throws IOException                If a reading error occurs, or if the file format/version is invalid.
+     * @throws HospitalCollisionException If the imported data causes a spatial collision between multiple hospitals.
+     */
     public static void importFromFile(MapManager manager, Path file) throws IOException, HospitalCollisionException{
         try (InputStream in = Files.newInputStream(file)) {
             importMap(manager, in);
         }
     }
 
+    /**
+     * Serializes the model content (intersections, roads, hospitals, incidents) into a binary output stream.
+     *
+     * @param manager The map manager providing the data.
+     * @param out     The output stream where the binary data will be written.
+     * @throws IOException If an error occurs while writing to the stream.
+     */
     public static void export(MapManager manager, OutputStream out) throws IOException {
         DataOutputStream data = new DataOutputStream(out);
         data.writeInt(MAGIC);
@@ -96,6 +127,15 @@ public final class MapBinarySerializer {
         data.flush();
     }
 
+    /**
+     * Deserializes and reconstructs the map state from a binary input stream.
+     * Handles the reading of elements, their re-instantiation, and post-import geometric calculations.
+     *
+     * @param manager The map manager to update.
+     * @param in      The input stream containing the formatted data.
+     * @throws IOException                If the file is corrupted, has a bad magic number, an unsupported version, or in case of a reading error.
+     * @throws HospitalCollisionException If the reconstruction leads to overlapping hospitals.
+     */
     public static void importMap(MapManager manager, InputStream in) throws IOException, HospitalCollisionException {
         DataInputStream data = new DataInputStream(in);
 
@@ -170,6 +210,15 @@ public final class MapBinarySerializer {
         manager.updateAll();
     }
 
+    /**
+     * Finds the index of a specific point (intersection) within a list.
+     * This method is used to reference road endpoints by their index.
+     *
+     * @param intersections The list of all available points/intersections.
+     * @param target        The exact point to search for.
+     * @return The integer index of the point in the list.
+     * @throws IllegalStateException If the searched point is not found in the list.
+     */
     private static int indexOf(List<Point> intersections, Point target) {
         for (int i = 0; i < intersections.size(); i++) {
             if (intersections.get(i).equals(target)) {
@@ -179,12 +228,28 @@ public final class MapBinarySerializer {
         throw new IllegalStateException("Road endpoint not found in intersection list.");
     }
 
+    /**
+     * Validates that an index read from the binary file is within the expected bounds.
+     * Prevents OutOfBounds errors if the file is altered.
+     *
+     * @param index The index to validate.
+     * @param size  The maximum size of the structure (exclusive upper bound).
+     * @param field A textual description of the field (for a clearer error message).
+     * @throws IOException If the index is strictly less than 0 or greater than/equal to the size limit.
+     */
     private static void validateIndex(int index, int size, String field) throws IOException {
         if (index < 0 || index >= size) {
             throw new IOException("Invalid " + field + " index: " + index + " (size=" + size + ")");
         }
     }
 
+    /**
+     * Converts a byte value read from the file into the corresponding {@link MedicalSpecialty} enumeration.
+     *
+     * @param ordinal The numeric ordinal of the saved medical specialty.
+     * @return The medical specialty associated with this ordinal.
+     * @throws IOException If the read value does not correspond to any known specialty (possibly corrupted file or mismatched version).
+     */
     private static MedicalSpecialty readSpecialty(byte ordinal) throws IOException {
         MedicalSpecialty[] values = MedicalSpecialty.values();
         if (ordinal < 0 || ordinal >= values.length) {
