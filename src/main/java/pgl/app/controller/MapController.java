@@ -23,33 +23,77 @@ import javafx.scene.shape.Shape;
 import javafx.scene.shape.Rectangle;
 import pgl.app.model.RoadEdge;
 
-
+/**
+ * Contrôleur responsable de l'affichage et des interactions de la carte (Map).
+ * Il gère le rendu visuel (hôpitaux, incidents, réseau routier, Voronoï, Delaunay)
+ * ainsi que les événements utilisateur (zoom, déplacement, glisser-déposer, clics).
+ */
 public class MapController {
 
+    /**
+     * Facteur de zoom actuel appliqué à la carte.
+     */
     private double zoomFactor = 1.0;
 
+    /**
+     * Coordonnée X de la souris lors du dernier événement de déplacement (pan).
+     */
     private double lastMouseX;
 
+    /**
+     * Coordonnée Y de la souris lors du dernier événement de déplacement (pan).
+     */
     private double lastMouseY;
 
+    /**
+     * L'incident actuellement sélectionné sur la carte par l'utilisateur.
+     */
     private VictimIncident selectedIncident;
 
+    /**
+     * Ensemble des identifiants des hôpitaux actuellement mis en surbrillance.
+     */
     private final Set<Integer> highlightedHospitalIds = new HashSet<>();
 
+    /**
+     * L'hôpital actuellement sélectionné sur la carte par l'utilisateur.
+     */
     private Hospital selectedHospital;
 
+    /**
+     * Indicateur définissant si les triangles de Delaunay doivent être affichés.
+     */
     private boolean showTriangles = true;
+
+    /**
+     * Indicateur définissant si les cellules de Voronoï doivent être affichées.
+     */
     private boolean showVoronoi = true;
 
+    /**
+     * Indicateur définissant si les lignes d'affectation (incidents vers hôpitaux) doivent être affichées.
+     */
     private boolean showAssignments = true;
 
+    /**
+     * Le panneau principal (conteneur JavaFX) sur lequel tous les éléments géométriques sont dessinés.
+     */
     @FXML
     private Pane mapPane;
 
+    /**
+     * Le gestionnaire central contenant la logique métier et les données du modèle géographique.
+     */
     private MapManager mapManager;
 
+    /**
+     * Le contrôleur de la barre latérale pour permettre la mise à jour des détails d'interface.
+     */
     private SidebarController sidebarController;
 
+    /**
+     * L'identifiant de l'hôpital assigné à l'incident actuellement sélectionné.
+     */
     private Integer selectedAssignedHospitalId;
 
     /**
@@ -63,11 +107,18 @@ public class MapController {
 
     }
 
+    /**
+     * Bascule la visibilité des lignes d'affectation (entre les incidents et leurs hôpitaux)
+     * et rafraîchit la carte pour appliquer le changement.
+     */
     public void toggleAssignmentsVisibility() {
         showAssignments = !showAssignments;
         refreshMap();
     }
 
+    /**
+     * Configure le comportement du zoom sur le panneau de la carte à l'aide de la molette de la souris.
+     */
     private void setupZoom() {
         mapPane.setPickOnBounds(true);
 
@@ -93,6 +144,9 @@ public class MapController {
         });
     }
 
+    /**
+     * Configure le comportement de déplacement (panoramique) de la carte par cliquer-glisser.
+     */
     private void setupPan() {
         mapPane.setOnMousePressed(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
@@ -117,6 +171,12 @@ public class MapController {
         });
     }
 
+    /**
+     * Sélectionne un incident donné, met en surbrillance l'hôpital assigné ainsi que ses voisins,
+     * ou désélectionne si l'incident est déjà sélectionné.
+     *
+     * @param incident L'incident victime sélectionné sur la carte.
+     */
     private void selectIncident(VictimIncident incident) {
         if (selectedIncident != null
                 && selectedIncident.getIncidentId().equals(incident.getIncidentId())) {
@@ -150,6 +210,10 @@ public class MapController {
         refreshMap();
     }
 
+    /**
+     * Dessine les liaisons d'affectation entre les incidents et les hôpitaux.
+     * Pour l'incident sélectionné, le chemin routier réel est dessiné si disponible.
+     */
     private void drawAssignments() {
         for (VictimIncident incident : mapManager.getIncidents()) {
             if (incident.getClosestHospital() != null) {
@@ -185,6 +249,13 @@ public class MapController {
         }
     }
 
+    /**
+     * Dessine une ligne droite en pointillés pour représenter l'affectation directe
+     * à vol d'oiseau entre un incident et son hôpital le plus proche.
+     *
+     * @param incident L'incident à relier à son hôpital.
+     * @param isSelected Indique si cet incident est actuellement sélectionné (modifie le style visuel).
+     */
     // Méthode utilitaire ajoutée pour tracer la ligne droite en pointillés
     private void drawStraightAssignmentLine(VictimIncident incident, boolean isSelected) {
         Line assignmentLine = new Line(
@@ -200,19 +271,35 @@ public class MapController {
         mapPane.getChildren().add(assignmentLine);
     }
 
+    /**
+     * Définit le modèle gestionnaire de la carte pour ce contrôleur.
+     *
+     * @param mapManager L'instance de {@link MapManager} à lier à la vue.
+     */
     public void setMapManager(MapManager mapManager) {
         this.mapManager = mapManager;
     }
 
+    /**
+     * Lie ce contrôleur au contrôleur de la barre latérale.
+     *
+     * @param sidebarController L'instance de {@link SidebarController}.
+     */
     public void setSidebarController(SidebarController sidebarController) {
         this.sidebarController = sidebarController;
     }
 
+    /**
+     * Bascule la visibilité de la triangulation de Delaunay et rafraîchit la carte.
+     */
     public void toggleTrianglesVisibility() {
         showTriangles = !showTriangles;
         refreshMap();
     }
 
+    /**
+     * Bascule la visibilité du diagramme de Voronoï et rafraîchit la carte.
+     */
     public void toggleVoronoiVisibility() {
         showVoronoi = !showVoronoi;
         refreshMap();
@@ -246,6 +333,9 @@ public class MapController {
         drawLegend();
     }
 
+    /**
+     * Dessine la légende explicative sur la carte décrivant la signification des couleurs et des formes.
+     */
     private void drawLegend() {
         double boxX = 20;
         double boxY = 500;
@@ -299,6 +389,14 @@ public class MapController {
         );
     }
 
+    /**
+     * Rend l'icône d'un hôpital déplaçable via glisser-déposer.
+     * Intègre également une logique d'attraction (snap) sur le réseau routier le plus proche.
+     *
+     * @param hospital L'hôpital du modèle associé au cercle graphique.
+     * @param circle Le cercle graphique représentant l'hôpital.
+     * @param label Le texte d'étiquette accompagnant le cercle.
+     */
     private void makeHospitalDraggable(Hospital hospital, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
 
@@ -420,6 +518,14 @@ public class MapController {
         }
     }
 
+    /**
+     * Rend l'icône d'un incident déplaçable via glisser-déposer.
+     * Intègre également une logique d'attraction (snap) sur le réseau routier le plus proche.
+     *
+     * @param incident L'incident du modèle associé au cercle graphique.
+     * @param circle Le cercle graphique représentant l'incident.
+     * @param label Le texte d'étiquette accompagnant le cercle.
+     */
     private void makeIncidentDraggable(VictimIncident incident, Circle circle, Text label) {
         final double[] dragOffset = new double[2];
         final boolean[] wasDragged = {false};
@@ -602,6 +708,11 @@ public class MapController {
         }
     }
 
+    /**
+     * Dessine les sommets uniques appartenant aux cellules de Voronoï.
+     * Gère également l'événement de clic pour faire la correspondance avec le centre
+     * circonscrit d'un triangle de Delaunay (utile pour le détail dans l'UI).
+     */
     private void drawVoronoiVertices() {
         List<VoronoiCell> cells = mapManager.getVoronoiCells();
         Set<Point> drawnVertices = new HashSet<>();
@@ -643,6 +754,7 @@ public class MapController {
             }
         }
     }
+
     /**
      * Dessine la triangulation de Delaunay.
      */
@@ -730,6 +842,10 @@ public class MapController {
         }
     }
 
+    /**
+     * Supprime de la carte et du modèle l'élément actuellement sélectionné
+     * (Hôpital ou Incident), puis rafraîchit l'affichage.
+     */
     public void deleteSelectedElement() {
         if (mapManager == null) {
             return;
@@ -752,6 +868,9 @@ public class MapController {
         refreshMap();
     }
 
+    /**
+     * Réinitialise les sélections actives (hôpitaux et incidents) sur l'interface de la carte.
+     */
     public void clearSelection() {
         selectedIncident = null;
         selectedHospital = null;
