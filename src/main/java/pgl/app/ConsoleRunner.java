@@ -259,21 +259,41 @@ public class ConsoleRunner {
         switch (choice) {
             case 0:
                 return;
+
             case 1:
                 int hId = askInt(sc, "Enter Hospital ID: ");
                 Hospital h = mapManager.findHospitalById(hId);
                 if (h != null) {
-                    HospitalStats stats = mapManager.getStatsForHospital(h);
+                    HospitalStats stats = pgl.app.algo.AnalyticsEngine.computeHospitalStats(h, mapManager.getIncidents());
+
+                    double cellArea = 0.0;
+                    if (mapManager.getVoronoiCells() != null) {
+                        for (VoronoiCell cell : mapManager.getVoronoiCells()) {
+                            if (cell.getHospital() != null && cell.getHospital().getId() == h.getId()) {
+                                cellArea = cell.getArea();
+                                break;
+                            }
+                        }
+                    }
+
+                    double density = pgl.app.algo.AnalyticsEngine.computeIncidentDensity(cellArea, stats.getAssignedIncidentsCount());
+
                     System.out.printf("\n[Hospital H%d Inspection Profile]\n", h.getId());
                     System.out.printf("  Position: (%.1f, %.1f) | Occupancy: %d/%d (%.1f%%)\n", h.getX(), h.getY(), h.getCurrentPatients(), h.getCapacityMax(), h.getOccupancyRate()*100);
                     System.out.printf("  Active Assigned Incidents workload: %d cases\n", stats.getAssignedIncidentsCount());
+
                     if (stats.getAssignedIncidentsCount() > 0) {
                         System.out.printf("  Response Vector Distances -> Min: %.2f | Max: %.2f | Avg: %.2f\n", stats.getMinDistance(), stats.getMaxDistance(), stats.getAverageDistance());
                     }
+
+                    System.out.printf("  Voronoi Cell Area: %s\n", cellArea > 0 ? String.format("%.2f sq units", cellArea) : "Infinite/Unbounded");
+                    System.out.printf("  Incident Density: %s\n", cellArea > 0 ? String.format("%.2f inc / 10k sq units", density) : "N/A");
+
                 } else {
                     System.out.println("Hospital not found.");
                 }
                 break;
+
             case 2:
                 System.out.print("Enter Incident ID: ");
                 String viId = sc.next();
@@ -307,22 +327,15 @@ public class ConsoleRunner {
                         if (pgl.app.security.SecurityContext.hasAccess(UserRole.DOCTOR, UserRole.ADMIN)) {
                             System.out.println("\nWould you like to generate the GDPR Transparency & Accessibility Report? (y/n)");
                             if (sc.next().equalsIgnoreCase("y")) {
-
-                                // --- NOUVELLE ARCHITECTURE ---
-
-                                // A. On demande au moteur de recréer l'évaluation pour obtenir la matrice de score complète
                                 DispatchEngine engine = new pgl.app.algo.DispatchEngine();
                                 DispatchDecision decision = engine.evaluateBestDispatch(
                                         vi,
                                         mapManager.getSites(),
-                                        mapManager.getRoutingEngine(), // Utilisation du cache ultra-rapide
+                                        mapManager.getRoutingEngine(),
                                         mapManager.getTriangles()
                                 );
 
-                                // B. On confie la décision au service de reporting pour le formatage
                                 GDPRReportingService reporter = new GDPRReportingService();
-
-                                // 2. Generate and display the report
                                 String gdprReport = reporter.generateGDPRSummary(vi, decision);
                                 System.out.println(gdprReport);
 
@@ -339,6 +352,7 @@ public class ConsoleRunner {
                     System.out.println("Incident not found.");
                 }
                 break;
+
             case 3:
                 List<Triangle> triangles = mapManager.getTriangles();
                 if (triangles.isEmpty()) {
@@ -347,24 +361,30 @@ public class ConsoleRunner {
                 }
                 System.out.println("Available Triangles index (1 to " + triangles.size() + "):");
                 int tIdx = askInt(sc, "Select Index: ") - 1;
+
                 if (tIdx >= 0 && tIdx < triangles.size()) {
                     Triangle t = triangles.get(tIdx);
                     Hospital hA = (Hospital) t.getA();
                     Hospital hB = (Hospital) t.getB();
                     Hospital hC = (Hospital) t.getC();
-                    int countA = mapManager.getIncidentCountForHospital(hA);
-                    int countB = mapManager.getIncidentCountForHospital(hB);
-                    int countC = mapManager.getIncidentCountForHospital(hC);
+
+                    int countA = pgl.app.algo.AnalyticsEngine.getIncidentCountForHospital(hA, mapManager.getIncidents());
+                    int countB = pgl.app.algo.AnalyticsEngine.getIncidentCountForHospital(hB, mapManager.getIncidents());
+                    int countC = pgl.app.algo.AnalyticsEngine.getIncidentCountForHospital(hC, mapManager.getIncidents());
+                    int imbalance = pgl.app.algo.AnalyticsEngine.getTriangleLoadImbalance(t, mapManager.getIncidents());
 
                     System.out.printf("\n[Delaunay Triangle #%d Inspection Panel]\n", (tIdx + 1));
                     System.out.printf("  Vertices coordinates: A(H%d: %.1f,%.1f) B(H%d: %.1f,%.1f) C(H%d: %.1f,%.1f)\n", hA.getId(), hA.getX(), hA.getY(), hB.getId(), hB.getX(), hB.getY(), hC.getId(), hC.getX(), hC.getY());
+
                     System.out.printf("  Arête metrics: AB = %.2f | BC = %.2f | CA = %.2f\n", t.getEdgeABLength(), t.getEdgeBCLength(), t.getEdgeCALength());
                     System.out.printf("  Geometric Surface Area: %.2f square units\n", t.getArea());
+
                     System.out.println("  Demographic Load distribution per vertex:");
                     System.out.printf("    - Hospital H%d: %d active users\n", hA.getId(), countA);
                     System.out.printf("    - Hospital H%d: %d active users\n", hB.getId(), countB);
                     System.out.printf("    - Hospital H%d: %d active users\n", hC.getId(), countC);
-                    System.out.printf("  Localized Workload Imbalance Disparity: %d cases difference\n", mapManager.getTriangleLoadImbalance(t));
+                    System.out.printf("  Localized Workload Imbalance Disparity: %d cases difference\n", imbalance);
+
                 } else {
                     System.out.println("Index out of bounds.");
                 }
@@ -373,6 +393,7 @@ public class ConsoleRunner {
             case 4:
                 displayResults();
                 break;
+
             default:
                 System.out.println("Invalid option. Returning to main menu...");
         }
