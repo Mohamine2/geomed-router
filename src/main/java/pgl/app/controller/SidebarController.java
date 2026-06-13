@@ -331,12 +331,13 @@ public class SidebarController {
      * Builds and appends metadata outputs for a highlighted incident.
      * <p>
      * <b>Security Guardrails:</b>
+     * </p>
      * <ul>
      * <li>Patient medical logs are restricted solely to the {@link UserRole#DOCTOR}.</li>
      * <li>The GDPR Algorithmic Decision Report requires either an {@link UserRole#ADMIN} or {@link UserRole#DOCTOR} role.</li>
      * </ul>
-     * </p>
-     * * @param incident the target {@link VictimIncident} instance to inspect, or {@code null} to wipe details
+     *
+     * @param incident the target {@link VictimIncident} instance to inspect, or {@code null} to wipe details
      */
     public void showIncidentDetails(VictimIncident incident) {
         if (incident == null) {

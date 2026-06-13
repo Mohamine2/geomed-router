@@ -13,9 +13,8 @@ import java.util.Random;
 /**
  * Utility class responsible for importing and parsing OpenStreetMap (OSM) data
  * exported in JSON format (Overpass API style) into the application's road network model.
- * * <p>This importer processes raw OSM geographic data by projecting coordinates into
+ * <p>This importer processes raw OSM geographic data by projecting coordinates into
  * a local 2D coordinate system and reconstructing the topology of intersections and roads.</p>
- * * @author YourName
  * @version 1.0
  */
 public class MapImporterOSM {
@@ -38,7 +37,7 @@ public class MapImporterOSM {
 
     /**
      * Imports a road network from an OSM JSON file and populates the provided {@link MapManager}.
-     * * <p>The parsing is executed in a two-pass process:
+     * <p>The parsing is executed in a two-pass process:</p>
      * <ol>
      * <li><b>Pass 1: Node Extraction</b> — Parses OSM {@code node} elements, converts
      * GPS coordinates into local 2D {@link Point} objects using an offset and scale,
@@ -46,8 +45,8 @@ public class MapImporterOSM {
      * <li><b>Pass 2: Way Linking</b> — Parses OSM {@code way} elements, resolves the sequence
      * of node references, and creates the actual road segments connecting the points.</li>
      * </ol>
-     * </p>
-     * * @param manager  The map manager where the newly created intersections and roads will be registered.
+     *
+     * @param manager  The map manager where the newly created intersections and roads will be registered.
      * @param jsonFile The path to the source OSM JSON file containing the raw elements array.
      * @throws Exception If an I/O error occurs reading the file or if the JSON structure is malformed.
      */

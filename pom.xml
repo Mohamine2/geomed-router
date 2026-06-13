@@ -60,10 +60,13 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.12.0</version>
                 <configuration>
+                    <doclint>all,-missing</doclint>
+
+                    <sourcepath>src/main/java</sourcepath>
+
+                    <additionalOptions>-subpackages pgl.app</additionalOptions>
+
                     <source>21</source>
-                    <doclint>none</doclint>
-                    <failOnError>false</failOnError>
-                    <excludePackageNames>module-info</excludePackageNames>
                 </configuration>
             </plugin>
 

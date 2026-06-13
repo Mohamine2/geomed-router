@@ -15,7 +15,6 @@ import java.util.Random;
  * across lightweight command-line Console runtimes and full JavaFX GUI layout dashboard components.
  * </p>
  *
- * @author YourName
  * @version 1.0
  */
 public class SimulationDataGenerator {
@@ -27,17 +26,24 @@ public class SimulationDataGenerator {
     private static final MedicalSpecialty[] specialties = MedicalSpecialty.values();
 
     /**
+     * Private constructor to prevent instantiation of this utility data factory.
+     */
+    private SimulationDataGenerator() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
+
+    /**
      * Generates an array list of randomized hospital structures.
      * <p>
      * Each simulated entity is configured with:
+     * </p>
      * <ul>
-     * <li>A random maximum intake capacity value constrained within the range $[10, 100]$.</li>
+     * <li>A random maximum intake capacity value constrained within the range [10, 100].</li>
      * <li>Planar geometric placement layout coordinates bound inside safe operational zones
-     * (X: $50\text{ to }700\text{ px}$, Y: $50\text{ to }600\text{ px}$).</li>
+     * (X: 50 to 700 px, Y: 50 to 600 px).</li>
      * <li>A default fallback {@link MedicalSpecialty#GENERAL} qualification combined with a secondary,
      * randomly selected medical discipline priority assignment.</li>
      * </ul>
-     * </p>
      *
      * @param count     the specific quantity of structural hospital instances to instantiate
      * @param startId   the baseline auto-incrementing unique identifier index to start numbering from
@@ -65,13 +71,13 @@ public class SimulationDataGenerator {
      * Generates a batch collection of randomized emergency victim incidents.
      * <p>
      * Every simulated incident event is seeded with:
+     * </p>
      * <ul>
      * <li>A padded alphanumeric structural identifier format string (e.g., {@code INC-R-001}).</li>
      * <li>A single specialized primary medical triage emergency requirement category type.</li>
-     * <li>A $20\%$ mathematical probability of configuring a fixed preferred destination hospital matching
+     * <li>A 20% mathematical probability of configuring a fixed preferred destination hospital matching
      * an item from the supplied available hubs list.</li>
      * </ul>
-     * </p>
      *
      * @param count            the explicit quantity of mock victim emergency incidents to create
      * @param startCount       the numerical tracking offset used to format ordered serial tracking identifier tags
@@ -103,11 +109,13 @@ public class SimulationDataGenerator {
      * Injects a randomized, multi-weighted grid network of roads interconnecting registered active hospital nodes.
      * <p>
      * <b>Traffic Congestion Probability Distribution Model:</b>
+     * </p>
      * <ul>
-     * <li>There is a $30\%$ statistical probability that a path experiences congestion issues.
-     * The resulting traffic factor metric dynamically scales within the range $[1.5, 4.0[$.</li>
-     * <li>The remaining $70\%$ of connections map as standard fluid traffic links, carrying a baseline traffic factor value of exactly $1.0$.</li>
+     * <li>There is a 30% statistical probability that a path experiences congestion issues.
+     * The resulting traffic factor metric dynamically scales within the range [1.5, 4.0).</li>
+     * <li>The remaining 70% of connections map as standard fluid traffic links, carrying a baseline traffic factor value of exactly 1.0.</li>
      * </ul>
+     * <p>
      * Links connecting a single hospital node back onto itself are intercepted and discarded to prevent infinite routing self-loops.
      * </p>
      *

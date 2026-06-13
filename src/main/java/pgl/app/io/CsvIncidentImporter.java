@@ -24,7 +24,7 @@ public class CsvIncidentImporter {
      * <li>The separator can be a comma (,) or a semicolon (;).</li>
      * <li>The first line is automatically skipped if it is identified as a header.</li>
      * <li>If the emergency type is missing or invalid, it defaults to {@link MedicalSpecialty#GENERAL}.</li>
-     * <li>If the preferred hospital ID is missing, invalid (e.g. "N/A"), or <= 0, it defaults to null.</li>
+     * <li>If the preferred hospital ID is missing, invalid (e.g. "N/A"), or &lt;0, it defaults to null.</li>
      * <li>Rows with invalid coordinates are skipped and an error is logged.</li>
      * </ul>
      *
