@@ -16,6 +16,13 @@ import java.io.IOException;
  */
 public class MainApp extends Application {
 
+    /**
+     * Starts the primary stage of the JavaFX application.
+     * This method is responsible for loading the main FXML layout, configuring the scene,
+     * setting the window title and dimensions, and finally displaying the user interface.
+     *
+     * @param primaryStage The primary window (stage) for this application, onto which the application scene can be set.
+     */
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -40,6 +47,12 @@ public class MainApp extends Application {
         }
     }
 
+    /**
+     * The main entry point for the Java application.
+     * It launches the JavaFX application lifecycle by calling the {@code launch} method.
+     *
+     * @param args The command line arguments passed to the application.
+     */
     public static void main(String[] args) {
         launch(args);
     }
