@@ -2,6 +2,7 @@ package pgl.app.controller;
 
 import javafx.fxml.FXML;
 
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -331,6 +332,10 @@ public class MapController {
         double boxWidth = 220;
         double boxHeight = 130;
 
+        Group legendGroup = new javafx.scene.Group();
+
+        legendGroup.setMouseTransparent(true);
+
         Rectangle background = new Rectangle(boxX, boxY, boxWidth, boxHeight);
         background.setFill(Color.WHITE);
         background.setStroke(Color.GRAY);
@@ -368,7 +373,7 @@ public class MapController {
         roadLine.setStrokeWidth(3.0);
         Text roadText = new Text(boxX + 30, boxY + 124, "Road Network (Traffic)");
 
-        mapPane.getChildren().addAll(
+        legendGroup.getChildren().addAll(
                 background,
                 title,
                 hospitalCircle, hospitalText,
@@ -377,6 +382,8 @@ public class MapController {
                 assignLine, assignText,
                 roadLine, roadText
         );
+
+        mapPane.getChildren().add(legendGroup);
     }
 
     /**
