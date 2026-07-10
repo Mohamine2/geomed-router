@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pgl.app</groupId>
-    <artifactId>Projet-Genie-Logiciel</artifactId>
+    <artifactId>geomed-router</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -41,7 +41,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>pgl.app.MainApp</mainClass>
+                    <mainClass>geomed.app.MainApp</mainClass>
                 </configuration>
             </plugin>
             <!-- Plugin Compiler -->
@@ -64,7 +64,7 @@
 
                     <sourcepath>src/main/java</sourcepath>
 
-                    <additionalOptions>-subpackages pgl.app</additionalOptions>
+                    <additionalOptions>-subpackages geomed.app</additionalOptions>
 
                     <source>21</source>
                 </configuration>
@@ -79,7 +79,7 @@
                     <arguments>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>pgl.app.ConsoleRunner</argument>
+                        <argument>geomed.app.ConsoleRunner</argument>
                     </arguments>
                 </configuration>
             </plugin>

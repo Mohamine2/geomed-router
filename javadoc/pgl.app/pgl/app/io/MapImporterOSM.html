@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.io, class: MapImporterOSM">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.io, class: MapImporterOSM">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,12 +83,12 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.io</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.io</a></div>
 <h1 title="Class MapImporterOSM" class="title">Class MapImporterOSM</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">pgl.app.io.MapImporterOSM</div>
+<div class="inheritance">geomed.app.io.MapImporterOSM</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -130,10 +130,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#importFromOSM(pgl.app.model.MapManager,java.nio.file.Path)" class="member-name-link">importFromOSM</a><wbr>(<a href="../model/MapManager.html" title="class in pgl.app.model">MapManager</a>&nbsp;manager,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#importFromOSM(pgl.app.model.MapManager,java.nio.file.Path)" class="member-name-link">importFromOSM</a><wbr>(<a href="../model/MapManager.html" title="class in geomed.app.model">MapManager</a>&nbsp;manager,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;jsonFile)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Imports a road network from an OSM JSON file and populates the provided <a href="../model/MapManager.html" title="class in pgl.app.model"><code>MapManager</code></a>.</div>
+<div class="block">Imports a road network from an OSM JSON file and populates the provided <a href="../model/MapManager.html" title="class in geomed.app.model"><code>MapManager</code></a>.</div>
 </div>
 </div>
 </div>
@@ -169,14 +169,14 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="importFromOSM(pgl.app.model.MapManager,java.nio.file.Path)">
 <h3>importFromOSM</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">importFromOSM</span><wbr><span class="parameters">(<a href="../model/MapManager.html" title="class in pgl.app.model">MapManager</a>&nbsp;manager,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">importFromOSM</span><wbr><span class="parameters">(<a href="../model/MapManager.html" title="class in geomed.app.model">MapManager</a>&nbsp;manager,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;jsonFile)</span>
                           throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Imports a road network from an OSM JSON file and populates the provided <a href="../model/MapManager.html" title="class in pgl.app.model"><code>MapManager</code></a>.
+<div class="block">Imports a road network from an OSM JSON file and populates the provided <a href="../model/MapManager.html" title="class in geomed.app.model"><code>MapManager</code></a>.
  <p>The parsing is executed in a two-pass process:</p>
  <ol>
  <li><b>Pass 1: Node Extraction</b> — Parses OSM <code>node</code> elements, converts
- GPS coordinates into local 2D <a href="../model/Point.html" title="class in pgl.app.model"><code>Point</code></a> objects using an offset and scale,
+ GPS coordinates into local 2D <a href="../model/Point.html" title="class in geomed.app.model"><code>Point</code></a> objects using an offset and scale,
  deduplicates overlapping coordinates via a cache, and registers them as intersections.</li>
  <li><b>Pass 2: Way Linking</b> — Parses OSM <code>way</code> elements, resolves the sequence
  of node references, and creates the actual road segments connecting the points.</li>

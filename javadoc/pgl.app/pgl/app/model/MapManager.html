@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.model, class: MapManager">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.model, class: MapManager">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,12 +83,12 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.model</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.model</a></div>
 <h1 title="Class MapManager" class="title">Class MapManager</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">pgl.app.model.MapManager</div>
+<div class="inheritance">geomed.app.model.MapManager</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -130,35 +130,35 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addHospital(pgl.app.model.Hospital)" class="member-name-link">addHospital</a><wbr>(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addHospital(pgl.app.model.Hospital)" class="member-name-link">addHospital</a><wbr>(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds a reference site to the map and updates the entire map structure.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addHospitals(java.util.List)" class="member-name-link">addHospitals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;&nbsp;newHospitals)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addHospitals(java.util.List)" class="member-name-link">addHospitals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;&nbsp;newHospitals)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds a list of sites in bulk and updates the map only once
  to optimize the performance of the triangulation engine.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addIncident(pgl.app.model.VictimIncident)" class="member-name-link">addIncident</a><wbr>(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addIncident(pgl.app.model.VictimIncident)" class="member-name-link">addIncident</a><wbr>(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds an incident point to the map, snaps it to the nearest road network
  intersection if available, and updates the map view.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addIncidents(java.util.List)" class="member-name-link">addIncidents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;&nbsp;newIncidents)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addIncidents(java.util.List)" class="member-name-link">addIncidents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;&nbsp;newIncidents)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds a list of incidents in bulk</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadEdge.html" title="class in pgl.app.model">RoadEdge</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadEdge.html" title="class in geomed.app.model">RoadEdge</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addRoad(int,int,double)" class="member-name-link">addRoad</a><wbr>(int&nbsp;startIdx,
  int&nbsp;endIdx,
  double&nbsp;trafficFactor)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadEdge.html" title="class in pgl.app.model">RoadEdge</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addRoad(pgl.app.model.Point,pgl.app.model.Point,double)" class="member-name-link">addRoad</a><wbr>(<a href="Point.html" title="class in pgl.app.model">Point</a>&nbsp;start,
- <a href="Point.html" title="class in pgl.app.model">Point</a>&nbsp;end,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadEdge.html" title="class in geomed.app.model">RoadEdge</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addRoad(pgl.app.model.Point,pgl.app.model.Point,double)" class="member-name-link">addRoad</a><wbr>(<a href="Point.html" title="class in geomed.app.model">Point</a>&nbsp;start,
+ <a href="Point.html" title="class in geomed.app.model">Point</a>&nbsp;end,
  double&nbsp;trafficFactor)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
@@ -166,67 +166,67 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Clears all hospitals, incidents, triangles, and road network data from the manager.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Point.html" title="class in pgl.app.model">Point</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#computeRoadForIncident(pgl.app.model.VictimIncident)" class="member-name-link">computeRoadForIncident</a><wbr>(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Point.html" title="class in geomed.app.model">Point</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#computeRoadForIncident(pgl.app.model.VictimIncident)" class="member-name-link">computeRoadForIncident</a><wbr>(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Computes the optimal road path from a specific incident location to its closest hospital site.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Hospital.html" title="class in pgl.app.model">Hospital</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Hospital.html" title="class in geomed.app.model">Hospital</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findHospitalById(int)" class="member-name-link">findHospitalById</a><wbr>(int&nbsp;id)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findIncidentById(java.lang.String)" class="member-name-link">findIncidentById</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getIncidents()" class="member-name-link">getIncidents</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of the victim incidents list to preserve strict encapsulation.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadNetwork.html" title="class in pgl.app.model">RoadNetwork</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RoadNetwork.html" title="class in geomed.app.model">RoadNetwork</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRoadNetwork()" class="member-name-link">getRoadNetwork</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../algo/RoutingEngine.html" title="class in pgl.app.algo">RoutingEngine</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../algo/RoutingEngine.html" title="class in geomed.app.algo">RoutingEngine</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRoutingEngine()" class="member-name-link">getRoutingEngine</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the routing engine instance, initializing it on demand if it does not yet exist.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSites()" class="member-name-link">getSites</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of the hospitals list to preserve strict encapsulation.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="HospitalStats.html" title="class in pgl.app.model">HospitalStats</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStatsForHospital(pgl.app.model.Hospital)" class="member-name-link">getStatsForHospital</a><wbr>(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="HospitalStats.html" title="class in geomed.app.model">HospitalStats</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStatsForHospital(pgl.app.model.Hospital)" class="member-name-link">getStatsForHospital</a><wbr>(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Delegates statistical calculation to the stateless AnalyticsEngine.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTriangleLoadImbalance(pgl.app.model.Triangle)" class="member-name-link">getTriangleLoadImbalance</a><wbr>(<a href="Triangle.html" title="class in pgl.app.model">Triangle</a>&nbsp;t)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTriangleLoadImbalance(pgl.app.model.Triangle)" class="member-name-link">getTriangleLoadImbalance</a><wbr>(<a href="Triangle.html" title="class in geomed.app.model">Triangle</a>&nbsp;t)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Delegates imbalance analysis to the stateless AnalyticsEngine.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Triangle.html" title="class in pgl.app.model">Triangle</a>&gt;</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Triangle.html" title="class in geomed.app.model">Triangle</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTriangles()" class="member-name-link">getTriangles</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of the triangles list to preserve strict encapsulation.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="VoronoiCell.html" title="class in pgl.app.model">VoronoiCell</a>&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="VoronoiCell.html" title="class in geomed.app.model">VoronoiCell</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVoronoiCells()" class="member-name-link">getVoronoiCells</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Delegates the generation of Voronoi cells to the dedicated geometry engine.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVoronoiNeighbors(pgl.app.model.Hospital)" class="member-name-link">getVoronoiNeighbors</a><wbr>(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVoronoiNeighbors(pgl.app.model.Hospital)" class="member-name-link">getVoronoiNeighbors</a><wbr>(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Identifies and returns all neighboring hospitals based on the Delaunay triangulation structure.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeHospital(pgl.app.model.Hospital)" class="member-name-link">removeHospital</a><wbr>(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeHospital(pgl.app.model.Hospital)" class="member-name-link">removeHospital</a><wbr>(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes a reference site from the map and updates the entire map structure.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeIncident(pgl.app.model.VictimIncident)" class="member-name-link">removeIncident</a><wbr>(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeIncident(pgl.app.model.VictimIncident)" class="member-name-link">removeIncident</a><wbr>(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes a user point from the map.</div>
 </div>
@@ -237,7 +237,7 @@ loadScripts(document, 'script');</script>
  and updating all user assignments.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateSingleUserAssignment(pgl.app.model.VictimIncident)" class="member-name-link">updateSingleUserAssignment</a><wbr>(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateSingleUserAssignment(pgl.app.model.VictimIncident)" class="member-name-link">updateSingleUserAssignment</a><wbr>(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Evaluates and applies the optimal dispatch decision for a single victim incident.</div>
 </div>
@@ -276,21 +276,21 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="addHospital(pgl.app.model.Hospital)">
 <h3>addHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</span>
-                 throws <span class="exceptions"><a href="../exception/HospitalCollisionException.html" title="class in pgl.app.exception">HospitalCollisionException</a></span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</span>
+                 throws <span class="exceptions"><a href="../exception/HospitalCollisionException.html" title="class in geomed.app.exception">HospitalCollisionException</a></span></div>
 <div class="block">Adds a reference site to the map and updates the entire map structure.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>hospital</code> - the hospital to be added</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../exception/HospitalCollisionException.html" title="class in pgl.app.exception">HospitalCollisionException</a></code> - if a hospital already exists at the snapped location</dd>
+<dd><code><a href="../exception/HospitalCollisionException.html" title="class in geomed.app.exception">HospitalCollisionException</a></code> - if a hospital already exists at the snapped location</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="addHospitals(java.util.List)">
 <h3>addHospitals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addHospitals</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;&nbsp;newHospitals)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addHospitals</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;&nbsp;newHospitals)</span></div>
 <div class="block">Adds a list of sites in bulk and updates the map only once
  to optimize the performance of the triangulation engine.</div>
 <dl class="notes">
@@ -302,7 +302,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="removeHospital(pgl.app.model.Hospital)">
 <h3>removeHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</span></div>
 <div class="block">Removes a reference site from the map and updates the entire map structure.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -313,13 +313,13 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="findHospitalById(int)">
 <h3>findHospitalById</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Hospital.html" title="class in pgl.app.model">Hospital</a></span>&nbsp;<span class="element-name">findHospitalById</span><wbr><span class="parameters">(int&nbsp;id)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Hospital.html" title="class in geomed.app.model">Hospital</a></span>&nbsp;<span class="element-name">findHospitalById</span><wbr><span class="parameters">(int&nbsp;id)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="addIncident(pgl.app.model.VictimIncident)">
 <h3>addIncident</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</span></div>
 <div class="block">Adds an incident point to the map, snaps it to the nearest road network
  intersection if available, and updates the map view.</div>
 <dl class="notes">
@@ -331,7 +331,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="addIncidents(java.util.List)">
 <h3>addIncidents</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addIncidents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;&nbsp;newIncidents)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addIncidents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;&nbsp;newIncidents)</span></div>
 <div class="block">Adds a list of incidents in bulk.
  * Automatically assigns each new incident to its nearest site.</div>
 <dl class="notes">
@@ -343,7 +343,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="removeIncident(pgl.app.model.VictimIncident)">
 <h3>removeIncident</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</span></div>
 <div class="block">Removes a user point from the map.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -354,21 +354,21 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="findIncidentById(java.lang.String)">
 <h3>findIncidentById</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a></span>&nbsp;<span class="element-name">findIncidentById</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a></span>&nbsp;<span class="element-name">findIncidentById</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="addRoad(pgl.app.model.Point,pgl.app.model.Point,double)">
 <h3>addRoad</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadEdge.html" title="class in pgl.app.model">RoadEdge</a></span>&nbsp;<span class="element-name">addRoad</span><wbr><span class="parameters">(<a href="Point.html" title="class in pgl.app.model">Point</a>&nbsp;start,
- <a href="Point.html" title="class in pgl.app.model">Point</a>&nbsp;end,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadEdge.html" title="class in geomed.app.model">RoadEdge</a></span>&nbsp;<span class="element-name">addRoad</span><wbr><span class="parameters">(<a href="Point.html" title="class in geomed.app.model">Point</a>&nbsp;start,
+ <a href="Point.html" title="class in geomed.app.model">Point</a>&nbsp;end,
  double&nbsp;trafficFactor)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="addRoad(int,int,double)">
 <h3>addRoad</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadEdge.html" title="class in pgl.app.model">RoadEdge</a></span>&nbsp;<span class="element-name">addRoad</span><wbr><span class="parameters">(int&nbsp;startIdx,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadEdge.html" title="class in geomed.app.model">RoadEdge</a></span>&nbsp;<span class="element-name">addRoad</span><wbr><span class="parameters">(int&nbsp;startIdx,
  int&nbsp;endIdx,
  double&nbsp;trafficFactor)</span></div>
 </section>
@@ -376,7 +376,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getRoadNetwork()">
 <h3>getRoadNetwork</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadNetwork.html" title="class in pgl.app.model">RoadNetwork</a></span>&nbsp;<span class="element-name">getRoadNetwork</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RoadNetwork.html" title="class in geomed.app.model">RoadNetwork</a></span>&nbsp;<span class="element-name">getRoadNetwork</span>()</div>
 </section>
 </li>
 <li>
@@ -390,7 +390,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="updateSingleUserAssignment(pgl.app.model.VictimIncident)">
 <h3>updateSingleUserAssignment</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateSingleUserAssignment</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateSingleUserAssignment</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</span></div>
 <div class="block">Evaluates and applies the optimal dispatch decision for a single victim incident.
  Assigns the closest available hospital and registers the patient admission.</div>
 <dl class="notes">
@@ -402,7 +402,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getSites()">
 <h3>getSites</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;</span>&nbsp;<span class="element-name">getSites</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;</span>&nbsp;<span class="element-name">getSites</span>()</div>
 <div class="block">Returns an unmodifiable view of the hospitals list to preserve strict encapsulation.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -413,7 +413,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getIncidents()">
 <h3>getIncidents</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;</span>&nbsp;<span class="element-name">getIncidents</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;</span>&nbsp;<span class="element-name">getIncidents</span>()</div>
 <div class="block">Returns an unmodifiable view of the victim incidents list to preserve strict encapsulation.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -424,7 +424,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getTriangles()">
 <h3>getTriangles</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Triangle.html" title="class in pgl.app.model">Triangle</a>&gt;</span>&nbsp;<span class="element-name">getTriangles</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Triangle.html" title="class in geomed.app.model">Triangle</a>&gt;</span>&nbsp;<span class="element-name">getTriangles</span>()</div>
 <div class="block">Returns an unmodifiable view of the triangles list to preserve strict encapsulation.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -442,16 +442,16 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getVoronoiCells()">
 <h3>getVoronoiCells</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VoronoiCell.html" title="class in pgl.app.model">VoronoiCell</a>&gt;</span>&nbsp;<span class="element-name">getVoronoiCells</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="VoronoiCell.html" title="class in geomed.app.model">VoronoiCell</a>&gt;</span>&nbsp;<span class="element-name">getVoronoiCells</span>()</div>
 <div class="block">Delegates the generation of Voronoi cells to the dedicated geometry engine.
  <p>
- This method utilizes the internal <a href="../algo/VoronoiEngine.html" title="class in pgl.app.algo"><code>VoronoiEngine</code></a> to compute the geometric
+ This method utilizes the internal <a href="../algo/VoronoiEngine.html" title="class in geomed.app.algo"><code>VoronoiEngine</code></a> to compute the geometric
  boundaries of each hospital's coverage zone based on the current list of hospitals
  and Delaunay triangles.
  </p></div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of <a href="VoronoiCell.html" title="class in pgl.app.model"><code>VoronoiCell</code></a> objects representing the partition
+<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of <a href="VoronoiCell.html" title="class in geomed.app.model"><code>VoronoiCell</code></a> objects representing the partition
  of the map area</dd>
 </dl>
 </section>
@@ -459,32 +459,32 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getVoronoiNeighbors(pgl.app.model.Hospital)">
 <h3>getVoronoiNeighbors</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&gt;</span>&nbsp;<span class="element-name">getVoronoiNeighbors</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&gt;</span>&nbsp;<span class="element-name">getVoronoiNeighbors</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</span></div>
 <div class="block">Identifies and returns all neighboring hospitals based on the Delaunay triangulation structure.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>hospital</code> - the hospital whose neighbors are to be retrieved</dd>
 <dt>Returns:</dt>
-<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link"><code>Set</code></a> of neighboring <a href="Hospital.html" title="class in pgl.app.model"><code>Hospital</code></a> objects</dd>
+<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link"><code>Set</code></a> of neighboring <a href="Hospital.html" title="class in geomed.app.model"><code>Hospital</code></a> objects</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getRoutingEngine()">
 <h3>getRoutingEngine</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../algo/RoutingEngine.html" title="class in pgl.app.algo">RoutingEngine</a></span>&nbsp;<span class="element-name">getRoutingEngine</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../algo/RoutingEngine.html" title="class in geomed.app.algo">RoutingEngine</a></span>&nbsp;<span class="element-name">getRoutingEngine</span>()</div>
 <div class="block">Returns the routing engine instance, initializing it on demand if it does not yet exist.
  This implementation follows the lazy loading pattern.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the initialized <a href="../algo/RoutingEngine.html" title="class in pgl.app.algo"><code>RoutingEngine</code></a> instance</dd>
+<dd>the initialized <a href="../algo/RoutingEngine.html" title="class in geomed.app.algo"><code>RoutingEngine</code></a> instance</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getStatsForHospital(pgl.app.model.Hospital)">
 <h3>getStatsForHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="HospitalStats.html" title="class in pgl.app.model">HospitalStats</a></span>&nbsp;<span class="element-name">getStatsForHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="HospitalStats.html" title="class in geomed.app.model">HospitalStats</a></span>&nbsp;<span class="element-name">getStatsForHospital</span><wbr><span class="parameters">(<a href="Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</span></div>
 <div class="block">Delegates statistical calculation to the stateless AnalyticsEngine.
  <p>
  Computes performance and operational metrics (such as total incidents,
@@ -492,16 +492,16 @@ loadScripts(document, 'script');</script>
  </p></div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>hospital</code> - the <a href="Hospital.html" title="class in pgl.app.model"><code>Hospital</code></a> for which statistics are being collected</dd>
+<dd><code>hospital</code> - the <a href="Hospital.html" title="class in geomed.app.model"><code>Hospital</code></a> for which statistics are being collected</dd>
 <dt>Returns:</dt>
-<dd>a <a href="HospitalStats.html" title="class in pgl.app.model"><code>HospitalStats</code></a> object containing the aggregated statistical metrics</dd>
+<dd>a <a href="HospitalStats.html" title="class in geomed.app.model"><code>HospitalStats</code></a> object containing the aggregated statistical metrics</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getTriangleLoadImbalance(pgl.app.model.Triangle)">
 <h3>getTriangleLoadImbalance</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTriangleLoadImbalance</span><wbr><span class="parameters">(<a href="Triangle.html" title="class in pgl.app.model">Triangle</a>&nbsp;t)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTriangleLoadImbalance</span><wbr><span class="parameters">(<a href="Triangle.html" title="class in geomed.app.model">Triangle</a>&nbsp;t)</span></div>
 <div class="block">Delegates imbalance analysis to the stateless AnalyticsEngine.
  <p>
  Evaluates the workload distribution discrepancy among the three hospitals
@@ -509,7 +509,7 @@ loadScripts(document, 'script');</script>
  </p></div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>t</code> - the <a href="Triangle.html" title="class in pgl.app.model"><code>Triangle</code></a> whose vertex hospitals are being analyzed</dd>
+<dd><code>t</code> - the <a href="Triangle.html" title="class in geomed.app.model"><code>Triangle</code></a> whose vertex hospitals are being analyzed</dd>
 <dt>Returns:</dt>
 <dd>the absolute difference between the maximum and minimum incident counts
  among the triangle's vertices</dd>
@@ -519,19 +519,19 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="computeRoadForIncident(pgl.app.model.VictimIncident)">
 <h3>computeRoadForIncident</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Point.html" title="class in pgl.app.model">Point</a>&gt;</span>&nbsp;<span class="element-name">computeRoadForIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="Point.html" title="class in geomed.app.model">Point</a>&gt;</span>&nbsp;<span class="element-name">computeRoadForIncident</span><wbr><span class="parameters">(<a href="VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</span></div>
 <div class="block">Computes the optimal road path from a specific incident location to its closest hospital site.
  <p>
- This method instantiates a temporary <a href="../algo/RoutingEngine.html" title="class in pgl.app.algo"><code>RoutingEngine</code></a> to calculate
+ This method instantiates a temporary <a href="../algo/RoutingEngine.html" title="class in geomed.app.algo"><code>RoutingEngine</code></a> to calculate
  the shortest or most efficient route using the underlying road network infrastructure.
  If the incident has no assigned hospital or if the road network data is unavailable,
  an empty list is safely returned.
  </p></div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>incident</code> - the <a href="VictimIncident.html" title="class in pgl.app.model"><code>VictimIncident</code></a> representing the starting point of the route</dd>
+<dd><code>incident</code> - the <a href="VictimIncident.html" title="class in geomed.app.model"><code>VictimIncident</code></a> representing the starting point of the route</dd>
 <dt>Returns:</dt>
-<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of <a href="Point.html" title="class in pgl.app.model"><code>Point</code></a> objects defining the sequential path coordinates
+<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of <a href="Point.html" title="class in geomed.app.model"><code>Point</code></a> objects defining the sequential path coordinates
  from the incident to the hospital; returns an empty list if routing cannot be performed</dd>
 </dl>
 </section>

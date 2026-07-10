@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.controller, class: SidebarController">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.controller, class: SidebarController">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,12 +83,12 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.controller</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.controller</a></div>
 <h1 title="Class SidebarController" class="title">Class SidebarController</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">pgl.app.controller.SidebarController</div>
+<div class="inheritance">geomed.app.controller.SidebarController</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -101,7 +101,7 @@ loadScripts(document, 'script');</script>
  importing maps or generating simulation data.
  </p>
  <p>
- It integrates Role-Based Access Control (RBAC) via <a href="../security/SecurityContext.html" title="class in pgl.app.security"><code>SecurityContext</code></a> to restrict UI buttons and
+ It integrates Role-Based Access Control (RBAC) via <a href="../security/SecurityContext.html" title="class in geomed.app.security"><code>SecurityContext</code></a> to restrict UI buttons and
  sensitive data access (e.g., medical data or GDPR algorithmic explanation reports) based on whether
  the user is an Admin, Doctor, or Paramedic.
  </p></div>
@@ -147,28 +147,28 @@ loadScripts(document, 'script');</script>
 <div class="block">Automatically invoked by JavaFX loaders once FXML component mapping routines complete.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMapController(pgl.app.controller.MapController)" class="member-name-link">setMapController</a><wbr>(<a href="MapController.html" title="class in pgl.app.controller">MapController</a>&nbsp;mapController)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMapController(pgl.app.controller.MapController)" class="member-name-link">setMapController</a><wbr>(<a href="MapController.html" title="class in geomed.app.controller">MapController</a>&nbsp;mapController)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Injects the peer graphical rendering layout <a href="MapController.html" title="class in pgl.app.controller"><code>MapController</code></a>.</div>
+<div class="block">Injects the peer graphical rendering layout <a href="MapController.html" title="class in geomed.app.controller"><code>MapController</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMapManager(pgl.app.model.MapManager)" class="member-name-link">setMapManager</a><wbr>(<a href="../model/MapManager.html" title="class in pgl.app.model">MapManager</a>&nbsp;mapManager)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMapManager(pgl.app.model.MapManager)" class="member-name-link">setMapManager</a><wbr>(<a href="../model/MapManager.html" title="class in geomed.app.model">MapManager</a>&nbsp;mapManager)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Injects the shared application <a href="../model/MapManager.html" title="class in pgl.app.model"><code>MapManager</code></a> dependency model data context</div>
+<div class="block">Injects the shared application <a href="../model/MapManager.html" title="class in geomed.app.model"><code>MapManager</code></a> dependency model data context</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showHospitalDetails(pgl.app.model.Hospital)" class="member-name-link">showHospitalDetails</a><wbr>(<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showHospitalDetails(pgl.app.model.Hospital)" class="member-name-link">showHospitalDetails</a><wbr>(<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Evaluates and formats data regarding a selected hospital, including geospatial analysis
  metrics such as its bounding Voronoi cell area and historical incident clustering density</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showIncidentDetails(pgl.app.model.VictimIncident)" class="member-name-link">showIncidentDetails</a><wbr>(<a href="../model/VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showIncidentDetails(pgl.app.model.VictimIncident)" class="member-name-link">showIncidentDetails</a><wbr>(<a href="../model/VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Builds and appends metadata outputs for a highlighted incident.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showTriangleDetails(pgl.app.model.Triangle)" class="member-name-link">showTriangleDetails</a><wbr>(<a href="../model/Triangle.html" title="class in pgl.app.model">Triangle</a>&nbsp;triangle)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#showTriangleDetails(pgl.app.model.Triangle)" class="member-name-link">showTriangleDetails</a><wbr>(<a href="../model/Triangle.html" title="class in geomed.app.model">Triangle</a>&nbsp;triangle)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Extracts and displays information about a clicked Delaunay Triangle.</div>
 </div>
@@ -206,32 +206,32 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="setMapManager(pgl.app.model.MapManager)">
 <h3>setMapManager</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMapManager</span><wbr><span class="parameters">(<a href="../model/MapManager.html" title="class in pgl.app.model">MapManager</a>&nbsp;mapManager)</span></div>
-<div class="block">Injects the shared application <a href="../model/MapManager.html" title="class in pgl.app.model"><code>MapManager</code></a> dependency model data context.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMapManager</span><wbr><span class="parameters">(<a href="../model/MapManager.html" title="class in geomed.app.model">MapManager</a>&nbsp;mapManager)</span></div>
+<div class="block">Injects the shared application <a href="../model/MapManager.html" title="class in geomed.app.model"><code>MapManager</code></a> dependency model data context.
  * @param mapManager the application data layer context instance</div>
 </section>
 </li>
 <li>
 <section class="detail" id="setMapController(pgl.app.controller.MapController)">
 <h3>setMapController</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMapController</span><wbr><span class="parameters">(<a href="MapController.html" title="class in pgl.app.controller">MapController</a>&nbsp;mapController)</span></div>
-<div class="block">Injects the peer graphical rendering layout <a href="MapController.html" title="class in pgl.app.controller"><code>MapController</code></a>.
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMapController</span><wbr><span class="parameters">(<a href="MapController.html" title="class in geomed.app.controller">MapController</a>&nbsp;mapController)</span></div>
+<div class="block">Injects the peer graphical rendering layout <a href="MapController.html" title="class in geomed.app.controller"><code>MapController</code></a>.
  * @param mapController the drawing canvas controller instance</div>
 </section>
 </li>
 <li>
 <section class="detail" id="showHospitalDetails(pgl.app.model.Hospital)">
 <h3>showHospitalDetails</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showHospitalDetails</span><wbr><span class="parameters">(<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;hospital)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showHospitalDetails</span><wbr><span class="parameters">(<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;hospital)</span></div>
 <div class="block">Evaluates and formats data regarding a selected hospital, including geospatial analysis
  metrics such as its bounding Voronoi cell area and historical incident clustering density.
- * @param hospital the target <a href="../model/Hospital.html" title="class in pgl.app.model"><code>Hospital</code></a> instance to inspect, or <code>null</code> to wipe details</div>
+ * @param hospital the target <a href="../model/Hospital.html" title="class in geomed.app.model"><code>Hospital</code></a> instance to inspect, or <code>null</code> to wipe details</div>
 </section>
 </li>
 <li>
 <section class="detail" id="showIncidentDetails(pgl.app.model.VictimIncident)">
 <h3>showIncidentDetails</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showIncidentDetails</span><wbr><span class="parameters">(<a href="../model/VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&nbsp;incident)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showIncidentDetails</span><wbr><span class="parameters">(<a href="../model/VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&nbsp;incident)</span></div>
 <div class="block">Builds and appends metadata outputs for a highlighted incident.
  <p>
  <b>Security Guardrails:</b>
@@ -242,14 +242,14 @@ loadScripts(document, 'script');</script>
  </ul></div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>incident</code> - the target <a href="../model/VictimIncident.html" title="class in pgl.app.model"><code>VictimIncident</code></a> instance to inspect, or <code>null</code> to wipe details</dd>
+<dd><code>incident</code> - the target <a href="../model/VictimIncident.html" title="class in geomed.app.model"><code>VictimIncident</code></a> instance to inspect, or <code>null</code> to wipe details</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="showTriangleDetails(pgl.app.model.Triangle)">
 <h3>showTriangleDetails</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showTriangleDetails</span><wbr><span class="parameters">(<a href="../model/Triangle.html" title="class in pgl.app.model">Triangle</a>&nbsp;triangle)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">showTriangleDetails</span><wbr><span class="parameters">(<a href="../model/Triangle.html" title="class in geomed.app.model">Triangle</a>&nbsp;triangle)</span></div>
 <div class="block">Extracts and displays information about a clicked Delaunay Triangle.
  Computes surface area, edge vector distances, and tracks traffic load disparities
  across the structural network.</div>

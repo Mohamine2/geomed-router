@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.model, class: VictimIncident">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.model, class: VictimIncident">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,22 +83,22 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.model</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.model</a></div>
 <h1 title="Class VictimIncident" class="title">Class VictimIncident</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="Point.html" title="class in pgl.app.model">pgl.app.model.Point</a>
-<div class="inheritance">pgl.app.model.VictimIncident</div>
+<div class="inheritance"><a href="Point.html" title="class in geomed.app.model">geomed.app.model.Point</a>
+<div class="inheritance">geomed.app.model.VictimIncident</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">VictimIncident</span>
-<span class="extends-implements">extends <a href="Point.html" title="class in pgl.app.model">Point</a></span></div>
+<span class="extends-implements">extends <a href="Point.html" title="class in geomed.app.model">Point</a></span></div>
 <div class="block">Represents a medical emergency incident on the map topology.
  <p>
- This class extends <a href="Point.html" title="class in pgl.app.model"><code>Point</code></a> to inherit geometric coordinates ($x$, $y$)
+ This class extends <a href="Point.html" title="class in geomed.app.model"><code>Point</code></a> to inherit geometric coordinates ($x$, $y$)
  and encapsulates the vital medical context required by the routing and scoring engines
  to determine the optimal hospital assignment under multi-criteria constraints.
  </p></div>
@@ -120,7 +120,7 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(double,double,java.lang.String,pgl.app.model.MedicalSpecialty,java.lang.Integer)" class="member-name-link">VictimIncident</a><wbr>(double&nbsp;x,
  double&nbsp;y,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;incidentId,
- <a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;emergencyType,
+ <a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;emergencyType,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;preferredHospitalId)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructs a <code>VictimIncident</code> with complete medical and structural metadata,
@@ -140,12 +140,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Site.html" title="class in pgl.app.model">Site</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Site.html" title="class in geomed.app.model">Site</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getClosestHospital()" class="member-name-link">getClosestHospital</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current assigned closest hospital facility for this incident.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEmergencyType()" class="member-name-link">getEmergencyType</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the specific medical emergency type or department required for treatment.</div>
@@ -171,7 +171,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Checks whether the victim has a recognized medical history linked to a specific healthcare facility.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setClosestHospital(pgl.app.model.Site)" class="member-name-link">setClosestHospital</a><wbr>(<a href="Site.html" title="class in pgl.app.model">Site</a>&nbsp;closestHospital)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setClosestHospital(pgl.app.model.Site)" class="member-name-link">setClosestHospital</a><wbr>(<a href="Site.html" title="class in geomed.app.model">Site</a>&nbsp;closestHospital)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Associates this incident point to its optimized or closest geographical hospital site</div>
 </div>
@@ -184,7 +184,7 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-pgl.app.model.Point">Methods inherited from class&nbsp;pgl.app.model.<a href="Point.html" title="class in pgl.app.model">Point</a></h3>
+<h3 id="methods-inherited-from-class-pgl.app.model.Point">Methods inherited from class&nbsp;geomed.app.model.<a href="Point.html" title="class in geomed.app.model">Point</a></h3>
 <code><a href="Point.html#distanceSquaredTo(double,double)">distanceSquaredTo</a>, <a href="Point.html#equals(java.lang.Object)">equals</a>, <a href="Point.html#getX()">getX</a>, <a href="Point.html#getY()">getY</a>, <a href="Point.html#hashCode()">hashCode</a>, <a href="Point.html#setX(double)">setX</a>, <a href="Point.html#setY(double)">setY</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
@@ -206,7 +206,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">VictimIncident</span><wbr><span class="parameters">(double&nbsp;x,
  double&nbsp;y,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;incidentId,
- <a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;emergencyType,
+ <a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;emergencyType,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;preferredHospitalId)</span></div>
 <div class="block">Constructs a <code>VictimIncident</code> with complete medical and structural metadata,
  including known historical patient data.</div>
@@ -242,11 +242,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getEmergencyType()">
 <h3>getEmergencyType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a></span>&nbsp;<span class="element-name">getEmergencyType</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a></span>&nbsp;<span class="element-name">getEmergencyType</span>()</div>
 <div class="block">Gets the specific medical emergency type or department required for treatment.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>The required <a href="MedicalSpecialty.html" title="enum class in pgl.app.model"><code>MedicalSpecialty</code></a>.</dd>
+<dd>The required <a href="MedicalSpecialty.html" title="enum class in geomed.app.model"><code>MedicalSpecialty</code></a>.</dd>
 </dl>
 </section>
 </li>
@@ -286,20 +286,20 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getClosestHospital()">
 <h3>getClosestHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Site.html" title="class in pgl.app.model">Site</a></span>&nbsp;<span class="element-name">getClosestHospital</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Site.html" title="class in geomed.app.model">Site</a></span>&nbsp;<span class="element-name">getClosestHospital</span>()</div>
 <div class="block">Gets the current assigned closest hospital facility for this incident.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>The assigned <a href="Site.html" title="class in pgl.app.model"><code>Site</code></a>, or <code>null</code> if unassigned.</dd>
+<dd>The assigned <a href="Site.html" title="class in geomed.app.model"><code>Site</code></a>, or <code>null</code> if unassigned.</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setClosestHospital(pgl.app.model.Site)">
 <h3>setClosestHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setClosestHospital</span><wbr><span class="parameters">(<a href="Site.html" title="class in pgl.app.model">Site</a>&nbsp;closestHospital)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setClosestHospital</span><wbr><span class="parameters">(<a href="Site.html" title="class in geomed.app.model">Site</a>&nbsp;closestHospital)</span></div>
 <div class="block">Associates this incident point to its optimized or closest geographical hospital site.
- * @param closestHospital The target <a href="Site.html" title="class in pgl.app.model"><code>Site</code></a> representing the assigned facility.</div>
+ * @param closestHospital The target <a href="Site.html" title="class in geomed.app.model"><code>Site</code></a> representing the assigned facility.</div>
 </section>
 </li>
 <li>
@@ -309,7 +309,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns a string representation of the incident, including its coordinates and assigned hospital.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="Point.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="Point.html" title="class in pgl.app.model">Point</a></code></dd>
+<dd><code><a href="Point.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="Point.html" title="class in geomed.app.model">Point</a></code></dd>
 <dt>Returns:</dt>
 <dd>A formatted string detailing the structural attributes of this incident.</dd>
 </dl>

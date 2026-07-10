@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.model, class: Hospital">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.model, class: Hospital">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,23 +83,23 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.model</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.model</a></div>
 <h1 title="Class Hospital" class="title">Class Hospital</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="Point.html" title="class in pgl.app.model">pgl.app.model.Point</a>
-<div class="inheritance"><a href="Site.html" title="class in pgl.app.model">pgl.app.model.Site</a>
-<div class="inheritance">pgl.app.model.Hospital</div>
+<div class="inheritance"><a href="Point.html" title="class in geomed.app.model">geomed.app.model.Point</a>
+<div class="inheritance"><a href="Site.html" title="class in geomed.app.model">geomed.app.model.Site</a>
+<div class="inheritance">geomed.app.model.Hospital</div>
 </div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Hospital</span>
-<span class="extends-implements">extends <a href="Site.html" title="class in pgl.app.model">Site</a></span></div>
+<span class="extends-implements">extends <a href="Site.html" title="class in geomed.app.model">Site</a></span></div>
 <div class="block">Represents a medical facility on the map.
- This class extends <a href="Site.html" title="class in pgl.app.model"><code>Site</code></a> to inherit geometric properties (x, y, id) 
+ This class extends <a href="Site.html" title="class in geomed.app.model"><code>Site</code></a> to inherit geometric properties (x, y, id)
  and adds business logic specific to hospital management such as capacity, 
  saturation levels, and medical specialties.</div>
 <dl class="notes">
@@ -139,7 +139,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addSpecialty(pgl.app.model.MedicalSpecialty)" class="member-name-link">addSpecialty</a><wbr>(<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;specialty)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addSpecialty(pgl.app.model.MedicalSpecialty)" class="member-name-link">addSpecialty</a><wbr>(<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;specialty)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds a medical specialty to the hospital's capabilities.</div>
 </div>
@@ -149,7 +149,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Attempts to admit a new patient to the hospital.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canTreat(pgl.app.model.MedicalSpecialty)" class="member-name-link">canTreat</a><wbr>(<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;emergencyType)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canTreat(pgl.app.model.MedicalSpecialty)" class="member-name-link">canTreat</a><wbr>(<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;emergencyType)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Checks if the hospital is equipped to treat a specific type of medical emergency.</div>
 </div>
@@ -173,7 +173,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Calculates the current occupancy rate of the hospital.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpecialties()" class="member-name-link">getSpecialties</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Retrieves an unmodifiable view of the hospital's medical specialties.</div>
@@ -187,10 +187,10 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-pgl.app.model.Site">Methods inherited from class&nbsp;pgl.app.model.<a href="Site.html" title="class in pgl.app.model">Site</a></h3>
+<h3 id="methods-inherited-from-class-pgl.app.model.Site">Methods inherited from class&nbsp;geomed.app.model.<a href="Site.html" title="class in geomed.app.model">Site</a></h3>
 <code><a href="Site.html#getId()">getId</a>, <a href="Site.html#setId(int)">setId</a>, <a href="Site.html#toString()">toString</a></code></div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-pgl.app.model.Point">Methods inherited from class&nbsp;pgl.app.model.<a href="Point.html" title="class in pgl.app.model">Point</a></h3>
+<h3 id="methods-inherited-from-class-pgl.app.model.Point">Methods inherited from class&nbsp;geomed.app.model.<a href="Point.html" title="class in geomed.app.model">Point</a></h3>
 <code><a href="Point.html#distanceSquaredTo(double,double)">distanceSquaredTo</a>, <a href="Point.html#equals(java.lang.Object)">equals</a>, <a href="Point.html#getX()">getX</a>, <a href="Point.html#getY()">getY</a>, <a href="Point.html#hashCode()">hashCode</a>, <a href="Point.html#setX(double)">setX</a>, <a href="Point.html#setY(double)">setY</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
@@ -278,18 +278,18 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="addSpecialty(pgl.app.model.MedicalSpecialty)">
 <h3>addSpecialty</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addSpecialty</span><wbr><span class="parameters">(<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;specialty)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addSpecialty</span><wbr><span class="parameters">(<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;specialty)</span></div>
 <div class="block">Adds a medical specialty to the hospital's capabilities.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>specialty</code> - The <a href="MedicalSpecialty.html" title="enum class in pgl.app.model"><code>MedicalSpecialty</code></a> to add.</dd>
+<dd><code>specialty</code> - The <a href="MedicalSpecialty.html" title="enum class in geomed.app.model"><code>MedicalSpecialty</code></a> to add.</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="canTreat(pgl.app.model.MedicalSpecialty)">
 <h3>canTreat</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canTreat</span><wbr><span class="parameters">(<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&nbsp;emergencyType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canTreat</span><wbr><span class="parameters">(<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&nbsp;emergencyType)</span></div>
 <div class="block">Checks if the hospital is equipped to treat a specific type of medical emergency.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -324,7 +324,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getSpecialties()">
 <h3>getSpecialties</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="MedicalSpecialty.html" title="enum class in pgl.app.model">MedicalSpecialty</a>&gt;</span>&nbsp;<span class="element-name">getSpecialties</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="MedicalSpecialty.html" title="enum class in geomed.app.model">MedicalSpecialty</a>&gt;</span>&nbsp;<span class="element-name">getSpecialties</span>()</div>
 <div class="block">Retrieves an unmodifiable view of the hospital's medical specialties.
  This defensive copy prevents external modification of the internal set.</div>
 <dl class="notes">

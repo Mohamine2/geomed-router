@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.explainability, class: DispatchDecision">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.explainability, class: DispatchDecision">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,12 +83,12 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.explainability</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.explainability</a></div>
 <h1 title="Class DispatchDecision" class="title">Class DispatchDecision</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">pgl.app.explainability.DispatchDecision</div>
+<div class="inheritance">geomed.app.explainability.DispatchDecision</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -109,8 +109,8 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(pgl.app.model.Hospital,java.util.Map)" class="member-name-link">DispatchDecision</a><wbr>(<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;optimalHospital,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in pgl.app.explainability">DecisionScore</a>&gt;&nbsp;scoringMatrix)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(pgl.app.model.Hospital,java.util.Map)" class="member-name-link">DispatchDecision</a><wbr>(<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;optimalHospital,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in geomed.app.explainability">DecisionScore</a>&gt;&nbsp;scoringMatrix)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructs a new DispatchDecision payload.</div>
 </div>
@@ -128,12 +128,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOptimalHospital()" class="member-name-link">getOptimalHospital</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the hospital selected as the optimal destination.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in pgl.app.explainability">DecisionScore</a>&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in geomed.app.explainability">DecisionScore</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScoringMatrix()" class="member-name-link">getScoringMatrix</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the full scoring matrix containing explanation details for all evaluated hospitals.</div>
@@ -158,8 +158,8 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(pgl.app.model.Hospital,java.util.Map)">
 <h3>DispatchDecision</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">DispatchDecision</span><wbr><span class="parameters">(<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>&nbsp;optimalHospital,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in pgl.app.explainability">DecisionScore</a>&gt;&nbsp;scoringMatrix)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">DispatchDecision</span><wbr><span class="parameters">(<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>&nbsp;optimalHospital,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in geomed.app.explainability">DecisionScore</a>&gt;&nbsp;scoringMatrix)</span></div>
 <div class="block">Constructs a new DispatchDecision payload.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -179,22 +179,22 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getOptimalHospital()">
 <h3>getOptimalHospital</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a></span>&nbsp;<span class="element-name">getOptimalHospital</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a></span>&nbsp;<span class="element-name">getOptimalHospital</span>()</div>
 <div class="block">Gets the hospital selected as the optimal destination.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the optimal <a href="../model/Hospital.html" title="class in pgl.app.model"><code>Hospital</code></a>, or <code>null</code> if no hospital could be assigned</dd>
+<dd>the optimal <a href="../model/Hospital.html" title="class in geomed.app.model"><code>Hospital</code></a>, or <code>null</code> if no hospital could be assigned</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getScoringMatrix()">
 <h3>getScoringMatrix</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in pgl.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in pgl.app.explainability">DecisionScore</a>&gt;</span>&nbsp;<span class="element-name">getScoringMatrix</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="../model/Hospital.html" title="class in geomed.app.model">Hospital</a>,<wbr><a href="DecisionScore.html" title="class in geomed.app.explainability">DecisionScore</a>&gt;</span>&nbsp;<span class="element-name">getScoringMatrix</span>()</div>
 <div class="block">Gets the full scoring matrix containing explanation details for all evaluated hospitals.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>a map linking each <a href="../model/Hospital.html" title="class in pgl.app.model"><code>Hospital</code></a> to its respective <a href="DecisionScore.html" title="class in pgl.app.explainability"><code>DecisionScore</code></a></dd>
+<dd>a map linking each <a href="../model/Hospital.html" title="class in geomed.app.model"><code>Hospital</code></a> to its respective <a href="DecisionScore.html" title="class in geomed.app.explainability"><code>DecisionScore</code></a></dd>
 </dl>
 </section>
 </li>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2026-07-10">
-<meta name="description" content="declaration: module: pgl.app, package: pgl.app.io, class: CsvIncidentImporter">
+<meta name="description" content="declaration: module: geomed.app, package: geomed.app.io, class: CsvIncidentImporter">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -83,12 +83,12 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">pgl.app</a></div>
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">pgl.app.io</a></div>
+<div class="sub-title"><span class="module-label-in-type">Module</span>&nbsp;<a href="../../../module-summary.html">geomed.app</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">geomed.app.io</a></div>
 <h1 title="Class CsvIncidentImporter" class="title">Class CsvIncidentImporter</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">pgl.app.io.CsvIncidentImporter</div>
+<div class="inheritance">geomed.app.io.CsvIncidentImporter</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -122,11 +122,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../model/VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../model/VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#importFromCsv(java.nio.file.Path,int)" class="member-name-link">importFromCsv</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;filePath,
  int&nbsp;startCount)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Parses a CSV file containing incident (victim) data and converts it into a list of <a href="../model/VictimIncident.html" title="class in pgl.app.model"><code>VictimIncident</code></a>.</div>
+<div class="block">Parses a CSV file containing incident (victim) data and converts it into a list of <a href="../model/VictimIncident.html" title="class in geomed.app.model"><code>VictimIncident</code></a>.</div>
 </div>
 </div>
 </div>
@@ -162,10 +162,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="importFromCsv(java.nio.file.Path,int)">
 <h3>importFromCsv</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/VictimIncident.html" title="class in pgl.app.model">VictimIncident</a>&gt;</span>&nbsp;<span class="element-name">importFromCsv</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;filePath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../model/VictimIncident.html" title="class in geomed.app.model">VictimIncident</a>&gt;</span>&nbsp;<span class="element-name">importFromCsv</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;filePath,
  int&nbsp;startCount)</span>
                                           throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block">Parses a CSV file containing incident (victim) data and converts it into a list of <a href="../model/VictimIncident.html" title="class in pgl.app.model"><code>VictimIncident</code></a>.
+<div class="block">Parses a CSV file containing incident (victim) data and converts it into a list of <a href="../model/VictimIncident.html" title="class in geomed.app.model"><code>VictimIncident</code></a>.
  <p>The expected format for each row (with or without a header) is:
  <code>X; Y; EmergencyType; PreferredHospitalId</code> or <code>X, Y, EmergencyType, PreferredHospitalId</code>.</p>
  <p><b>Parsing rules:</b></p>
@@ -182,7 +182,7 @@ loadScripts(document, 'script');</script>
 <dd><code>filePath</code> - the <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link"><code>Path</code></a> to the CSV file to be read</dd>
 <dd><code>startCount</code> - the starting number used to generate unique incident IDs</dd>
 <dt>Returns:</dt>
-<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of parsed <a href="../model/VictimIncident.html" title="class in pgl.app.model"><code>VictimIncident</code></a> objects</dd>
+<dd>a <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link"><code>List</code></a> of parsed <a href="../model/VictimIncident.html" title="class in geomed.app.model"><code>VictimIncident</code></a> objects</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - if an I/O error occurs while reading the file</dd>
 </dl>

@@ -1,4 +1,4 @@
-# Projet Génie Logiciel (PGL) - Système de Répartition et de Routage Médical
+# GeoMed Router - Système de Répartition et de Routage Médical
 ## Projet de fin d'année - Ing1 Cy Tech
 
 ## Description
@@ -18,13 +18,13 @@ Ce projet est une application Java d'aide à la décision avec interface graphiq
 ## Architecture du Projet
 
 Le code source est organisé selon les packages suivants :
-* `pgl.app.model` : Entités du domaine (ex: `Hospital`, `VictimIncident`, `VoronoiCell`, `MedicalSpecialty`).
-* `pgl.app.algo` : Logique algorithmique complexe et géométrie.
-* `pgl.app.controller` : Contrôleurs pour l'interface JavaFX.
-* `pgl.app.io` : Gestion des entrées/sorties, sérialisation de la carte et parsing CSV.
-* `pgl.app.explainability` : Modules de transparence algorithmique et RGPD.
-* `pgl.app.security` : Gestion des droits et des sessions.
-* `pgl.app.test` : Outils de génération de données de simulation.
+* `geomed.app.model` : Entités du domaine (ex: `Hospital`, `VictimIncident`, `VoronoiCell`, `MedicalSpecialty`).
+* `geomed.app.algo` : Logique algorithmique complexe et géométrie.
+* `geomed.app.controller` : Contrôleurs pour l'interface JavaFX.
+* `geomed.app.io` : Gestion des entrées/sorties, sérialisation de la carte et parsing CSV.
+* `geomed.app.explainability` : Modules de transparence algorithmique et RGPD.
+* `geomed.app.security` : Gestion des droits et des sessions.
+* `geomed.app.test` : Outils de génération de données de simulation.
 
 ## Prérequis et Lancement
 
