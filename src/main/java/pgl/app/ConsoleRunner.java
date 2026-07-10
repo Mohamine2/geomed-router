@@ -313,7 +313,7 @@ public class ConsoleRunner {
                         Hospital chosenHospital = (Hospital) vi.getClosestHospital();
                         System.out.println("  Linked Center: Hospital H" + attachedId);
 
-                        // 1. Neighbors display
+                        // Neighbors display
                         System.out.println("  Zone Neighbors (Other victims routed to the same hospital):");
                         int countNeighbors = 0;
                         for (VictimIncident other : mapManager.getIncidents()) {
@@ -687,6 +687,13 @@ public class ConsoleRunner {
         }
     }
 
+    /**
+     * Displays and handles the OpenStreetMap (OSM) data import sub-menu.
+     * Verifies administrative privileges, prompts the user for an OSM JSON file path,
+     * validates file existence, and updates the shared map manager memory state.
+     *
+     * @param sc the {@link Scanner} instance used to read user input
+     */
     private static void importOsmMenu(Scanner sc) {
         if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
             System.out.println("Access Denied: OSM map builders are restricted to Administrators.");
@@ -694,7 +701,7 @@ public class ConsoleRunner {
         }
 
         System.out.println("\n--- OSM Import (JSON) ---");
-        System.out.print("EEnter the path to the OSM JSON file: ");
+        System.out.print("Enter the path to the OSM JSON file: ");
         String path = sc.next();
         Path filePath = Path.of(path);
 
@@ -719,8 +726,10 @@ public class ConsoleRunner {
 
     /**
      * Sub-menu handling manual road network creation and traffic injection.
+     * Restricts operations to administrative users and guides them through node positioning
+     * and traffic factor adjustments.
      *
-     * @param sc The Scanner object for user input.
+     * @param sc the {@link Scanner} instance used to read user input
      */
     private static void manageRoadsMenu(Scanner sc) {
         if (!pgl.app.security.SecurityContext.hasAccess(UserRole.ADMIN)) {
@@ -756,9 +765,15 @@ public class ConsoleRunner {
         }
     }
 
+    /**
+     * Displays the current active user role and handles updating the execution context's role security token.
+     * Provides a localized mapping between interface selections and specific authorization roles.
+     *
+     * @param sc the {@link Scanner} instance used to read user input
+     */
     private static void roleChangeMenu(Scanner sc){
         System.out.println("\n--- Current Role: " + SecurityContext.getCurrentRole() + " ---");
-        System.out.println("Select new Role:\n1. AMBULANCIER\n2. MEDECIN_REGULATEUR\n3. ADMIN");
+        System.out.println("Select new Role:\n1. PARAMEDIC\n2. DOCTOR\n3. ADMIN");
         int roleChoice = askInt(sc, "Choice: ");
         if (roleChoice == 1) SecurityContext.setCurrentRole(UserRole.PARAMEDIC);
         else if (roleChoice == 2) SecurityContext.setCurrentRole(UserRole.DOCTOR);
@@ -766,6 +781,10 @@ public class ConsoleRunner {
         System.out.println("Role updated to: " + SecurityContext.getCurrentRole());
     }
 
+    /**
+     * Triggers a total wipe of all spatial data structures managed by the core system.
+     * Access is restricted entirely to users mapped with the administrator role.
+     */
     private static void clearAllDataMenu() {
         if (!SecurityContext.hasAccess(UserRole.ADMIN)) {
             System.out.println("Access Denied: Only an Administrator can clear the map data structures.");

@@ -8,7 +8,7 @@ import pgl.app.explainability.DispatchDecision;
 
 /**
  * Manages and orchestrates map data.
- * Centralizes entities (Sites, UserPoints, Triangles) and synchronizes geometric calculations.
+ * Centralizes entities (Hospitals, VictimIncidents, Triangles) and synchronizes geometric calculations.
  * @version 2.0
  */
 public class MapManager {
@@ -180,7 +180,8 @@ public class MapManager {
     }
 
     /**
-     * Recalculates and updates the closest site for all registered user points.
+     * Recalculates and updates the optimal hospital assignment for all registered victim incidents.
+     * Resets all current hospital patient counts before performing the reallocation.
      */
     private void updateAllUserAssignments() {
         if (this.hospitals.isEmpty()) return;
@@ -196,13 +197,19 @@ public class MapManager {
         }
     }
 
+    /**
+     * Evaluates and applies the optimal dispatch decision for a single victim incident.
+     * Assigns the closest available hospital and registers the patient admission.
+     *
+     * @param incident the victim incident requiring hospital assignment
+     */
     public void updateSingleUserAssignment(VictimIncident incident) {
         if (this.hospitals.isEmpty()) {
             incident.setClosestHospital(null);
             return;
         }
 
-        // 1. On demande au Cerveau de calculer
+        // 1. Ask the dispatch engine to evaluate the best choice
         DispatchDecision decision = dispatchEngine.evaluateBestDispatch(
                 incident,
                 this.hospitals,
@@ -212,31 +219,26 @@ public class MapManager {
 
         Hospital bestHospital = decision.getOptimalHospital();
 
-        // 2. On applique la décision
+        // 2. Apply the decision
         if (bestHospital != null) {
             incident.setClosestHospital(bestHospital);
             bestHospital.admitPatient();
-
-            // 3. Optionnel : Si vous avez besoin de générer le rapport au moment de l'affectation
-            // GDPRReportingService reporter = new GDPRReportingService();
-            // String rapport = reporter.generateGDPRSummary(incident, decision);
-            // System.out.println(rapport);
         }
     }
 
     /**
-     * Returns an unmodifiable view of the sites list to preserve strict encapsulation.
+     * Returns an unmodifiable view of the hospitals list to preserve strict encapsulation.
      *
-     * @return an unmodifiable list of sites
+     * @return an unmodifiable set of hospitals
      */
     public Set<Hospital> getSites() {
         return Collections.unmodifiableSet(this.hospitals);
     }
 
     /**
-     * Returns an unmodifiable view of the user points list to preserve strict encapsulation.
+     * Returns an unmodifiable view of the victim incidents list to preserve strict encapsulation.
      *
-     * @return an unmodifiable list of user points
+     * @return an unmodifiable list of victim incidents
      */
     public List<VictimIncident> getIncidents() {
         return Collections.unmodifiableList(this.incidents);
@@ -252,22 +254,13 @@ public class MapManager {
     }
 
     /**
-     * Clears all sites, user points, and triangles from the manager.
+     * Clears all hospitals, incidents, triangles, and road network data from the manager.
      */
     public void clear() {
         this.hospitals.clear();
         this.incidents.clear();
         this.triangles.clear();
         this.roadNetwork.clear();
-    }
-
-    /**
-     * Delegates the counting of active incidents that are currently assigned to a specific hospital to AnalyticsEngine.
-     * @param hospital The hospital to inspect.
-     * @return Count of assigned incidents.
-     */
-    public int getIncidentCountForHospital(Hospital hospital){
-        return AnalyticsEngine.getIncidentCountForHospital(hospital, incidents);
     }
 
     /**
@@ -285,6 +278,12 @@ public class MapManager {
         return this.voronoiEngine.generateVoronoiCells(this.hospitals, this.triangles);
     }
 
+    /**
+     * Identifies and returns all neighboring hospitals based on the Delaunay triangulation structure.
+     *
+     * @param hospital the hospital whose neighbors are to be retrieved
+     * @return a {@link Set} of neighboring {@link Hospital} objects
+     */
     public Set<Hospital> getVoronoiNeighbors(Hospital hospital) {
         Set<Hospital> neighborsSet = new HashSet<>();
 
@@ -305,12 +304,13 @@ public class MapManager {
     }
 
     /**
-     * Retourne le moteur de routage. S'il n'existe pas encore, il le crée.
-     * C'est ce qu'on appelle le "Lazy Loading" (Chargement paresseux).
+     * Returns the routing engine instance, initializing it on demand if it does not yet exist.
+     * This implementation follows the lazy loading pattern.
+     *
+     * @return the initialized {@link RoutingEngine} instance
      */
     public RoutingEngine getRoutingEngine() {
         if (this.cachedRoutingEngine == null) {
-            // Création unique : le graphe des routes est calculé ici une seule fois
             this.cachedRoutingEngine = new RoutingEngine(this.roadNetwork.getRoads());
         }
         return this.cachedRoutingEngine;
