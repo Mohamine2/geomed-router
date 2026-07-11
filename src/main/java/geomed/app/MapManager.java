@@ -1,10 +1,11 @@
-package geomed.app.model;
+package geomed.app;
 
 import java.util.*;
 
 import geomed.app.algo.*;
 import geomed.app.exception.HospitalCollisionException;
 import geomed.app.explainability.DispatchDecision;
+import geomed.app.model.*;
 
 /**
  * Manages and orchestrates map data.

@@ -1,5 +1,6 @@
 package geomed.app.test;
 
+import geomed.app.MapManager;
 import geomed.app.model.*;
 
 import java.util.ArrayList;

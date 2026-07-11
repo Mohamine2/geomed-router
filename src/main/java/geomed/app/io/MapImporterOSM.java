@@ -2,7 +2,7 @@ package geomed.app.io;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import geomed.app.model.MapManager;
+import geomed.app.MapManager;
 import geomed.app.model.Point;
 import java.nio.file.Files;
 import java.nio.file.Path;

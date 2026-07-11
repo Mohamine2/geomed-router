@@ -2,6 +2,8 @@ package geomed.app.controller;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import geomed.app.MapManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import geomed.app.algo.AnalyticsEngine;

@@ -4,7 +4,7 @@ import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import geomed.app.model.MapManager;
+import geomed.app.MapManager;
 
 /**
  * Root structural layout controller coordinating the integration lifecycle of the application.

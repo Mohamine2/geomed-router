@@ -2,7 +2,7 @@ package geomed.app.io;
 
 import geomed.app.exception.HospitalCollisionException;
 import geomed.app.model.Hospital;
-import geomed.app.model.MapManager;
+import geomed.app.MapManager;
 import geomed.app.model.MedicalSpecialty;
 import geomed.app.model.Point;
 import geomed.app.model.RoadEdge;

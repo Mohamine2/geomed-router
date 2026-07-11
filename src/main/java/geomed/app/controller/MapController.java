@@ -9,7 +9,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import geomed.app.model.Hospital;
-import geomed.app.model.MapManager;
+import geomed.app.MapManager;
 import geomed.app.model.Point;
 import geomed.app.model.Triangle;
 import geomed.app.model.VictimIncident;
