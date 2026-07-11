@@ -47,18 +47,6 @@ public class Site extends Point{
 		this.id = id;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof Site site)) return false;
-		if (!super.equals(o)) return false;
-        return id == site.id;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), id);
-	}
-
 	/**
 	 * Returns a string representation of the site, including its ID and spatial coordinates.
 	 *

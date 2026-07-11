@@ -96,13 +96,16 @@ public class Triangle {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof Triangle triangle)) return false;
-        return Objects.equals(circumcenter, triangle.circumcenter);
+        return Objects.equals(a, triangle.a) &&
+                Objects.equals(b, triangle.b) &&
+                Objects.equals(c, triangle.c);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(circumcenter);
+        return Objects.hash(a, b, c);
     }
 
     @Override

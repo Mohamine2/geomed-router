@@ -64,13 +64,14 @@ public class RoadEdge {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof RoadEdge roadEdge)) return false;
-        return Double.compare(baseDistance, roadEdge.baseDistance) == 0 && Double.compare(trafficFactor, roadEdge.trafficFactor) == 0 && Objects.equals(start, roadEdge.start) && Objects.equals(end, roadEdge.end);
+        return Objects.equals(start, roadEdge.start) && Objects.equals(end, roadEdge.end);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, end, baseDistance, trafficFactor);
+        return Objects.hash(start, end);
     }
 
     /**

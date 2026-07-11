@@ -221,7 +221,7 @@ public class MapController {
                             Point p2 = path.get(i + 1);
 
                             Line routeLine = new Line(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-                            routeLine.setStroke(Color.MAGENTA);
+                            routeLine.setStroke(Color.LIME);
                             routeLine.setStrokeWidth(4.5);
                             routeLine.setOpacity(0.85);
 

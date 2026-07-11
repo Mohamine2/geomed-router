@@ -6,7 +6,7 @@ import geomed.app.model.RoadEdge;
 import java.util.*;
 
 /**
- * Optimized routing engine that calculates shortest paths on a road network.
+ * Optimized routing engine that calculates shortest paths on a road network using A*.
  * <p>
  * The graph's adjacency list is built once at instantiation, enabling thousands
  * of ultra-fast routing queries without the need to reconstruct the graph.
@@ -19,21 +19,24 @@ public class RoutingEngine {
     private final Map<Point, List<RoadEdge>> adjList;
 
     /**
-     * Internal data structure representing a node and its current shortest distance
-     * from the starting point, used to populate the priority queue in Dijkstra's algorithm.
+     * Internal data structure representing a node, its actual distance from the start (g-score),
+     * and its estimated total cost (f-score = g + h) used to populate the priority queue in A*.
      */
     private static class NodeRecord implements Comparable<NodeRecord> {
         Point node;
-        double distance;
+        double gScore; // Actual distance from start
+        double fScore; // Estimated total distance (g + h)
 
-        NodeRecord(Point node, double distance) {
+        NodeRecord(Point node, double gScore, double fScore) {
             this.node = node;
-            this.distance = distance;
+            this.gScore = gScore;
+            this.fScore = fScore;
         }
 
         @Override
         public int compareTo(NodeRecord other) {
-            return Double.compare(this.distance, other.distance);
+            // A* prioritizes the node with the lowest total estimated cost (fScore)
+            return Double.compare(this.fScore, other.fScore);
         }
     }
 
@@ -64,11 +67,18 @@ public class RoutingEngine {
     }
 
     /**
-     * Computes the optimal (shortest) path between two points using an optimized Dijkstra's algorithm.
-     * <p>
-     * <b>Optimization Note:</b> To achieve maximum performance, this method does not pre-initialize
-     * all graph nodes with {@code Double.MAX_VALUE}. Instead, distances are initialized dynamically
-     * on-the-fly using {@code Map.getOrDefault}.
+     * Estimates the remaining cost (distance) between two points.
+     * Uses the Haversine formula assuming Point has getLat() and getLon().
+     * Adjust this method if your Point class uses different methods or coordinates (e.g., X, Y).
+     */
+    private double heuristic(Point a, Point b) {
+        double dx = a.getX() - b.getX();
+        double dy = a.getY() - b.getY();
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    /**
+     * Computes the optimal (shortest) path between two points using an optimized A* algorithm.
      *
      * @param start the starting coordinates/point
      * @param end   the destination coordinates/point
@@ -82,13 +92,14 @@ public class RoutingEngine {
             return new RoutingResult(new ArrayList<>(), Double.MAX_VALUE);
         }
 
-        Map<Point, Double> distances = new HashMap<>();
+        Map<Point, Double> gScores = new HashMap<>(); // Replaces the old 'distances' map
         Map<Point, Point> previous = new HashMap<>();
         PriorityQueue<NodeRecord> pq = new PriorityQueue<>();
 
-        // MAJOR OPTIMIZATION: Only the start point is initialized in the distance map
-        distances.put(start, 0.0);
-        pq.add(new NodeRecord(start, 0.0));
+        // Initialize start point
+        gScores.put(start, 0.0);
+        double initialH = heuristic(start, end);
+        pq.add(new NodeRecord(start, 0.0, initialH));
 
         while (!pq.isEmpty()) {
             NodeRecord current = pq.poll();
@@ -100,25 +111,28 @@ public class RoutingEngine {
             }
 
             // Skip processing if a shorter path to this node has already been processed
-            if (current.distance > distances.getOrDefault(currentPoint, Double.MAX_VALUE)) {
+            if (current.gScore > gScores.getOrDefault(currentPoint, Double.MAX_VALUE)) {
                 continue;
             }
 
             List<RoadEdge> neighbors = adjList.getOrDefault(currentPoint, Collections.emptyList());
             for (RoadEdge edge : neighbors) {
                 Point neighbor = edge.getStart().equals(currentPoint) ? edge.getEnd() : edge.getStart();
-                double newDist = distances.get(currentPoint) + edge.getWeight();
+                double tentativeGScore = gScores.get(currentPoint) + edge.getWeight();
 
-                // getOrDefault bypasses the need to pre-fill the distances HashMap
-                if (newDist < distances.getOrDefault(neighbor, Double.MAX_VALUE)) {
-                    distances.put(neighbor, newDist);
+                // Check if this new path to neighbor is better than any previous one
+                if (tentativeGScore < gScores.getOrDefault(neighbor, Double.MAX_VALUE)) {
+                    gScores.put(neighbor, tentativeGScore);
                     previous.put(neighbor, currentPoint);
-                    pq.add(new NodeRecord(neighbor, newDist));
+
+                    // Total estimated cost = actual cost (g) + heuristic remaining cost (h)
+                    double fScore = tentativeGScore + heuristic(neighbor, end);
+                    pq.add(new NodeRecord(neighbor, tentativeGScore, fScore));
                 }
             }
         }
 
-        double totalCost = distances.getOrDefault(end, Double.MAX_VALUE);
+        double totalCost = gScores.getOrDefault(end, Double.MAX_VALUE);
         List<Point> path = new ArrayList<>();
 
         // If the destination remains unreachable

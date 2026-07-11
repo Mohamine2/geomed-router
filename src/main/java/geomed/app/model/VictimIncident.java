@@ -129,19 +129,6 @@ public class VictimIncident extends Point {
         this.closestHospital = closestHospital;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        VictimIncident that = (VictimIncident) o;
-        return Objects.equals(incidentId, that.incidentId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), incidentId);
-    }
-
     /**
      * Returns a string representation of the incident, including its coordinates and assigned hospital.
      *
