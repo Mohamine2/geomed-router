@@ -113,4 +113,12 @@ public class RoadNetwork {
         intersections.clear();
         roads.clear();
     }
+
+    @Override
+    public String toString() {
+        return "RoadNetwork{" +
+                "intersections=" + intersections +
+                ", roads=" + roads +
+                '}';
+    }
 }

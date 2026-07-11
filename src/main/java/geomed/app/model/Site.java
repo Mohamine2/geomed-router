@@ -1,5 +1,7 @@
 package geomed.app.model;
 
+import java.util.Objects;
+
 /**
  * Represents a physical site on the map, extending the base {@link Point} class.
  * Each site is identified by a unique ID, which is used for service assignment and grouping.
@@ -43,6 +45,18 @@ public class Site extends Point{
 			throw new IllegalArgumentException("L'id du site ne peut pas être négatif");
 		}
 		this.id = id;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Site site)) return false;
+		if (!super.equals(o)) return false;
+        return id == site.id;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), id);
 	}
 
 	/**

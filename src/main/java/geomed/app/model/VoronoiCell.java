@@ -1,6 +1,7 @@
 package geomed.app.model;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Pure domain model representing a Voronoi cell.
@@ -67,5 +68,24 @@ public class VoronoiCell {
             areaSum += current.getX() * next.getY() - next.getX() * current.getY();
         }
         return Math.abs(areaSum) / 2.0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof VoronoiCell that)) return false;
+        return Objects.equals(hospital, that.hospital);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(hospital);
+    }
+
+    @Override
+    public String toString() {
+        return "VoronoiCell{" +
+                "hospital=" + hospital +
+                ", vertices=" + vertices +
+                '}';
     }
 }

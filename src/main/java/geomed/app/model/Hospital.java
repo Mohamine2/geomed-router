@@ -1,6 +1,7 @@
 package geomed.app.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -137,5 +138,14 @@ public class Hospital extends Site {
      */
     public Set<MedicalSpecialty> getSpecialties() {
         return Set.copyOf(specialties);
+    }
+
+    @Override
+    public String toString() {
+        return "Hospital{" +
+                "capacityMax=" + capacityMax +
+                ", currentPatients=" + currentPatients +
+                ", specialties=" + specialties +
+                '}';
     }
 }

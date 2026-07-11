@@ -1,5 +1,6 @@
 package geomed.app.model;
 
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -128,6 +129,19 @@ public class VictimIncident extends Point {
         this.closestHospital = closestHospital;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        VictimIncident that = (VictimIncident) o;
+        return Objects.equals(incidentId, that.incidentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), incidentId);
+    }
+
     /**
      * Returns a string representation of the incident, including its coordinates and assigned hospital.
      *
@@ -135,9 +149,12 @@ public class VictimIncident extends Point {
      */
     @Override
     public String toString() {
-        return "UserPoint{" +
-                super.toString() +
-                ", closestHospital=" + (closestHospital != null ? closestHospital.getId() : null) +
+        return "VictimIncident{" +
+                "closestHospital=" + closestHospital +
+                ", incidentId='" + incidentId + '\'' +
+                ", emergencyType=" + emergencyType +
+                ", preferredHospitalId=" + preferredHospitalId +
+                ", medicalNotes='" + medicalNotes + '\'' +
                 '}';
     }
 }

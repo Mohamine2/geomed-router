@@ -1,5 +1,7 @@
 package geomed.app.model;
 
+import java.util.Objects;
+
 /**
  * Represents a physical road segment connecting two intersections.
  * Used exclusively for route calculation (Dijkstra's algorithm).
@@ -7,14 +9,14 @@ package geomed.app.model;
  */
 public class RoadEdge {
 
-    // 1. The intersections (the start and end of the road)
+    // The intersections (the start and end of the road)
     private final Point start;
     private final Point end;
     
-    // 2. The actual length of the road
+    // The actual length of the road
     private final double baseDistance;
     
-    // 3. Traffic state (1.0 = clear/fluent, 2.0 = traffic jam doubling the time, etc.)
+    // Traffic state (1.0 = clear/fluent, 2.0 = traffic jam doubling the time, etc.)
     private double trafficFactor;
 
     /**
@@ -58,6 +60,17 @@ public class RoadEdge {
         } else {
             this.trafficFactor = trafficFactor;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof RoadEdge roadEdge)) return false;
+        return Double.compare(baseDistance, roadEdge.baseDistance) == 0 && Double.compare(trafficFactor, roadEdge.trafficFactor) == 0 && Objects.equals(start, roadEdge.start) && Objects.equals(end, roadEdge.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end, baseDistance, trafficFactor);
     }
 
     /**

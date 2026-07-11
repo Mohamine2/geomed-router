@@ -56,11 +56,6 @@ public class Point {
         return dx * dx + dy * dy;
     }
 
-    public String toString(){
-        return "x = " + getX() + ", y = " + getY();
-    }
-
-
     /**
      * Compares this point to the specified object.
      * The result is {@code true} if and only if the argument is not {@code null}
@@ -84,5 +79,9 @@ public class Point {
 
     public int hashCode(){
         return Objects.hash(getX(),getY());
+    }
+
+    public String toString(){
+        return "x = " + getX() + ", y = " + getY();
     }
 }

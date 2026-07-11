@@ -2,6 +2,8 @@ package geomed.app.model;
 
 import geomed.app.algo.GeometryUtils;
 
+import java.util.Objects;
+
 /**
  * Represents a geometric triangle defined by three vertices in a 2D plane.
  * <p>
@@ -91,7 +93,18 @@ public class Triangle {
         );
         return area;
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Triangle triangle)) return false;
+        return Objects.equals(circumcenter, triangle.circumcenter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(circumcenter);
+    }
+
     @Override
     public String toString() {
     	return "Triangle {" + "a =(" + a.getX() + "," + a.getY() + ", b = " + b.getX() + "," + b.getY() + ", c =" + c.getX() + "," + c.getY() + "}";

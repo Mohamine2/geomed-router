@@ -91,4 +91,14 @@ public class HospitalStats {
     public double getAverageDistance() {
         return averageDistance;
     }
+
+    @Override
+    public String toString() {
+        return "HospitalStats{" +
+                "assignedIncidentsCount=" + assignedIncidentsCount +
+                ", minDistance=" + minDistance +
+                ", maxDistance=" + maxDistance +
+                ", averageDistance=" + averageDistance +
+                '}';
+    }
 }
