@@ -29,20 +29,16 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/geomed/app/fxml/main.fxml"));
             Parent root = loader.load();
 
-            // Configuration de la scène principale
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root);;
 
-            // TODO: Load CSS stylesheet once finalized
-            // scene.getStylesheets().add(getClass().getResource("/geomed/app/css/styles.css").toExternalForm());
-
-            primaryStage.setTitle("Optimisation Géométrique - Voronoi & Delaunay");
+            primaryStage.setTitle("GeoMed Router - Medical Dispatch and Routing System");
             primaryStage.setScene(scene);
             primaryStage.setMinWidth(900);
             primaryStage.setMinHeight(600);
             primaryStage.show();
 
         } catch (IOException e) {
-            System.err.println("Erreur lors du chargement du fichier FXML principal.");
+            System.err.println("Error loading the main FXML file.");
             e.printStackTrace();
         }
     }

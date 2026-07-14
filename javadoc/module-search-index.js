@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"pgl.app"}];updateSearchResults();
+moduleSearchIndex = [{"l":"geomed.app"}];updateSearchResults();

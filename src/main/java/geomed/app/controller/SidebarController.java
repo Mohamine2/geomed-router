@@ -54,27 +54,35 @@ public class SidebarController {
     // FXML Labels (Statistics & Status)
     // =========================================================================
 
+    /** Label displaying general application info, status logs, or access warnings. */
     @FXML
     private Label infoLabel;
 
+    /** Label tracking the total count of active hospital nodes inside the system context. */
     @FXML
     private Label hospitalCountLabel;
 
+    /** Label tracking the total count of processed emergency victim incidents. */
     @FXML
     private Label incidentCountLabel;
 
+    /** Label tracking the total count of mesh triangles generated via Delaunay triangulation. */
     @FXML
     private Label triangleCountLabel;
 
+    /** Label displaying the identifier of the most recently registered victim incident. */
     @FXML
     private Label lastIncidentLabel;
 
+    /** Label displaying the target hospital assigned to the most recent emergency incident. */
     @FXML
     private Label assignedHospitalLabel;
 
+    /** Label representing the structural type classification of the currently selected element. */
     @FXML
     private Label selectedTypeLabel;
 
+    /** Label displaying the unique structural identifier of the currently highlighted element. */
     @FXML
     private Label selectedIdLabel;
 
@@ -94,48 +102,63 @@ public class SidebarController {
     // FXML Action Buttons
     // =========================================================================
 
+    /** Action trigger for adding a single new hospital node context. */
     @FXML
     private Button addSiteButton;
 
+    /** Action trigger for importing site details through external CSV files. */
     @FXML
     private Button importHospitalsCsvButton;
 
+    /** Action trigger for parsing geographical layouts from external map formats. */
     @FXML
     private Button importMapButton;
 
+    /** Action trigger for creating a batch of mock users or paramedics. */
     @FXML
     private Button addRandomUsersButton;
 
+    /** Action trigger for parsing and populating multiple incidents from an external CSV file. */
     @FXML
     private Button importIncidentsCsvButton;
 
+    /** Action trigger for injecting a batch of randomly placed simulated hospital structures. */
     @FXML
     private Button addRandomHospitalsButton;
 
+    /** Action trigger for generating a randomized mesh network of connective roads. */
     @FXML
     private Button addRandomRoadsButton;
 
+    /** Action trigger for exporting the state structure into a compiled binary format. */
     @FXML
     private Button saveBinaryButton;
 
+    /** Action trigger for resetting the workspace and erasing all active layout structures. */
     @FXML
     private Button clearButton;
 
+    /** Action trigger for removing the currently selected element node from the model context. */
     @FXML
     private Button deleteSelectedButton;
 
+    /** Text entry workspace to define the volume of simulated hospitals to generate. */
     @FXML
     private TextField randomHospitalCountField;
 
+    /** Text entry workspace to define the volume of simulated incidents to generate. */
     @FXML
     private TextField randomIncidentCountField;
-    
+
+    /** Action trigger for creating a single custom incident based on specified inputs. */
     @FXML
     private Button addManualIncidentButton;
-    
+
+    /** Input field containing the user-defined geographic X coordinate for a custom incident. */
     @FXML
     private TextField incidentXField;
 
+    /** Input field containing the user-defined geographic Y coordinate for a custom incident. */
     @FXML
     private TextField incidentYField;
 
@@ -601,7 +624,11 @@ public class SidebarController {
             }
         }
     }
-    
+
+    /**
+     * Reads the coordinate text fields to validate and manually instantiate a single localized
+     * victim incident on the dashboard layout workspace.
+     */
     @FXML
     private void handleAddManualIncident() {
         if (!SecurityContext.hasAccess(UserRole.ADMIN, UserRole.DOCTOR)) {
@@ -631,10 +658,6 @@ public class SidebarController {
                 return;
             }
 
-            /*
-             * Limites correspondant approximativement à la zone utilisée
-             * pour dessiner les éléments de la carte.
-             */
             if (x < 0 || x > 750 || y < 0 || y > 700) {
                 infoLabel.setText(
                         "Coordinates must be inside the map: "
@@ -741,7 +764,6 @@ public class SidebarController {
     private void handleToggleTriangles() {
         if (mapController != null) {
             mapController.toggleTrianglesVisibility();
-            infoLabel.setText("Affichage des triangles modifié.");
         }
     }
 
@@ -752,7 +774,6 @@ public class SidebarController {
     private void handleToggleVoronoi() {
         if (mapController != null) {
             mapController.toggleVoronoiVisibility();
-            infoLabel.setText("Affichage de Voronoï modifié.");
         }
     }
 
@@ -887,7 +908,6 @@ public class SidebarController {
     private void handleToggleAssignments() {
         if (mapController != null) {
             mapController.toggleAssignmentsVisibility();
-            infoLabel.setText("Affichage des liaisons d'incident modifié.");
         }
     }
 }
