@@ -2,7 +2,9 @@
 
 > **End-of-Year Project - Ing1 Cy Tech (Software Engineering)**
 
-GeoMed Router is a Java decision-support application equipped with both a JavaFX graphical user interface and a command-line interface (CLI). It combines **Delaunay triangulation** and **Voronoi diagrams** with an implementation of the **A\* search algorithm** which leverages Voronoi neighbors to filter information and enable ultra-fast routing to optimize the real-time dispatch and routing of incident victims to the most appropriate healthcare facilities.
+**GeoMed Router** is a Java-based decision-support application designed to help relieve saturated emergency departments in the **Cergy-Pontoise urban area** (France). Equipped with both a JavaFX graphical user interface and a command-line interface (CLI), the system optimizes the real-time dispatch and routing of incident victims to the most appropriate local healthcare facilities based on live bed availability and medical specialties. 
+
+To achieve this, it merges computational geometry implementing **Delaunay triangulation** and **Voronoi diagrams** to dynamically model hospital coverage areas—with an optimized **A\*; search algorithm** that leverages Voronoi neighbors for spatial filtering, enabling ultra-fast routing over complex regional road networks.
 
 ---
 
