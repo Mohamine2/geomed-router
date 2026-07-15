@@ -691,7 +691,6 @@ public class ConsoleRunner {
      * Displays and handles the OpenStreetMap (OSM) data import sub-menu.
      * Verifies administrative privileges, prompts the user for an OSM JSON file path,
      * validates file existence, and updates the shared map manager memory state.
-     *
      * @param sc the {@link Scanner} instance used to read user input
      */
     private static void importOsmMenu(Scanner sc) {
